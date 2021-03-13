@@ -9,10 +9,11 @@ import sys
 
 def uploadOneFile(arch_dir, dir_file, s3, targf):
     target = 'ukmon-shared'
-    spls = arch_dir.split('_')
+    daydir = os.path.split(arch_dir)[1]
+    spls = daydir.split('_')
     ymd = spls[1]
 
-    outf = targf + ymd[:4] + '/' + ymd[:6] + '/' + ymd + '/' + dir_file
+    outf = targf + '/' + spls[0] + '/' + ymd[:4] + '/' + ymd[:6] + '/' + ymd + '/' + dir_file
     # s3.meta.client.upload_file(os.path.join(arch_dir, dir_file), target, outf)
     print(outf)
     return
