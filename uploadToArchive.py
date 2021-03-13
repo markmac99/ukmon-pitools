@@ -30,6 +30,7 @@ def uploadToArchive(arch_dir):
         print('unable to identify target folder')
         return 
 
+    print(os.path.abspath(__file__))
     conn = boto3.Session(aws_access_key_id=key, aws_secret_access_key=secr, region_name=reg)
     s3 = conn.resource('s3')
 
