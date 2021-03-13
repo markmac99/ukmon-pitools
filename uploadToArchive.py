@@ -29,8 +29,8 @@ def uploadToArchive(arch_dir):
         reg = fin.readline().split('=')[1]
         targf = fin.readline().split('=')[1]
     print(targf)    
-    conn = boto3.Session(aws_access_key_id=key, aws_secret_access_key=secr, region_name=reg)
-    s3 = conn.resource('s3')
+    conn = boto3.Session(aws_access_key_id=key, aws_secret_access_key=secr) 
+    s3 = conn.resource('s3', region_name=reg)
 
     dir_contents = os.listdir(arch_dir)
     for dir_file in dir_contents:
