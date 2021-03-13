@@ -23,7 +23,7 @@ git stash apply
 echo "checking boto3 is installed for AWS connections"
 source ~/vRMS/bin/activate
 noboto=$(pip list | grep boto3)
-if [ $noboto == 1 ] ; then 
+if [ $noboto -eq 1 ] ; then 
     pip install boto3
 fi 
 echo "done"
