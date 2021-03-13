@@ -20,4 +20,7 @@ git stash
 git pull
 git stash apply
 
+echo "checking boto3 is installed for AWS connections"
+source ~/vRMS/bin/activate
+pip install boto3
 echo "done"

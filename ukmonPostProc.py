@@ -12,7 +12,7 @@ import Utils.GenerateMP4s as gmp4
 import Utils.GenerateTimelapse as gti
 import RMS.ConfigReader as cr
 
-import boto3
+import uploadToArchive 
 
 
 def rmsExternal(cap_dir, arch_dir, config):
@@ -46,7 +46,9 @@ def rmsExternal(cap_dir, arch_dir, config):
     except:
         errmsg = 'unable to create timelapse - maybe capture folder removed already'
         print(errmsg)
-        
+
+    uploadToArchive.uploadToArchive(arch_dir)
+
     os.remove(rebootlockfile)
     return
 
