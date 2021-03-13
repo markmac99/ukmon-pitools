@@ -13,7 +13,7 @@ def uploadOneFile(arch_dir, dir_file, s3, targf):
     spls = daydir.split('_')
     ymd = spls[1]
 
-    outf = targf + '/' + spls[0] + '/' + ymd[:4] + '/' + ymd[:6] + '/' + ymd + '/' + dir_file
+    outf = targf + spls[0] + '/' + ymd[:4] + '/' + ymd[:6] + '/' + ymd + '/' + dir_file
     # s3.meta.client.upload_file(os.path.join(arch_dir, dir_file), target, outf)
     print(outf)
     return
