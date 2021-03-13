@@ -21,16 +21,19 @@ def uploadOneFile(arch_dir, dir_file, s3, targf):
 
 
 def uploadToArchive(arch_dir):
-    try:
-        targf = os.getenv('S3FOLDER')
-        key = os.getenv('AWS_ACCESS_KEY_ID')
-        secr = os.getenv('AWS_SECRET_ACCESS_KEY')
-        reg = os.getenv('AWS_DEFAULT_REGION')
-    except Exception:
-        print('unable to identify target folder')
-        return 
-
-    print(os.path.abspath(__file__))
+#    try:
+#        targf = os.getenv('S3FOLDER')
+#        key = os.getenv('AWS_ACCESS_KEY_ID')
+#        secr = os.getenv('AWS_SECRET_ACCESS_KEY')
+#        reg = os.getenv('AWS_DEFAULT_REGION')
+#    except Exception:
+    myloc = os.path.split(os.path.abspath(__file__))[0]
+    with open(os.path.join(myloc, 'ukmon.ini'), 'r') as fin:
+        key = fin.readline().split('=')[1]
+        secr = fin.readline().split('=')[1]
+        reg = fin.readline().split('=')[1]
+        targf = fin.readline().split('=')[1]
+    
     conn = boto3.Session(aws_access_key_id=key, aws_secret_access_key=secr, region_name=reg)
     s3 = conn.resource('s3')
 
