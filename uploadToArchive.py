@@ -22,9 +22,8 @@ def uploadOneFile(arch_dir, dir_file, s3, targf):
 
 def uploadToArchive(arch_dir):
     myloc = os.path.split(os.path.abspath(__file__))[0]
-    filename = os.path.join(myloc, 'ukmon.ini')
+    filename = os.path.join(myloc, 'archive.key')
     with open(filename, 'r') as fin:
-        fin.readline()
         key = fin.readline().split('=')[1]
         secr = fin.readline().split('=')[1]
         reg = fin.readline().split('=')[1]
