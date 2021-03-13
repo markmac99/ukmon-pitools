@@ -24,10 +24,10 @@ def uploadToArchive(arch_dir):
     myloc = os.path.split(os.path.abspath(__file__))[0]
     filename = os.path.join(myloc, 'archive.key')
     with open(filename, 'r') as fin:
-        key = fin.readline().split('=')[1]
-        secr = fin.readline().split('=')[1]
-        reg = fin.readline().split('=')[1]
-        targf = fin.readline().split('=')[1]
+        key = fin.readline().split('=')[1].strip()
+        secr = fin.readline().split('=')[1].strip()
+        reg = fin.readline().split('=')[1].strip()
+        targf = fin.readline().split('=')[1].strip()
     if targf[0] == '"':
         targf = targf[1:len(targf)-1]
     print(targf, reg)
