@@ -36,16 +36,22 @@ def rmsExternal(cap_dir, arch_dir, config):
     gmp4.generateMP4s(arch_dir, ftpfile_name)
 
     # generate an all-night timelapse and move it to arch_dir
-    try: 
-        print('generating a timelapse')
-        gti.fps = 25
-        gti.generateTimelapse(cap_dir, False)
-        mp4name = os.path.basename(cap_dir) + '.mp4'
-        shutil.move(os.path.join(cap_dir, mp4name), os.path.join(arch_dir, mp4name))
-        
-    except:
-        errmsg = 'unable to create timelapse - maybe capture folder removed already'
-        print(errmsg)
+
+    try:
+        f = open('dotimelapse','r') 
+        f.close()
+        try: 
+            print('generating a timelapse')
+            gti.fps = 25
+            gti.generateTimelapse(cap_dir, False)
+            mp4name = os.path.basename(cap_dir) + '.mp4'
+            shutil.move(os.path.join(cap_dir, mp4name), os.path.join(arch_dir, mp4name))
+            
+        except:
+            errmsg = 'unable to create timelapse - maybe capture folder removed already'
+            print(errmsg)
+    except Exception:
+        print('timelapse creation disabled')
 
     uploadToArchive.uploadToArchive(arch_dir)
 
