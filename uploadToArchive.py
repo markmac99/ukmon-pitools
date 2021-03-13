@@ -28,8 +28,12 @@ def uploadToArchive(arch_dir):
 #        reg = os.getenv('AWS_DEFAULT_REGION')
 #    except Exception:
     myloc = os.path.split(os.path.abspath(__file__))[0]
-    with open(os.path.join(myloc, 'ukmon.ini'), 'r') as fin:
-        key = fin.readline().split('=')[1]
+    filename = os.path.join(myloc, 'ukmon.ini')
+    print(filename)
+    with open(filename, 'r') as fin:
+        key = fin.readline()
+        print(key)
+        key = key.split('=')[1]
         secr = fin.readline().split('=')[1]
         reg = fin.readline().split('=')[1]
         targf = fin.readline().split('=')[1]
