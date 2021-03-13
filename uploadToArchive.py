@@ -4,6 +4,7 @@
 
 import boto3
 import os
+import sys
 
 
 def uploadOneFile(arch_dir, dir_file, s3, targf):
@@ -43,3 +44,8 @@ def uploadToArchive(arch_dir):
         elif dir_file == 'mask.bmp' or dir_file == 'flat.bmp' or dir_file == '.config':
             uploadOneFile(arch_dir, dir_file, s3, targf)
     return
+
+
+if __name__ == '__main__':
+    arch_dir = os.path.join('/home/pi/RMS_data/ArchivedFiles/', sys.argv[1])
+    uploadToArchive(arch_dir)
