@@ -86,16 +86,13 @@ def rmsExternal(cap_dir, arch_dir, config):
 
 
 if __name__ == '__main__':
-    hname = os.uname()[1]
+    print(len(sys.argv))
     if len(sys.argv) < 1:
         print('usage: python ukmonPostProc.py arc_dir_name')
         print('eg python ukmonPostProc.py UK0006_20210312_183741_206154')
         print('\n nb: script must be run from RMS source folder')
-        exit(1)        
     else:
         cap_dir = os.path.join('/home/pi/RMS_data/CapturedFiles/', sys.argv[1])
         arch_dir = os.path.join('/home/pi/RMS_data/ArchivedFiles/', sys.argv[1])
-
-    config = cr.parse(".config")
-
-    rmsExternal(cap_dir, arch_dir, config)
+        config = cr.parse(".config")
+        rmsExternal(cap_dir, arch_dir, config)
