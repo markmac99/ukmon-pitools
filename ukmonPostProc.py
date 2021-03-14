@@ -38,7 +38,7 @@ def rmsExternal(cap_dir, arch_dir, config):
             ftpdate=os.path.split(arch_dir)[1]
         ftpfile_name="FTPdetectinfo_"+ftpdate+'.txt'
         gmp4.generateMP4s(arch_dir, ftpfile_name)
-    except Exception:
+    except FileNotFoundError:
         print('mp4 creation not enabled')
     # generate an all-night timelapse and move it to arch_dir
 
@@ -55,12 +55,24 @@ def rmsExternal(cap_dir, arch_dir, config):
         except:
             errmsg = 'unable to create timelapse - maybe capture folder removed already'
             print(errmsg)
-    except Exception:
+    except FileNotFoundError:
         print('timelapse creation disabled')
 
     uploadToArchive.uploadToArchive(arch_dir)
 
     os.remove(rebootlockfile)
+
+    try:
+        with open(os.path.join(myloc, 'extrascript'),'r') as extraf:
+            extrascript=extraf.readline()
+
+        print('running additional script ', extrascript)
+        sloc, sname = os.path.split(extraf)
+        os.path.append(sloc)
+        sname.rmsExternal(cap_dir, arch_dir, config)
+    except FileNotFoundError:
+        pass
+
     return
 
 
