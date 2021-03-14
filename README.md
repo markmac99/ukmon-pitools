@@ -48,7 +48,8 @@ Updates the UKMON RMS Toolset to the latest version. If we built your camera, th
 every time your Pi reboots. You can also run it manually. 
 
 A good crontab entry would look like this  
-> @reboot sleep 60 && /home/pi/source/ukmon-pitools/refreshTools.sh > /home/pi/RMS_data/logs/refreshTools.log 2>&1
+> @reboot sleep 60 && /home/pi/source/ukmon-pitools/refreshTools.sh > /home/pi/RMS_data/logs/refreshTools.log 2>&1  
+
 refreshTools reads from a configuration file that is specific to your camera. We will send
 you this file when you onboard to the network. The file contains your location ID and the
 details of our sftp server used to distribute security keys. 
