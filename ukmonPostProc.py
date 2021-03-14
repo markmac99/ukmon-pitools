@@ -71,8 +71,9 @@ def rmsExternal(cap_dir, arch_dir, config):
         sloc, sname = os.path.split(extraf)
         sys.path.append(sloc)
         scrname, _ = os.path.splitext(sname)
+        print('got here', scrname, sloc)
         nextscr=impmod(scrname)
-        print('got here')
+        print('and here', scrname, sloc)
         nextscr.rmsExternal(cap_dir, arch_dir, config)
     except Exception:
         print('chain not enabled', myloc)
