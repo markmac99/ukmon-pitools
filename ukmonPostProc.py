@@ -67,7 +67,7 @@ def rmsExternal(cap_dir, arch_dir, config):
             extrascript=extraf.readline()
 
         print('running additional script ', extrascript)
-        sloc, sname = os.path.split(extraf)
+        sloc, sname = os.path.split(extraf).strip()
         os.path.append(sloc)
         sname.rmsExternal(cap_dir, arch_dir, config)
     except Exception:
