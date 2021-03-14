@@ -25,20 +25,25 @@ def rmsExternal(cap_dir, arch_dir, config):
     sff.stackFFs(arch_dir, 'jpg', filter_bright=True)
     bff2i.batchFFtoImage(arch_dir, 'jpg')
 
-    # generate MP4s of detections
-    print('generating MP4s')
-    ftpdate=''
-    if os.path.split(arch_dir)[1] == '':
-        ftpdate=os.path.split(os.path.split(arch_dir)[0])[1]
-    else:
-        ftpdate=os.path.split(arch_dir)[1]
-    ftpfile_name="FTPdetectinfo_"+ftpdate+'.txt'
-    gmp4.generateMP4s(arch_dir, ftpfile_name)
-
+    myloc = os.path.split(os.path.abspath(__file__))[0]
+    try:
+        f = open(os.path.join(myloc, 'domp4s'),'r') 
+        f.close()
+        # generate MP4s of detections
+        print('generating MP4s')
+        ftpdate=''
+        if os.path.split(arch_dir)[1] == '':
+            ftpdate=os.path.split(os.path.split(arch_dir)[0])[1]
+        else:
+            ftpdate=os.path.split(arch_dir)[1]
+        ftpfile_name="FTPdetectinfo_"+ftpdate+'.txt'
+        gmp4.generateMP4s(arch_dir, ftpfile_name)
+    except Exception:
+        print('mp4 creation not enabled')
     # generate an all-night timelapse and move it to arch_dir
 
     try:
-        f = open('dotimelapse','r') 
+        f = open(os.path.join(myloc, 'dotimelapse'),'r') 
         f.close()
         try: 
             print('generating a timelapse')
