@@ -86,8 +86,7 @@ def rmsExternal(cap_dir, arch_dir, config):
 
 
 if __name__ == '__main__':
-    print(len(sys.argv))
-    if len(sys.argv) < 1:
+    if len(sys.argv) < 2:
         print('usage: python ukmonPostProc.py arc_dir_name')
         print('eg python ukmonPostProc.py UK0006_20210312_183741_206154')
         print('\n nb: script must be run from RMS source folder')
