@@ -3,9 +3,9 @@ ukmeteornetwork toolset for RMS pi meteor cameras
 =================================================
 
 These tools manage uploads of RMS data to the UK Meteor Network Archive and Livestream.
-To contribute your data, login to your pi and then   
-cd ~/source  
-git clone https://github.com/markmac99/ukmon-pitools.git  
+To contribute your data, login to your pi and then type  
+> cd ~/source  
+> git clone https://github.com/markmac99/ukmon-pitools.git  
 
 Then contact  ukmeteornetwork@gmail.com. We will add your ssh public key to our server, 
 create security keys for you and send you a small config file.  
@@ -15,10 +15,10 @@ ukmonPostProc.py
 Creates JPGs and other data, then uploads it to the UK Meteor Network archive. 
 To use this script, set the following values in the RMS configuration file:
 
-external_script_run: true  
-auto_reprocess_external_script_run: true  
-auto_reprocess: true  
-external_script_path: /home/pi/source/ukmon-pitools/ukmonPostProc.py  
+> external_script_run: true  
+> auto_reprocess_external_script_run: true  
+> auto_reprocess: true  
+> external_script_path: /home/pi/source/ukmon-pitools/ukmonPostProc.py  
 
 MP4s and Timelapse
 ------------------
