@@ -59,7 +59,7 @@ def rmsExternal(cap_dir, arch_dir, config):
     except Exception:
         print('timelapse creation not enabled')
 
-    uploadToArchive.uploadToArchive(arch_dir)
+    # uploadToArchive.uploadToArchive(arch_dir)
 
     os.remove(rebootlockfile)
 
@@ -69,11 +69,12 @@ def rmsExternal(cap_dir, arch_dir, config):
 
         print('running additional script ', extrascript)
         sloc, sname = os.path.split(extraf)
+        print('got here', sloc)
         sys.path.append(sloc)
         scrname, _ = os.path.splitext(sname)
-        print('got here', scrname, sloc)
-        nextscr=impmod(scrname)
         print('and here', scrname, sloc)
+        nextscr=impmod(scrname)
+        print('and here too', scrname, sloc)
         nextscr.rmsExternal(cap_dir, arch_dir, config)
     except Exception:
         print('chain not enabled', myloc)
