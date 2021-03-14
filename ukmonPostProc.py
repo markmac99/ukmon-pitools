@@ -64,12 +64,13 @@ def rmsExternal(cap_dir, arch_dir, config):
 
     try:
         with open(os.path.join(myloc, 'extrascript'),'r') as extraf:
-            extrascript=extraf.readline()
+            extrascript=extraf.readline().strip()
 
         print('running additional script ', extrascript)
-        sloc, sname = os.path.split(extraf).strip()
+        sloc, sname = os.path.split(extraf)
         os.path.append(sloc)
-        sname.rmsExternal(cap_dir, arch_dir, config)
+        scrname, _ = os.path.splitext(sname)
+        scrname.rmsExternal(cap_dir, arch_dir, config)
     except Exception:
         print('chain not enabled', myloc)
         # pass
