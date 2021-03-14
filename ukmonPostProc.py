@@ -11,6 +11,7 @@ import Utils.BatchFFtoImage as bff2i
 import Utils.GenerateMP4s as gmp4
 import Utils.GenerateTimelapse as gti
 import RMS.ConfigReader as cr
+from importlib import import_module as impmod
 
 import uploadToArchive 
 
@@ -68,9 +69,11 @@ def rmsExternal(cap_dir, arch_dir, config):
 
         print('running additional script ', extrascript)
         sloc, sname = os.path.split(extraf)
-        os.path.append(sloc)
+        sys.path.append(sloc)
         scrname, _ = os.path.splitext(sname)
-        scrname.rmsExternal(cap_dir, arch_dir, config)
+        nextscr=impmod(scrname)
+        print('got here')
+        nextscr.rmsExternal(cap_dir, arch_dir, config)
     except Exception:
         print('chain not enabled', myloc)
         # pass
