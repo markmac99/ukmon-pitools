@@ -72,7 +72,7 @@ def rmsExternal(cap_dir, arch_dir, config):
         sname.rmsExternal(cap_dir, arch_dir, config)
     except FileNotFoundError:
         print('chain not enabled', myloc)
-        pass
+        # pass
 
     return
 
