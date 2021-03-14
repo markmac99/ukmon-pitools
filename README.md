@@ -45,6 +45,6 @@ Updates the UKMON RMS Toolset to the latest version. If we built your camera, th
 every time your Pi reboots. You can also run it manually. 
 
 refreshTools reads from a configuration file that is specific to your camera. We will send
-you this file when you onboard to the network. The file contains your location ID, camera ID and the
+you this file when you onboard to the network. The file contains your location ID and the
 details of our sftp server used to distribute security keys. 
 
