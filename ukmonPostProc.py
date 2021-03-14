@@ -1,6 +1,12 @@
 # 
-# python script thats called when the nightly run completes
+# python script thats called when the nightly run completes to generate jpgs 
+# and upload data to the ukmeteornetwork
 #
+# Notes: 
+# - to enable MP4 creation of each detection, create a file 'domp4s' in the same folder as this script
+# - to enable creation of an all-night timelapse, create a file 'dotimelapse'
+# - to trigger another python script after this one, create a file 'extrascript' containing the full path 
+#   to the extra script. The script will be passed the same arguments as this one (cap_dir, arc_dir, config)
 
 import os
 import sys
@@ -74,8 +80,7 @@ def rmsExternal(cap_dir, arch_dir, config):
         nextscr=impmod(scrname)
         nextscr.rmsExternal(cap_dir, arch_dir, config)
     except Exception:
-        print('chain not enabled')
-        # pass
+        print('additional script not called')
 
     return
 
@@ -83,12 +88,10 @@ def rmsExternal(cap_dir, arch_dir, config):
 if __name__ == '__main__':
     hname = os.uname()[1]
     if len(sys.argv) < 1:
-        if hname == 'meteorpi':
-            cap_dir = '/home/pi/RMS_data/CapturedFiles/UK0006_20210130_172616_214463'
-            arch_dir = '/home/pi/RMS_data/ArchivedFiles/UK0006_20210130_172616_214463'
-        else:
-            cap_dir = '/home/pi/RMS_data/CapturedFiles/UK000F_20210128_172253_791467'
-            arch_dir = '/home/pi/RMS_data/ArchivedFiles/UK000F_20210128_172253_791467'
+        print('usage: python ukmonPostProc.py arc_dir_name')
+        print('eg python ukmonPostProc.py UK0006_20210312_183741_206154')
+        print('\n nb: script must be run from RMS source folder')
+        exit(1)        
     else:
         cap_dir = os.path.join('/home/pi/RMS_data/CapturedFiles/', sys.argv[1])
         arch_dir = os.path.join('/home/pi/RMS_data/ArchivedFiles/', sys.argv[1])
