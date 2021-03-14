@@ -56,7 +56,7 @@ def rmsExternal(cap_dir, arch_dir, config):
             errmsg = 'unable to create timelapse - maybe capture folder removed already'
             print(errmsg)
     except FileNotFoundError:
-        print('timelapse creation disabled')
+        print('timelapse creation not enabled')
 
     uploadToArchive.uploadToArchive(arch_dir)
 
@@ -71,6 +71,7 @@ def rmsExternal(cap_dir, arch_dir, config):
         os.path.append(sloc)
         sname.rmsExternal(cap_dir, arch_dir, config)
     except FileNotFoundError:
+        print('chain not enabled', myloc)
         pass
 
     return
