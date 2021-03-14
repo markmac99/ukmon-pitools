@@ -29,7 +29,8 @@ To enable these, create files named "domp4s" or "dotimelapse" in the same folder
 
 Running an Additional Script
 ----------------------------
-If you want to run an additional script after this one finishes, create a file named "extrascript" in the same folder, containing a single line with the full path to the script, eg
+If you want to run an additional Python script after this one finishes, create a file named "extrascript" 
+in the same folder, containing a single line with the full path to the script, eg
 > echo "/home/pi/myfolder/myscript.py" > /home/pi/source/ukmon-pitools/extrascript  
 
 This script will be passed the capture_dir, archive_dir and RMS config object. 
