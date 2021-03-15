@@ -7,16 +7,29 @@ import os
 import sys
 
 
-def uploadOneFile(arch_dir, dir_file, s3, targf):
+def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext):
     target = 'ukmon-shared'
     daydir = os.path.split(arch_dir)[1]
     spls = daydir.split('_')
     camid = spls[0]
     ymd = spls[1]
+    ctyp='text/plain'
+    if file_ext=='.jpg': 
+        ctyp = 'image/jpeg'
+    elif file_ext=='.png': 
+        ctyp = 'image/png'
+    elif file_ext=='.bmp': 
+        ctyp = 'image/bmp'
+    elif file_ext=='.mp4': 
+        ctyp = 'vide0/mp4'
+    if file_ext=='.csv': 
+        ctyp = 'text/csv'
+    elif file_ext=='.json': 
+        ctyp = 'application/json'
 
     srcf = os.path.join(arch_dir, dir_file)
     desf= targf + camid + '/' + ymd[:4] + '/' + ymd[:6] + '/' + ymd + '/' + dir_file
-    s3.meta.client.upload_file(srcf, target, desf)
+    s3.meta.client.upload_file(srcf, target, desf, ExtraArgs={'ContentType': ctyp})
     print(desf)
     return
 
@@ -39,13 +52,13 @@ def uploadToArchive(arch_dir):
         file_name, file_ext = os.path.splitext(dir_file)
         file_ext = file_ext.lower()
         if ('FTPdetectinfo' in dir_file) and (file_ext == '.txt') and ('_original' not in file_name) and ('_backup' not in file_name):
-            uploadOneFile(arch_dir, dir_file, s3, targf)
+            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext)
         if (file_ext == '.mp4') and ('FF_' in file_name):
-            uploadOneFile(arch_dir, dir_file, s3, targf)
+            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext)
         elif file_ext in ('.jpg', '.kml', '.cal', '.json', '.csv') and ('DETECTED' not in file_name) and ('CAPTURED' not in file_name): 
-            uploadOneFile(arch_dir, dir_file, s3, targf)
+            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext)
         elif dir_file == 'mask.bmp' or dir_file == 'flat.bmp' or dir_file == '.config':
-            uploadOneFile(arch_dir, dir_file, s3, targf)
+            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext)
     return
 
 
