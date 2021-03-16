@@ -84,7 +84,7 @@ if __name__ == '__main__':
     s3 = conn.resource('s3')
     camloc = sys.argv[2]
 
-    outf = open('/home/pi/RMS_data/logs/liveMonitor.log', 'a+')
+    outf = open('/home/pi/RMS_data/logs/liveMonitor.log', 'w')
     logfile = open(sys.argv[1],"r")
     while True:
         line = logfile.readline()
