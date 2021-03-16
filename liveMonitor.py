@@ -76,7 +76,7 @@ def follow(thefile):
 
 
 if __name__ == '__main__':
-    outf = open('~/RMS_data/logs/liveMonitor.log', 'w')
+    outf = open('/home/pi/RMS_data/logs/liveMonitor.log', 'w')
     logfile = open(sys.argv[1],"r")
     camloc = sys.argv[2]
     capdir = ''
