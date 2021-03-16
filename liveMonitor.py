@@ -9,6 +9,8 @@ import tempfile
 
 
 def uploadOneEvent(cap_dir, dir_file, camloc, outf, s3):
+    outf.write('{:s} {:s} {:s}\n'.format(cap_dir, dir_file, camloc))
+    outf.flush()
     target = 'ukmon-live'
     spls = dir_file.split('_')
     camid = spls[1]
@@ -102,13 +104,15 @@ if __name__ == '__main__':
     for line in loglines:
         if "Data directory" in line: 
             capdir = line.split(' ')[5]
-            print('capdir is', capdir)
+            # print('capdir is', capdir)
             outf.write('Capdir is {:s}\n'.format(capdir))
             outf.flush()
 
-        if "detected meteors" in line and ": 0" not in line:
+        if "detected meteors" in line and ": 0" not in line and "TOTAL" not in line:
             if capdir != '':
                 ffname = line.split(' ')[3]
+                outf.write('got event {:s}\n'.format(ffname))
+                outf.flush()
                 uploadOneEvent(capdir, ffname, camloc, outf, s3)
 
     outf.close()
