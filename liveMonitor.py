@@ -77,18 +77,32 @@ def follow(thefile):
 
 
 if __name__ == '__main__':
-    outf = open('/home/pi/RMS_data/logs/liveMonitor.log', 'a+')
-    logfile = open(sys.argv[1],"r")
-    camloc = sys.argv[2]
     capdir = ''
     conn = boto3.Session() 
     s3 = conn.resource('s3')
+    camloc = sys.argv[2]
+
+    outf = open('/home/pi/RMS_data/logs/liveMonitor.log', 'a+')
+    logfile = open(sys.argv[1],"r")
+    while True:
+        line = logfile.readline()
+        if not line: 
+            break
+        if "Data directory" in line: 
+            capdir = line.split(' ')[5]
+            print('capdir is', capdir)
+            outf.write('{:s}\n'.format(line))
+            outf.flush()
+            break
+
+    logfile.seek(0, os.SEEK_START)
 
     loglines = follow(logfile)
     # iterate over the generator
     for line in loglines:
         if "Data directory" in line: 
             capdir = line.split(' ')[5]
+            print('capdir is', capdir)
             outf.write('{:s}\n'.format(line))
             outf.flush()
 
