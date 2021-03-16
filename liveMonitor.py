@@ -91,11 +91,11 @@ if __name__ == '__main__':
         if "Data directory" in line: 
             capdir = line.split(' ')[5]
             print('capdir is', capdir)
-            outf.write('{:s}\n'.format(line))
+            outf.write('Capdir is {:s}\n'.format(capdir))
             outf.flush()
             break
 
-    logfile.seek(0, os.SEEK_START)
+    logfile.seek(0, 0)
 
     loglines = follow(logfile)
     # iterate over the generator
@@ -103,7 +103,7 @@ if __name__ == '__main__':
         if "Data directory" in line: 
             capdir = line.split(' ')[5]
             print('capdir is', capdir)
-            outf.write('{:s}\n'.format(line))
+            outf.write('Capdir is {:s}\n'.format(capdir))
             outf.flush()
 
         if "detected meteors" in line and ": 0" not in line:
