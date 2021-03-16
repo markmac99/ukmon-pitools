@@ -53,6 +53,7 @@ def uploadOneEvent(cap_dir, dir_file, camloc, outf, s3):
     s3.meta.client.upload_file(fullxml, target, xmlname, ExtraArgs={'ContentType': 'application/xml'})
     print(njpgname)
     outf.write('{:s\n}'.format(njpgname))
+    outf.flush()
     shutil.rmtree(tmpdir)
     return
 
@@ -89,6 +90,7 @@ if __name__ == '__main__':
         if "Data directory" in line: 
             capdir = line.split(' ')[5]
             outf.write('{:s}\n'.format(line))
+            outf.flush()
 
         if "detected meteors" in line and ": 0" not in line:
             if capdir != '':
