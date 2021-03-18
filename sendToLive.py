@@ -32,11 +32,11 @@ def uploadOneEvent(cap_dir, dir_file, loc, s3):
     file_name, _ = os.path.splitext(dir_file)
     ojpgname = file_name + '.jpg'
     njpgname = 'M' + ymd + '_' + hms + '_' + loc[4] + '_' + camid + 'P.jpg'
-    fulljpg = os.path.join(cap_dir, njpgname)
-    os.rename(os.path.join(cap_dir, ojpgname), fulljpg)
+    fulljpg = os.path.join(tmpdir, njpgname)
+    os.rename(os.path.join(tmpdir, ojpgname), fulljpg)
 
     xmlname = 'M' + ymd + '_' + hms + '_' + loc[4] + '_' + camid + '.xml'
-    fullxml = os.path.join(cap_dir, xmlname)
+    fullxml = os.path.join(tmpdir, xmlname)
     with open(fullxml, 'w') as ofl:
         ofl.write('<?xml version="1.0" encoding="UTF-8" ?>\n')
         ofl.write('<ufocapture_record version="215"')
