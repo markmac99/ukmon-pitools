@@ -83,9 +83,9 @@ if __name__ == '__main__':
     cfg = configparser.ConfigParser()
     cfg.read('/home/pi/source/RMS/.config')
     loc = []
-    loc.append(float(cfg['System']['Latitude'].split()[0]))
-    loc.append(float(cfg['System']['Longitude'].split()[0]))
-    loc.append(float(cfg['System']['Altitude'].split()[0]))
+    loc.append(float(cfg['System']['latitude'].split()[0]))
+    loc.append(float(cfg['System']['longitude'].split()[0]))
+    loc.append(float(cfg['System']['elevation'].split()[0]))
     loc.append(cfg['System']['stationID'].split()[0])
     loc.append(camloc)
 
