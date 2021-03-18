@@ -53,6 +53,7 @@ if __name__ == '__main__':
     loc.append(float(cfg['System']['Longitude'].split()[0]))
     loc.append(float(cfg['System']['Altitude'].split()[0]))
     loc.append(cfg['System']['stationID'].split()[0])
+    loc.append(camloc)
 
     # determine data directory
     while True:
@@ -77,4 +78,4 @@ if __name__ == '__main__':
         if "detected meteors" in line and ": 0" not in line and "TOTAL" not in line:
             if capdir != '':
                 ffname = line.split(' ')[3]
-                uoe.uploadOneEvent(capdir, ffname, camloc, s3, loc)
+                uoe.uploadOneEvent(capdir, ffname, loc, s3)

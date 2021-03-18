@@ -10,8 +10,8 @@ import boto3
 import configparser
 
 
-def uploadOneEvent(cap_dir, dir_file, camloc, s3=None, loc=None):
-    print('{:s} {:s} {:s}'.format(cap_dir, dir_file, camloc))
+def uploadOneEvent(cap_dir, dir_file, loc, s3):
+    print('{:s} {:s} {:s} {:s}'.format(cap_dir, dir_file, loc[4], loc[3]))
 
     target = 'ukmon-live'
     spls = dir_file.split('_')
@@ -31,11 +31,11 @@ def uploadOneEvent(cap_dir, dir_file, camloc, s3=None, loc=None):
     bff.batchFFtoImage(tmpdir, 'jpg')
     file_name, _ = os.path.splitext(dir_file)
     ojpgname = file_name + '.jpg'
-    njpgname = 'M' + ymd + '_' + hms + '_' + camloc + '_' + camid + 'P.jpg'
+    njpgname = 'M' + ymd + '_' + hms + '_' + loc[4] + '_' + camid + 'P.jpg'
     fulljpg = os.path.join(cap_dir, njpgname)
     os.rename(os.path.join(cap_dir, ojpgname), fulljpg)
 
-    xmlname = 'M' + ymd + '_' + hms + '_' + camloc + '_' + camid + '.xml'
+    xmlname = 'M' + ymd + '_' + hms + '_' + loc[4] + '_' + camid + '.xml'
     fullxml = os.path.join(cap_dir, xmlname)
     with open(fullxml, 'w') as ofl:
         ofl.write('<?xml version="1.0" encoding="UTF-8" ?>\n')
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     if camloc is None:
         print('ini file malformed - LOCATION not found')
         exit(1)
-        
+
     conn = boto3.Session() 
     s3 = conn.resource('s3')
     # read a few variables from the RMS config file
@@ -87,5 +87,6 @@ if __name__ == '__main__':
     loc.append(float(cfg['System']['Longitude'].split()[0]))
     loc.append(float(cfg['System']['Altitude'].split()[0]))
     loc.append(cfg['System']['stationID'].split()[0])
+    loc.append(camloc)
 
-    uploadOneEvent(sys.argv[1], sys.argv[2], camloc, s3, loc)
+    uploadOneEvent(sys.argv[1], sys.argv[2], loc, s3)
