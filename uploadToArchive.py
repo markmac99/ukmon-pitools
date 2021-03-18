@@ -1,6 +1,12 @@
 # 
 # Upload to ukmon from Python
 #
+# to use this to manually upload call it thus
+#
+#   cd ~/source/RMS
+#   python ../ukmon-pitools/uploadToArchive.py arcdir
+#
+# where archdir is the full path to the folder you want to upload
 
 import boto3
 import os
@@ -63,5 +69,5 @@ def uploadToArchive(arch_dir):
 
 
 if __name__ == '__main__':
-    arch_dir = os.path.join('/home/pi/RMS_data/ArchivedFiles/', sys.argv[1])
+    arch_dir = os.path.join(sys.argv[1])
     uploadToArchive(arch_dir)

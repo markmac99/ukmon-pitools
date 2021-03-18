@@ -1,6 +1,9 @@
 #
 # python script to upload one event to ukmon-live
 #
+# to use this file to manually upload a file do
+#   python sendToLive.py cap_dir ff_name
+#
 import os
 import sys
 import Utils.BatchFFtoImage as bff
