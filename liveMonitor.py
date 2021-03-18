@@ -29,8 +29,21 @@ if __name__ == '__main__':
     capdir = ''
     conn = boto3.Session() 
     s3 = conn.resource('s3')
-    camloc = sys.argv[2]
     logfile = open(sys.argv[1],"r")
+
+    # get cam location from ini file
+    camloc = None
+    myloc = os.path.split(os.path.abspath(__file__))[0]
+    with open('ukmon.ini', 'r') as inif:
+        lines = inif.readlines()
+        for li in lines:
+            if 'LOCATION' in li:
+                camloc = li.split('=')[1].strip()
+                break
+    if camloc is None:
+        print('ini file malformed - LOCATION not found')
+        exit(1)
+
 
     # read a few variables from the RMS config file
     cfg = configparser.ConfigParser()

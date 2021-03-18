@@ -61,6 +61,22 @@ def uploadOneEvent(cap_dir, dir_file, camloc, s3=None, loc=None):
 
 
 if __name__ == '__main__':
+    if len(sys.argv) < 3:
+        print('usage: python sendToLive.py capdir ffname')
+        exit(1)
+
+    camloc = None
+    myloc = os.path.split(os.path.abspath(__file__))[0]
+    with open('ukmon.ini', 'r') as inif:
+        lines = inif.readlines()
+        for li in lines:
+            if 'LOCATION' in li:
+                camloc = li.split('=')[1].strip()
+                break
+    if camloc is None:
+        print('ini file malformed - LOCATION not found')
+        exit(1)
+        
     conn = boto3.Session() 
     s3 = conn.resource('s3')
     # read a few variables from the RMS config file
@@ -72,4 +88,4 @@ if __name__ == '__main__':
     loc.append(float(cfg['System']['Altitude'].split()[0]))
     loc.append(cfg['System']['stationID'].split()[0])
 
-    uploadOneEvent(sys.argv[1], sys.argv[2], sys.argv[3], s3, loc)
+    uploadOneEvent(sys.argv[1], sys.argv[2], camloc, s3, loc)

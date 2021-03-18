@@ -13,4 +13,4 @@ logger "Monitoring $logf" -t $0
 
 cd ~/source/RMS
 touch ~/RMS_data/logs/liveMonitor.log
-python $here/liveMonitor.py $logf $LOCATION
+python $here/liveMonitor.py $logf
