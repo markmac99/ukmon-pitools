@@ -40,11 +40,11 @@ def uploadOneEvent(cap_dir, dir_file, loc, s3):
     with open(fullxml, 'w') as ofl:
         ofl.write('<?xml version="1.0" encoding="UTF-8" ?>\n')
         ofl.write('<ufocapture_record version="215"')
-        ofl.write('y="{:s}" mo="{:s}" d="{:s}" h="{:s}" m="{:s}" s="{:s}" ',format(yr, mth, dy, hr, mi, se))
+        ofl.write('y="{:s}" mo="{:s}" d="{:s}" h="{:s}" m="{:s}" s="{:s}" '.format(yr, mth, dy, hr, mi, se))
         ofl.write('trig="1" frames="68" lng="{:.4f}" lat="{:.4f}" alt="{:.1f}" '.format(loc[1], loc[0], loc[2]))
         ofl.write('tz="0" u2="224" cx="1280" cy="720" fps="25.000" head="30" ')
         ofl.write('tail="30" diff="2" sipos="6" sisize="15" dlev="40" dsize="4" ')
-        ofl.write('lid="{:s}" observer="" sid="{:s}" cam="{:s}" lens="" cap="" '.format(camloc, camid, camid))
+        ofl.write('lid="{:s}" observer="" sid="{:s}" cam="{:s}" lens="" cap="" '.format(loc[4], camid, camid))
         ofl.write('comment="" interlace="1" bbf="0" dropframe="0">\n')
         ofl.write('    <ufocapture_paths hit="3">\n')
         ofl.write('     <uc_path fno="30" ono="18" pixel="3" bmax="79" x="395.7" y="282.3"></uc_path>\n')
