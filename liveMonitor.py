@@ -27,14 +27,33 @@ def follow(thefile):
 if __name__ == '__main__':
     
     capdir = ''
-    conn = boto3.Session() 
+
+    awskey = None
+    awssec = None
+    awsreg = None
+    myloc = os.path.split(os.path.abspath(__file__))[0]
+
+    # get credentials
+    with open(os.path.join(myloc, 'live.key'), 'r') as inif:
+        lines = inif.readlines()
+        for li in lines:
+            if 'AWS_ACCESS_KEY_ID' in li:
+                awskey = li.split('=')[1].strip()
+            if 'AWS_SECRET_ACCESS_KEY' in li:
+                awssec = li.split('=')[1].strip()
+            if 'AWS_DEFAULT_REGION' in li:
+                awsreg = li.split('=')[1].strip()
+    if awssec is None or awskey is None or awsreg is None:
+        print('unable to locate AWS credentials, aborting')
+        exit(1)
+
+    conn = boto3.Session(aws_access_key_id=awskey, aws_secret_access_key=awssec, region_name=awsreg) 
     s3 = conn.resource('s3')
     logfile = open(sys.argv[1],"r")
 
     # get cam location from ini file
     camloc = None
-    myloc = os.path.split(os.path.abspath(__file__))[0]
-    with open('ukmon.ini', 'r') as inif:
+    with open(os.path.join(myloc, 'ukmon.ini'), 'r') as inif:
         lines = inif.readlines()
         for li in lines:
             if 'LOCATION' in li:

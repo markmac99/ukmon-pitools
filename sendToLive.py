@@ -66,18 +66,36 @@ if __name__ == '__main__':
         exit(1)
 
     camloc = None
+    awskey = None
+    awssec = None
+    awsreg = None
     myloc = os.path.split(os.path.abspath(__file__))[0]
-    with open('ukmon.ini', 'r') as inif:
+    # get camera location from ini file
+    with open(os.path.join(myloc, 'ukmon.ini'), 'r') as inif:
         lines = inif.readlines()
         for li in lines:
             if 'LOCATION' in li:
                 camloc = li.split('=')[1].strip()
                 break
     if camloc is None:
-        print('ini file malformed - LOCATION not found')
+        print('LOCATION not found in ini file, aborting')
         exit(1)
 
-    conn = boto3.Session() 
+    # get credentials
+    with open(os.path.join(myloc, 'live.key'), 'r') as inif:
+        lines = inif.readlines()
+        for li in lines:
+            if 'AWS_ACCESS_KEY_ID' in li:
+                awskey = li.split('=')[1].strip()
+            if 'AWS_SECRET_ACCESS_KEY' in li:
+                awssec = li.split('=')[1].strip()
+            if 'AWS_DEFAULT_REGION' in li:
+                awsreg = li.split('=')[1].strip()
+    if awssec is None or awskey is None or awsreg is None:
+        print('unable to locate AWS credentials, aborting')
+        exit(1)
+
+    conn = boto3.Session(aws_access_key_id=awskey, aws_secret_access_key=awssec, region_name=awsreg) 
     s3 = conn.resource('s3')
     # read a few variables from the RMS config file
     cfg = configparser.ConfigParser()
