@@ -23,7 +23,7 @@ To use this script, set the following values in the RMS configuration file:
 MP4s and Timelapse
 ------------------
 The script can also create MP4s of each detection and a timelapse of the  whole night. 
-To enable these, create files named "domp4s" or "dotimelapse" in the same folder as the script. eg:  
+To enable these, create files named "domp4s" or "dotimelapse" in the same folder as the script:  
 > echo "1" > /home/pi/source/ukmon-pitools/domp4s  
 > echo "1" > /home/pi/source/ukmon-pitools/dotimelapse  
 
@@ -33,7 +33,8 @@ If you want to run an additional Python script after this one finishes, create a
 in the same folder, containing a single line with the full path to the script, eg
 > echo "/home/pi/myfolder/myscript.py" > /home/pi/source/ukmon-pitools/extrascript  
 
-This script will be passed the capture_dir, archive_dir and RMS config object. 
+This script will be passed the capture_dir, archive_dir and RMS config object in the same way as RMS
+passes these to any external script. 
 
 uploadToArchive.py
 ==================
@@ -43,14 +44,26 @@ eg
 
 this will upload from /home/pi/RMS_data/ArchivedFiles/UK0006_20210312_183741_206154
 
+liveMonitor.sh
+==============
+This script monitors in realtime for detections, then uploads them to ukmon-live. The script calls a 
+python script *sendToLive.py* which you can also call manually if you want to send something that
+got missed out. 
+
+sendToLive.py
+-------------
+Part of liveMonitor, this python script does the actual uploading. You can use it manually as follows:  
+> python sendToLive.py capture-dir ff-file-name  
+
 refreshTools.sh
 ===============
-Updates the UKMON RMS Toolset to the latest version. If we built your camera, this will run automatically
+Updates the UKMON RMS Toolset to the latest version. After first run, this will run automatically
 every time your Pi reboots. You can also run it manually. 
-
-A good crontab entry would look like this (all on one line in the crontab)  
-> @reboot sleep 60 && /home/pi/source/ukmon-pitools/refreshTools.sh > /home/pi/RMS_data/logs/refreshTools.log 2>&1  
 
 refreshTools reads from a configuration file that is specific to your camera. We will send
 you this file when you onboard to the network. The file contains your location ID and the
 details of our sftp server used to distribute security keys. 
+
+Questions
+=========
+Any questions, concerns or suggestions to me via markmcintyre99@googlemail.com  
