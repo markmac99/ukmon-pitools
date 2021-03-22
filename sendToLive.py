@@ -14,7 +14,7 @@ import configparser
 
 
 def uploadOneEvent(cap_dir, dir_file, loc, s3):
-    print('{:s} {:s} {:s} {:s}'.format(cap_dir, dir_file, loc[4], loc[3]))
+    print('{:s} {:s} {:s} {:s}'.format(cap_dir, dir_file, loc[4], loc[3]), flush=True)
 
     target = 'ukmon-live'
     spls = dir_file.split('_')
@@ -58,7 +58,7 @@ def uploadOneEvent(cap_dir, dir_file, loc, s3):
 
     s3.meta.client.upload_file(fulljpg, target, njpgname, ExtraArgs={'ContentType': 'image/jpeg'})
     s3.meta.client.upload_file(fullxml, target, xmlname, ExtraArgs={'ContentType': 'application/xml'})
-    print(njpgname)
+    print(njpgname, flush=True)
     shutil.rmtree(tmpdir)
     return
 
