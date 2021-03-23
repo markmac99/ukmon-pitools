@@ -30,14 +30,16 @@ if [ ! -f  .firstrun ] ; then
     if [ $? -eq 1 ] ; then 
         pip install boto3
     fi 
-    echo "creating ukmon ssh key"
-    ssh-keygen -t rsa -f ~/.ssh/ukmon -q -N ''
-    echo "Copy this public key and email it to the ukmon team, then "
-    echo "wait for confirmation its been installed and rerun this script"
-    echo ""
-    cat ~/.ssh/ukmon.pub
-    echo ""
-    read -p "Press any key to continue"
+    if [ ! -f  ~/.ssh/ukmon ] ; then 
+        echo "creating ukmon ssh key"
+        ssh-keygen -t rsa -f ~/.ssh/ukmon -q -N ''
+        echo "Copy this public key and email it to the ukmon team, then "
+        echo "wait for confirmation its been installed and rerun this script"
+        echo ""
+        cat ~/.ssh/ukmon.pub
+        echo ""
+        read -p "Press any key to continue"
+    fi
 fi
 crontab -l | egrep "refreshTools.sh" > /dev/null
 if [ $? == 1 ] ; then 
