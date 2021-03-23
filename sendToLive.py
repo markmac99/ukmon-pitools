@@ -42,7 +42,7 @@ def uploadOneEvent(cap_dir, dir_file, loc, s3):
     fullxml = os.path.join(tmpdir, xmlname)
     with open(fullxml, 'w') as ofl:
         ofl.write('<?xml version="1.0" encoding="UTF-8" ?>\n')
-        ofl.write('<ufocapture_record version="215"')
+        ofl.write('<ufocapture_record version="215" ')
         ofl.write('y="{:s}" mo="{:s}" d="{:s}" h="{:s}" m="{:s}" s="{:s}" '.format(yr, mth, dy, hr, mi, se))
         ofl.write('trig="1" frames="68" lng="{:.4f}" lat="{:.4f}" alt="{:.1f}" '.format(loc[1], loc[0], loc[2]))
         ofl.write('tz="0" u2="224" cx="1280" cy="720" fps="25.000" head="30" ')
