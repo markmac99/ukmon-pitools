@@ -12,7 +12,7 @@ INSTALLATION
 
 * When prompted, copy the SSH public key. 
 
-* email the key to ukmeteornetwork@gmail.com along with your location (eg the name of your town, street or village) and the rough direction your camera points in eg SW, S, NE. The location should be no more than 16 characters. 
+* email the key to markmcintyre99@googlemail.com along with your location (eg the name of your town, street or village) and the rough direction your camera points in eg SW, S, NE. The location should be no more than 16 characters. 
 
 * We will add your key to our server, create security keys for you and send you a small config file.  
 
