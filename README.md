@@ -12,16 +12,12 @@ INSTALLATION
 
 * When prompted, copy the SSH public key. 
 
-* email the key to markmcintyre99@googlemail.com along with your location (eg the name of your town, street or village) and the rough direction your camera points in eg SW, S, NE. The location should be no more than 16 characters. 
+* Email the key to markmcintyre99@googlemail.com along with your location (eg the name of your town, street or village) and the rough direction your camera points in eg SW, S, NE. The location should be no more than 16 characters. 
 
-* We will add your key to our server, create security keys for you and send you a small config file.  
-
-* Copy this file into ~/source/ukmon-pitools, overwriting any file that may already be there.
-
-* Now download your UKMON security keys by rerunning the refreshTools script in a terminal window. 
+* We will add your key to our server and send you a small config file.  Copy this file into ~/source/ukmon-pitools, overwriting the existing file, and re-run the refreshTools.sh script to download your security keys and bring the tools up to date. 
 > ./refreshTools.sh
 
-* Finally to enable daily uploads to the UKMON archive, double-click the RMS_Config.txt icon on the Pi desktop, then find and set the following values
+* Finally to enable daily uploads to the UKMON archive, double-click the RMS_Config.txt icon on the Pi desktop, find and update the following values
 > external_script_run: true  
 > auto_reprocess_external_script_run: true  
 > auto_reprocess: true  
