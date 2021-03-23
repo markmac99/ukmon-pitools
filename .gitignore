@@ -3,6 +3,7 @@ ukmon.ini
 live.key
 archive.key
 addSftpUser.sh
+.firstrun
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -8,7 +8,7 @@ source $here/ukmon.ini
 cd $here
 
 if [ -f  .firstrun ] ; then
-    sftp -i ~/.ssh/ukmon $LOCATION@$UKMONHELPER << EOF
+    sftp -i ~/.ssh/ukmon -q $LOCATION@$UKMONHELPER << EOF
 get ukmon.ini
 get live.key
 get archive.key
