@@ -1,4 +1,3 @@
-# ukmon-pitools
 ukmeteornetwork toolset for RMS pi meteor cameras
 =================================================
 These tools manage uploads of RMS data to the UK Meteor Network Archive and Live-stream.
@@ -8,12 +7,12 @@ INSTALLATION
 * Login to your pi, open a Terminal window and type the following
 > cd ~/source  
 > git clone https://github.com/markmac99/ukmon-pitools.git  
-> cd ukmon-pitools
-> ./refreshTools.sh
+> cd ukmon-pitools  
+> ./refreshTools.sh  
 
 * When prompted, copy the SSH public key. 
 
-* Email the key to markmcintyre99@googlemail.com along with your location (eg the name of your town, street or village) and the rough direction your camera points in eg SW, S, NE. The location should be no more than 16 characters. 
+* Email the key to markmcintyre99@googlemail.com along with your location (eg the name of your town or village) and the rough direction your camera points in eg SW, S, NE. The location should be no more than 16 characters. 
 
 * We will add your key to our server and send you a small config file.  Copy this file into *~/source/ukmon-pitools* and re-run the *refreshTools.sh* script to download your security keys and bring the tools up to date. 
 
