@@ -39,7 +39,7 @@ if [ ! -f  .firstrun ] ; then
     echo ""
     read -p "Press any key to continue"
 fi
-crontab -l | egrep "refreshTools.sh"
+crontab -l | egrep "refreshTools.sh" > /dev/null
 if [ $? == 1 ] ; then 
     echo "enabling daily toolset refresh"
     crontab -l > /tmp/crontab.tmp 
@@ -47,7 +47,7 @@ if [ $? == 1 ] ; then
     crontab /tmp/crontab.tmp
     rm /tmp/crontab.tmp
 fi 
-crontab -l | egrep "liveMonitor.sh"
+crontab -l | egrep "liveMonitor.sh" > /dev/null
 if [ $? == 1 ] ; then 
     echo "enabling live monitoring"
     crontab -l > /tmp/crontab.tmp 
