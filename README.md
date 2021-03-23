@@ -16,13 +16,12 @@ INSTALLATION
 
 * We will add your key to our server, create security keys for you and send you a small config file.  
 
-* Copy this file into ~/source/ukmon-pitools, overwriting any file thats there already.
+* Copy this file into ~/source/ukmon-pitools, overwriting any file that may already be there.
 
-* Open a Terminal window again, and type 
+* Now download your UKMON security keys by rerunning the refreshTools script in a terminal window. 
 > ./refreshTools.sh
 
-* Finally enable daily uploads to the archive:
-- double-click the RMS_Config.txt icon on the Pi desktop, then find and set the following values
+* Finally to enable daily uploads to the UKMON archive, double-click the RMS_Config.txt icon on the Pi desktop, then find and set the following values
 > external_script_run: true  
 > auto_reprocess_external_script_run: true  
 > auto_reprocess: true  
