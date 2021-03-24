@@ -25,7 +25,7 @@ INSTALLATION
 Note: if external_script_run was already true please follow these additional steps  
 * Using a text editor, create a new file */home/pi/source/ukmon-pitools/extrascript*  
 * copy the current value of external_script_path and paste it into this file  (nb just the part after the colon)   
-* set external_script_path to ukmonPostProc.py  
+* set external_script_path to /home/pi/source/ukmon-pitools/ukmonPostProc.py  
 * save both files.   
 
 RMS will now run ukmonPostProc.py and then run the script mentioned in "extrascript"
