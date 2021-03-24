@@ -4,13 +4,11 @@ These tools manage uploads of RMS data to the UK Meteor Network Archive and Live
 
 INSTALLATION
 ------------
-* Login to your pi using VNC or AnyDesk or TeamViewer, open a Terminal window and type the following
+* Login to your pi using VNC or AnyDesk or TeamViewer, open a Terminal window from the Accessories menu, then type the following
 > cd /home/pi/source  
 > git clone https://github.com/markmac99/ukmon-pitools.git  
 > cd ukmon-pitools  
 > ./refreshTools.sh  
-
-Terminal can be found on the Accessories menu. 
 
 * When prompted, copy the SSH public key. 
 
@@ -24,11 +22,11 @@ Terminal can be found on the Accessories menu.
 > auto_reprocess: true  
 > external_script_path: /home/pi/source/ukmon-pitools/ukmonPostProc.py  
 
-Note: if external_script_run was already true please follow these additional steps
+Note: if external_script_run was already true please follow these additional steps  
 * Using a text editor, create a new file */home/pi/source/ukmon-pitools/extrascript*  
-* copy the current value of external_script_path and paste it into this file  
-* set external_script_path to ukmonPostProc.py
-* save both files. 
+* copy the current value of external_script_path and paste it into this file  (nb just the part after the colon)   
+* set external_script_path to ukmonPostProc.py  
+* save both files.   
 
 RMS will now run ukmonPostProc.py and then run the script mentioned in "extrascript"
 
