@@ -4,17 +4,19 @@ These tools manage uploads of RMS data to the UK Meteor Network Archive and Live
 
 INSTALLATION
 ------------
-* Login to your pi, open a Terminal window and type the following
-> cd ~/source  
+* Login to your pi using VNC or AnyDesk or TeamViewer, open a Terminal window and type the following
+> cd /home/pi/source  
 > git clone https://github.com/markmac99/ukmon-pitools.git  
 > cd ukmon-pitools  
 > ./refreshTools.sh  
+
+Terminal can be found on the Accessories menu. 
 
 * When prompted, copy the SSH public key. 
 
 * Email the key to markmcintyre99@googlemail.com along with your location (eg the name of your town or village) and the rough direction your camera points in eg SW, S, NE. The location should be no more than 16 characters. 
 
-* We will add your key to our server and send you a small config file.  Copy this file into *~/source/ukmon-pitools* and re-run the *refreshTools.sh* script to download your security keys and bring the tools up to date. 
+* We will add your key to our server and send you a small config file.  Copy this file into */home/pi/source/ukmon-pitools* and re-run the *refreshTools.sh* script to download your security keys and bring the tools up to date. 
 
 * Finally to enable daily uploads to the UKMON archive, double-click the *RMS_Config.txt* icon on the Pi desktop, find and update the following values
 > external_script_run: true  
@@ -22,6 +24,13 @@ INSTALLATION
 > auto_reprocess: true  
 > external_script_path: /home/pi/source/ukmon-pitools/ukmonPostProc.py  
 
+Note: if external_script_run was already true please follow these additional steps
+* Using a text editor, create a new file */home/pi/source/ukmon-pitools/extrascript*  
+* copy the current value of external_script_path and paste it into this file  
+* set external_script_path to ukmonPostProc.py
+* save both files. 
+
+RMS will now run ukmonPostProc.py and then run the script mentioned in "extrascript"
 
 
 HOW THE TOOLS WORK
