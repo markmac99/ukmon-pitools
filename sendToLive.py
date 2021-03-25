@@ -58,7 +58,10 @@ def uploadOneEvent(cap_dir, dir_file, loc, s3):
 
     s3.meta.client.upload_file(fulljpg, target, njpgname, ExtraArgs={'ContentType': 'image/jpeg'})
     s3.meta.client.upload_file(fullxml, target, xmlname, ExtraArgs={'ContentType': 'application/xml'})
-    print(njpgname, flush=True)
+    if sys.version_info[0] < 3:
+        print(njpgname)
+    else:
+        print(njpgname, flush=True)
     shutil.rmtree(tmpdir)
     return
 
