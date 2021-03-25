@@ -53,7 +53,7 @@ crontab -l | egrep "liveMonitor.sh" > /dev/null
 if [ $? == 1 ] ; then 
     echo "enabling live monitoring"
     crontab -l > /tmp/crontab.tmp 
-    echo "@reboot sleep 3600 && /home/pi/source/ukmon-pitools/liveMonitor.sh >> /home/pi/RMS_data/logs/ukmon-live-`date +%Y%m%d`.log 2>&1" >> /tmp/crontab.tmp
+    echo "@reboot sleep 3600 && /home/pi/source/ukmon-pitools/liveMonitor.sh >> /home/pi/RMS_data/logs/ukmon-live.log 2>&1" >> /tmp/crontab.tmp
     crontab /tmp/crontab.tmp
     rm /tmp/crontab.tmp
 fi 
