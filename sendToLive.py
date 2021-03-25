@@ -14,8 +14,8 @@ import configparser
 
 
 def uploadOneEvent(cap_dir, dir_file, loc, s3):
-    print('{:s} {:s} {:s} {:s}'.format(cap_dir, dir_file, loc[4], loc[3]), flush=True)
-
+    print('{:s} {:s} {:s} {:s}'.format(cap_dir, dir_file, loc[4], loc[3]))
+    sys.stdout.flush()
     target = 'ukmon-live'
     spls = dir_file.split('_')
     camid = spls[1]
