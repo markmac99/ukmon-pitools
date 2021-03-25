@@ -81,11 +81,7 @@ if __name__ == '__main__':
             break
         if "Data directory" in line: 
             capdir = line.split(' ')[5].strip()
-            print(sys.version_info)
-            if sys.version_info[0] < 3:
-                print('capdir is', capdir)
-            else:
-                print('capdir is', capdir, flush=True)
+            print('capdir is', capdir)
             break
 
     # rewind to start
@@ -96,11 +92,7 @@ if __name__ == '__main__':
     for line in loglines:
         if "Data directory" in line: 
             capdir = line.split(' ')[5].strip()
-            if sys.version_info[0] < 3:
-                print('capdir is', capdir)
-            else:
-                print('capdir is', capdir, flush=True)
-
+            print('capdir is', capdir)
 
         if "detected meteors" in line and ": 0" not in line and "TOTAL" not in line:
             if capdir != '':
