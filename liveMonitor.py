@@ -82,6 +82,7 @@ if __name__ == '__main__':
         if "Data directory" in line: 
             capdir = line.split(' ')[5].strip()
             print('capdir is', capdir)
+            sys.stdout.flush()
             break
 
     # rewind to start
@@ -93,6 +94,7 @@ if __name__ == '__main__':
         if "Data directory" in line: 
             capdir = line.split(' ')[5].strip()
             print('capdir is', capdir)
+            sys.stdout.flush()
 
         if "detected meteors" in line and ": 0" not in line and "TOTAL" not in line:
             if capdir != '':
