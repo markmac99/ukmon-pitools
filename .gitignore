@@ -4,6 +4,9 @@ live.key
 archive.key
 addSftpUser.sh
 .firstrun
+domp4s
+extrascript
+dotimelapse
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
