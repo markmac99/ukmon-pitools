@@ -22,6 +22,44 @@ from importlib import import_module as impmod
 import uploadToArchive 
 
 
+def installUkmonFeed():
+    myloc = os.path.split(os.path.abspath(__file__))[0]
+    newpath = os.path.join(myloc, 'ukmonPostProc.py')
+    cfgname = '/home/pi/source/RMS/.config'
+    config = cr.parse(cfgname)
+    esr = config.external_script_run
+    extl = config.external_script_path
+
+    print('checking parameters')
+    if esr is True:
+        if extl != newpath:
+            print('saving current external script details')
+            with open(os.path.join(myloc, 'extrascript'), 'w') as outf:
+                outf.write(extl)
+
+    print('updating RMS config file')
+    with open(cfgname, 'r') as inf:
+        lines = inf.readlines()
+        with open('/tmp/new.config', 'w') as outf:
+            for li in range(len(lines)):
+                if 'auto_reprocess_external_script_run: ' in lines[li]:
+                    lines[li] = 'auto_reprocess_external_script_run: true  \n'
+                if 'external_script_path: ' in lines[li]:
+                    lines[li] = 'external_script_path: {}  \n'.format(newpath)
+                if 'external_script_run: ' in lines[li] and 'auto_reprocess_' not in lines[li]:
+                    lines[li] = 'external_script_run: true  \n'
+                if 'auto_reprocess: ' in lines[li]:
+                    lines[li] = 'auto_reprocess: true  \n'
+            outf.writelines(lines)
+    _, cfgbase = os.path.split(cfgname)
+    bkpcnf = os.path.join(myloc, cfgbase + '.backup')
+    print('backing up RMS config to {}'.format(bkpcnf))
+    shutil.copyfile(cfgname, bkpcnf)
+    shutil.copyfile('/tmp/new.config', cfgname)
+
+    return 
+
+
 def rmsExternal(cap_dir, arch_dir, config):
     rebootlockfile = os.path.join(config.data_dir, config.reboot_lock_file)
     with open(rebootlockfile, 'w') as f:

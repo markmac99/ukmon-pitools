@@ -40,6 +40,7 @@ if [ ! -f  .firstrun ] ; then
         echo ""
         read -p "Press any key to continue"
     fi
+    python -c 'import ukmonPostProc as pp ; pp.installUkmonFeed();'
 fi
 crontab -l | egrep "refreshTools.sh" > /dev/null
 if [ $? == 1 ] ; then 

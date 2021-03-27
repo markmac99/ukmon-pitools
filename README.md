@@ -15,21 +15,9 @@ INSTALLATION
 * Email the key to markmcintyre99@googlemail.com along with your location (eg the name of your town or village) and the rough direction your camera points in eg SW, S, NE. The location should be no more than 16 characters. We will also need your camera ID, latitude, longitude and elevation if possible, so that your data can be included in the Orbit and Trajectory solving routines. 
 
 * We will add your key to our server and send you a small config file.  Copy this file into */home/pi/source/ukmon-pitools* 
-* Once you've installed the ini file, re-run the *refreshTools.sh* script to download your security keys and bring the tools up to date. 
+* Once you've installed the ini file, re-run the *refreshTools.sh* script to download your security keys and bring the tools up to date. Answer 'yes' when prompted to accept the security key. 
 
-* Finally to enable daily uploads to the UKMON archive, double-click the *RMS_Config.txt* icon on the Pi desktop, find and update the following values
-> external_script_run: true  
-> auto_reprocess_external_script_run: true  
-> auto_reprocess: true  
-> external_script_path: /home/pi/source/ukmon-pitools/ukmonPostProc.py  
-
-Note: if external_script_run was already true please follow these additional steps  
-> Using a text editor, create a new file */home/pi/source/ukmon-pitools/extrascript*  
-> copy the current value of external_script_path and paste it into this file  (nb just the part after the colon)   
-> set external_script_path to /home/pi/source/ukmon-pitools/ukmonPostProc.py  
-> save both files.   
-
-RMS will now run ukmonPostProc.py and then run the script mentioned in "extrascript"
+* The refresh process will also update the RMS config file so that it runs the UKMON uploader process after each night's data capture finishes. If you already had a post-processing script configured, such as Istrastream, this will be preserved and will run after the UKMON job. The original config file is backed up to the ukmon-pitools folder. 
 
 
 HOW THE TOOLS WORK
