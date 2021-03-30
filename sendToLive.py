@@ -116,8 +116,12 @@ if __name__ == '__main__':
         
         try:
             s3.meta.client.upload_file('/tmp/test.txt', 'ukmon-live', 'test.txt')
+            key = {'Objects': []}
+            key['Objects'] = [{'Key': 'test.txt'}]
+            s3.meta_client.delete_objects(Bucket='ukmon-live', Delete=key)
             print('test successful')
         except Exception:
             print('unable to upload to ukmon-live - check key information')
+        os.remove('/tmp/test.txt')
     else:
         uploadOneEvent(sys.argv[1], sys.argv[2], loc, s3)
