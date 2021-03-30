@@ -110,5 +110,14 @@ if __name__ == '__main__':
     loc.append(float(cfg['System']['elevation'].split()[0]))
     loc.append(cfg['System']['stationID'].split()[0])
     loc.append(camloc)
-
-    uploadOneEvent(sys.argv[1], sys.argv[2], loc, s3)
+    if sys.argv[1] == 'test' and sys.argv[2] == 'test':
+        with open('/tmp/test.txt', 'w') as f:
+            f.write('test')
+        
+        try:
+            s3.meta.client.upload_file('/tmp/test.txt', 'ukmon-live', 'test.txt')
+            s3.meta_client.delete_object(Key='test.txt', Bucket='ukmon-live')
+        except Exception:
+            print('unable to upload to ukmon-live - check key information')
+    else:
+        uploadOneEvent(sys.argv[1], sys.argv[2], loc, s3)
