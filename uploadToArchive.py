@@ -69,5 +69,27 @@ def uploadToArchive(arch_dir):
 
 
 if __name__ == '__main__':
-    arch_dir = os.path.join(sys.argv[1])
-    uploadToArchive(arch_dir)
+    if sys.argv[1] == 'test':
+        try:
+            myloc = os.path.split(os.path.abspath(__file__))[0]
+            filename = os.path.join(myloc, 'archive.key')
+            with open(filename, 'r') as fin:
+                key = fin.readline().split('=')[1].strip()
+                secr = fin.readline().split('=')[1].strip()
+                reg = fin.readline().split('=')[1].strip()
+                targf = fin.readline().split('=')[1].strip()
+            if targf[0] == '"':
+                targf = targf[1:len(targf)-1]
+            conn = boto3.Session(aws_access_key_id=key, aws_secret_access_key=secr) 
+            s3 = conn.resource('s3', region_name=reg)
+            s3.meta.client.upload_file('/tmp/test.txt', 'ukmon-shared', 'test.txt')
+            key = {'Objects': []}
+            key['Objects'] = [{'Key': 'test.txt'}]
+            s3.meta.client.delete_objects(Bucket='ukmon-shared', Delete=key)
+            print('test successful')
+        except Exception:
+            print('unable to upload to archive - check key information')
+        os.remove('/tmp/test.txt')
+    else:
+        arch_dir = os.path.join(sys.argv[1])
+        uploadToArchive(arch_dir)
