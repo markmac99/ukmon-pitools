@@ -70,6 +70,8 @@ def uploadToArchive(arch_dir):
 
 if __name__ == '__main__':
     if sys.argv[1] == 'test':
+        with open('/tmp/test.txt', 'w') as f:
+            f.write('test')
         try:
             myloc = os.path.split(os.path.abspath(__file__))[0]
             filename = os.path.join(myloc, 'archive.key')
