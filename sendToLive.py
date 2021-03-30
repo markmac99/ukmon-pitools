@@ -116,7 +116,6 @@ if __name__ == '__main__':
         
         try:
             s3.meta.client.upload_file('/tmp/test.txt', 'ukmon-live', 'test.txt')
-            s3.meta_client.delete_object(Key='test.txt', Bucket='ukmon-live')
             print('test successful')
         except Exception:
             print('unable to upload to ukmon-live - check key information')
