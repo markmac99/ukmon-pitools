@@ -117,9 +117,13 @@ def rmsExternal(cap_dir, arch_dir, config):
         scrname, _ = os.path.splitext(sname)
         nextscr=impmod(scrname)
         nextscr.rmsExternal(cap_dir, arch_dir, config)
-    except Exception:
+    except OSError:
         print('additional script not called')
-
+        try:
+            os.remove(rebootlockfile)
+        except:
+            pass
+    
     return
 
 
