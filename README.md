@@ -34,14 +34,15 @@ To enable these, create files named "domp4s" or "dotimelapse" in the same folder
 > echo "1" > /home/pi/source/ukmon-pitools/domp4s  
 > echo "1" > /home/pi/source/ukmon-pitools/dotimelapse  
 
-Running an Additional Script
-----------------------------
-If you want to run an additional Python script after this one finishes, create a file named "extrascript" 
-in the same folder, containing a single line with the full path to the script, eg
-> echo "/home/pi/myfolder/myscript.py" > /home/pi/source/ukmon-pitools/extrascript  
+Running an Additional Script such as the Istrastream feed
+---------------------------------------------------------
+If you want to run an additional Python script after this one finishes, create a file named "extrascript"  in the same folder, containing a single line with the full path to the script, eg to enable the feed to istrastream:  
+> echo "/home/pi/source/RMs/iStream/iStream.py" > /home/pi/source/ukmon-pitools/extrascript  
 
 This script will be passed the capture_dir, archive_dir and RMS config object in the same way as RMS
 passes these to any external script. 
+
+Note that before enabling a feed to Istrastream you must email info@istrastream.com with your camera ID, location and lens focal length. They'll enable your uploads and let you know. Ignore their instructions, and follow the above instead !  
 
 uploadToArchive.py
 ==================
