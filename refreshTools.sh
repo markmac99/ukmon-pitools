@@ -15,6 +15,10 @@ get archive.key
 exit
 EOF
     chmod 0600 live.key archive.key
+    echo "testing connections"
+    python $here/sendToLive.py test test
+    python $here/uploadToArchive.py test
+    echo "if you didnt see two success messages contact us for advice" 
 fi 
 
 echo "refreshing toolset"
