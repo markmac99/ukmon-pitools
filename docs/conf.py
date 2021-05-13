@@ -12,6 +12,7 @@
 #
 import os
 import sys
+import mock
 sys.path.insert(0, os.path.abspath('..'))
 
 
@@ -62,3 +63,8 @@ html_theme_options = {
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+MOCK_MODULES=['boto3','Utils', 'Utils.BatchFFtoImage', 
+    'Utils.StackFFs', 'Utils.GenerateMP4s', 'Utils.GenerateTimelapse']
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = mock.Mock()
