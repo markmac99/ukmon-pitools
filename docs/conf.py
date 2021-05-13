@@ -65,6 +65,7 @@ html_theme_options = {
 html_static_path = ['_static']
 
 MOCK_MODULES=['boto3','Utils', 'Utils.BatchFFtoImage', 
-    'Utils.StackFFs', 'Utils.GenerateMP4s', 'Utils.GenerateTimelapse']
+    'Utils.StackFFs', 'Utils.GenerateMP4s', 'Utils.GenerateTimelapse',
+    'RMS.ConfigReader']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = mock.Mock()
