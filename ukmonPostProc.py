@@ -23,6 +23,9 @@ import uploadToArchive
 
 
 def installUkmonFeed():
+    """ Installs the UKMon postprocessing script into the RMS config file
+
+    """
     myloc = os.path.split(os.path.abspath(__file__))[0]
     newpath = os.path.join(myloc, 'ukmonPostProc.py')
     cfgname = '/home/pi/source/RMS/.config'
@@ -61,6 +64,13 @@ def installUkmonFeed():
 
 
 def rmsExternal(cap_dir, arch_dir, config):
+    """Function called by RMS upon completion of data processing.
+
+    Args:
+        cap_dir (str): full path to the nightly capturedfiles directory
+        arch_dir (str): full path to the nightly archivedfiles directory
+        config (obj): RMS configuration object 
+    """
     rebootlockfile = os.path.join(config.data_dir, config.reboot_lock_file)
     with open(rebootlockfile, 'w') as f:
         f.write('1')
@@ -127,13 +137,24 @@ def rmsExternal(cap_dir, arch_dir, config):
     return
 
 
+def manualRerun(dated_dir):
+    """Manually rerun the Ukmon post processing script 
+
+    Note that this script *must* be run from the RMS source folder.
+
+    Args:
+        dated_dir (str): dated directory to upload eg UK000F_20210512_202826_913898
+    """
+    cap_dir = os.path.join('/home/pi/RMS_data/CapturedFiles', dated_dir)
+    arch_dir = os.path.join('/home/pi/RMS_data/ArchivedFiles', dated_dir)
+    config = cr.parse(".config")
+    rmsExternal(cap_dir, arch_dir, config)
+
+
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print('usage: python ukmonPostProc.py arc_dir_name')
         print('eg python ukmonPostProc.py UK0006_20210312_183741_206154')
         print('\n nb: script must be run from RMS source folder')
     else:
-        cap_dir = os.path.join('/home/pi/RMS_data/CapturedFiles/', sys.argv[1])
-        arch_dir = os.path.join('/home/pi/RMS_data/ArchivedFiles/', sys.argv[1])
-        config = cr.parse(".config")
-        rmsExternal(cap_dir, arch_dir, config)
+        manualRerun(sys.argv[1])

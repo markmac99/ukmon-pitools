@@ -7,8 +7,14 @@ import sendToLive as uoe
 
 
 def follow(thefile):
-    '''generator function that yields new lines in a file
-    '''
+    """Generator function that yields new lines in a file
+
+    Args:
+        thefile (file) : file to follow
+
+    Returns:
+        str: the line being followed
+    """
     # seek the end of the file
     thefile.seek(0, os.SEEK_END)
     
@@ -24,8 +30,11 @@ def follow(thefile):
         yield line 
 
 
-if __name__ == '__main__':
-    
+def monitorLogFile():
+    """ Monitor the latest RMS log file for meteor detections, convert the FF file
+    to a jpg and upload it to ukmon-live. Requires the user to have been supplied
+    with a ukmon-live security key and camera location identifier. 
+    """
     capdir = ''
 
     awskey = None
@@ -100,3 +109,7 @@ if __name__ == '__main__':
             if capdir != '':
                 ffname = line.split(' ')[3]
                 uoe.uploadOneEvent(capdir, ffname, loc, s3)
+
+
+if __name__ == '__main__':
+    monitorLogFile()

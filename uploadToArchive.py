@@ -14,6 +14,16 @@ import sys
 
 
 def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext):
+    """ Upload a single named file to the UKmon Archive
+
+    Args:
+        arch_dir (str): full path to ArchivedFiles dated folder 
+        dir_file (str): file to uoload 
+        s3 (obj): AWS S3 object
+        targf (str): full name of target file including folders
+        file_ext (str): file type, used to set MIME type correctly
+
+    """
     target = 'ukmon-shared'
     daydir = os.path.split(arch_dir)[1]
     spls = daydir.split('_')
@@ -44,6 +54,12 @@ def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext):
 
 
 def uploadToArchive(arch_dir):
+    """ Upload all relevant files from *arch_dir* to ukmon's S3 Archive
+
+    Args:
+        arch_dir (str): full path to the ArchivedFiles folder to be processed
+
+    """
     myloc = os.path.split(os.path.abspath(__file__))[0]
     filename = os.path.join(myloc, 'archive.key')
     with open(filename, 'r') as fin:
@@ -74,8 +90,14 @@ def uploadToArchive(arch_dir):
     return
 
 
-if __name__ == '__main__':
-    if sys.argv[1] == 'test':
+def manualUpload(targ_dir):
+    """ Manually send the target folder to ukmon archive. 
+    To invoke this function run *python uploadToArchive.py /path/to/target/folder*
+    in a terminal window. 
+
+    You can also use this to test connectivity by passing a single parameter "test".
+    """
+    if targ_dir == 'test':
         with open('/tmp/test.txt', 'w') as f:
             f.write('test')
         try:
@@ -99,5 +121,9 @@ if __name__ == '__main__':
             print('unable to upload to archive - check key information')
         os.remove('/tmp/test.txt')
     else:
-        arch_dir = os.path.join(sys.argv[1])
+        arch_dir = os.path.join(targ_dir)
         uploadToArchive(arch_dir)
+
+
+if __name__ == '__main__':
+    manualUpload(sys.argv[1])
