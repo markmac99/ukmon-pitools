@@ -12,11 +12,14 @@ import os
 import sys
 import shutil
 
-import Utils.StackFFs as sff
-import Utils.BatchFFtoImage as bff2i
-import Utils.GenerateMP4s as gmp4
-import Utils.GenerateTimelapse as gti
-import RMS.ConfigReader as cr
+try:  # to avoid errors from readthedocs
+    import Utils.StackFFs as sff
+    import Utils.BatchFFtoImage as bff2i
+    import Utils.GenerateMP4s as gmp4
+    import Utils.GenerateTimelapse as gti
+    import RMS.ConfigReader as cr
+except:
+    pass
 from importlib import import_module as impmod
 
 import uploadToArchive 

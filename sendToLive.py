@@ -6,7 +6,10 @@
 #
 import os
 import sys
-import Utils.BatchFFtoImage as bff
+try:  # to avoid errors from readthedocs
+    import Utils.BatchFFtoImage as bff
+except:
+    pass
 import shutil
 import tempfile
 import boto3
