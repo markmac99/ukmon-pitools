@@ -78,7 +78,10 @@ def rmsExternal(cap_dir, arch_dir, config):
     # stack and create jpgs from the potential detections
     print('stacking the FF files')
     sff.stackFFs(arch_dir, 'jpg', filter_bright=True)
-    bff2i.batchFFtoImage(arch_dir, 'jpg')
+    try:
+        bff2i.batchFFtoImage(arch_dir, 'jpg', True)
+    except:
+        bff2i.batchFFtoImage(arch_dir, 'jpg')
 
     myloc = os.path.split(os.path.abspath(__file__))[0]
     try:

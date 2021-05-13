@@ -14,6 +14,15 @@ import configparser
 
 
 def uploadOneEvent(cap_dir, dir_file, loc, s3):
+    """Uploads an event to S3. 
+
+    Args:
+        cap_dir (str): the full path to the dated CapturedFiles folder
+        dir_file (str): the filename eg FF_UK0000_20210401_123456_678.fits
+        loc (str): lower-case camera location code as provided by ukmon
+        s3 (str): aws s3 object 
+
+    """
     print('{:s} {:s} {:s} {:s}'.format(cap_dir, dir_file, loc[4], loc[3]))
     sys.stdout.flush()
     target = 'ukmon-live'
@@ -31,7 +40,10 @@ def uploadOneEvent(cap_dir, dir_file, loc, s3):
     se = se + '.{:.2f}'.format(float(millis)/1000)
     tmpdir = tempfile.mkdtemp()
     shutil.copy2(os.path.join(cap_dir, dir_file), tmpdir)
-    bff.batchFFtoImage(tmpdir, 'jpg')
+    try:
+        bff.batchFFtoImage(tmpdir, 'jpg', True)
+    except:
+        bff.batchFFtoImage(tmpdir, 'jpg')
     file_name, _ = os.path.splitext(dir_file)
     ojpgname = file_name + '.jpg'
     njpgname = 'M' + ymd + '_' + hms + '_' + loc[4] + '_' + camid + 'P.jpg'
@@ -64,10 +76,17 @@ def uploadOneEvent(cap_dir, dir_file, loc, s3):
     return
 
 
-if __name__ == '__main__':
-    if len(sys.argv) < 3:
-        print('usage: python sendToLive.py capdir ffname')
-        exit(1)
+def singleUpload(cap_dir, dir_file):
+    """Manually upload a single event. Can also be used to test the connection. 
+
+    args:
+        cap_dir (str): capture dir OR the word 'test'
+        dir_file (str): file to uoload OR the word 'test'
+
+    Comments:
+        If both arguments are 'test' then a test file is uploaded. 
+
+    """
 
     camloc = None
     awskey = None
@@ -124,4 +143,11 @@ if __name__ == '__main__':
             print('unable to upload to ukmon-live - check key information')
         os.remove('/tmp/test.txt')
     else:
-        uploadOneEvent(sys.argv[1], sys.argv[2], loc, s3)
+        uploadOneEvent(cap_dir, dir_file, loc, s3)
+
+
+if __name__ == '__main__':
+    if len(sys.argv) < 3:
+        print('usage: python sendToLive.py capdir ffname')
+        exit(1)
+    singleUpload(sys.argv[1], sys.argv[2])
