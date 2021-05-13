@@ -14,15 +14,6 @@ import configparser
 
 
 def uploadOneEvent(cap_dir, dir_file, loc, s3):
-    """Uploads an event to S3. 
-
-    Args:
-        cap_dir (str): the full path to the dated CapturedFiles folder
-        dir_file (str): the filename eg FF_UK0000_20210401_123456_678.fits
-        loc (str): lower-case camera location code as provided by ukmon
-        s3 (str): aws s3 object 
-
-    """
     print('{:s} {:s} {:s} {:s}'.format(cap_dir, dir_file, loc[4], loc[3]))
     sys.stdout.flush()
     target = 'ukmon-live'
@@ -77,11 +68,16 @@ def uploadOneEvent(cap_dir, dir_file, loc, s3):
 
 
 def singleUpload(cap_dir, dir_file):
-    """Manually upload a single event. Can also be used to test the connection. 
+    """This function is used when you manually upload a single event.
+    It can also be used to test the connection - see note below. 
+
+    To invoke this function, open a Terminal window and type
+
+    * python ../ukmon-pitools/sendToLive.py cap_dir file_to_send* 
 
     args:
         cap_dir (str): capture dir OR the word 'test'
-        dir_file (str): file to uoload OR the word 'test'
+        file_to_send (str): file to uoload OR the word 'test'
 
     Comments:
         If both arguments are 'test' then a test file is uploaded. 

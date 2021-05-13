@@ -23,7 +23,10 @@ import uploadToArchive
 
 
 def installUkmonFeed():
-    """ Installs the UKMon postprocessing script into the RMS config file
+    """ This function installs the UKMon postprocessing script into the RMS config file.
+    It is called from the refreshTools script during initial installation and should never
+    be called outside of that unless you're *certain* you know what you're doing. The script 
+    alters the rms .config file. 
 
     """
     myloc = os.path.split(os.path.abspath(__file__))[0]
@@ -64,13 +67,8 @@ def installUkmonFeed():
 
 
 def rmsExternal(cap_dir, arch_dir, config):
-    """Function called by RMS upon completion of data processing.
-
-    Args:
-        cap_dir (str): full path to the nightly capturedfiles directory
-        arch_dir (str): full path to the nightly archivedfiles directory
-        config (obj): RMS configuration object 
-    """
+    # called from RMS to trigger the UKMON specific code
+    
     rebootlockfile = os.path.join(config.data_dir, config.reboot_lock_file)
     with open(rebootlockfile, 'w') as f:
         f.write('1')
@@ -141,12 +139,13 @@ def rmsExternal(cap_dir, arch_dir, config):
 
 
 def manualRerun(dated_dir):
-    """Manually rerun the Ukmon post processing script 
+    """This function is used when you manually rerun the Ukmon post processing script. 
+    To invoke this function, open a Terminal window and run the following:
 
-    Note that this script *must* be run from the RMS source folder.
+    *python ../ukmon-pitools/ukmonPostProc.py dated_dir*
 
     Args:
-        dated_dir (str): dated directory to upload eg UK000F_20210512_202826_913898
+        dated_dir (str): This is the name of the folder to upload eg UK000F_20210512_202826_913898
     """
     cap_dir = os.path.join('/home/pi/RMS_data/CapturedFiles', dated_dir)
     arch_dir = os.path.join('/home/pi/RMS_data/ArchivedFiles', dated_dir)

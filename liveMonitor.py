@@ -7,14 +7,8 @@ import sendToLive as uoe
 
 
 def follow(thefile):
-    """Generator function that yields new lines in a file
+    # internal Generator function that yields new lines in a file
 
-    Args:
-        thefile (file) : file to follow
-
-    Returns:
-        str: the line being followed
-    """
     # seek the end of the file
     thefile.seek(0, os.SEEK_END)
     

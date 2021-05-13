@@ -14,16 +14,8 @@ import sys
 
 
 def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext):
-    """ Upload a single named file to the UKmon Archive
-
-    Args:
-        arch_dir (str): full path to ArchivedFiles dated folder 
-        dir_file (str): file to uoload 
-        s3 (obj): AWS S3 object
-        targf (str): full name of target file including folders
-        file_ext (str): file type, used to set MIME type correctly
-
-    """
+    # upload a single file to ukmon, setting the mime type accordingly
+    
     target = 'ukmon-shared'
     daydir = os.path.split(arch_dir)[1]
     spls = daydir.split('_')
@@ -54,12 +46,8 @@ def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext):
 
 
 def uploadToArchive(arch_dir):
-    """ Upload all relevant files from *arch_dir* to ukmon's S3 Archive
+    # Upload all relevant files from *arch_dir* to ukmon's S3 Archive
 
-    Args:
-        arch_dir (str): full path to the ArchivedFiles folder to be processed
-
-    """
     myloc = os.path.split(os.path.abspath(__file__))[0]
     filename = os.path.join(myloc, 'archive.key')
     with open(filename, 'r') as fin:
@@ -92,10 +80,11 @@ def uploadToArchive(arch_dir):
 
 def manualUpload(targ_dir):
     """ Manually send the target folder to ukmon archive. 
-    To invoke this function run *python uploadToArchive.py /path/to/target/folder*
-    in a terminal window. 
+    To invoke this function open a Terminal window and type
 
-    You can also use this to test connectivity by passing a single parameter "test".
+    *python ../ukmon-pitools/uploadToArchive.py /path/to/target/folder*
+
+    You can also use this to test connectivity by passing a single parameter 'test'. 
     """
     if targ_dir == 'test':
         with open('/tmp/test.txt', 'w') as f:
