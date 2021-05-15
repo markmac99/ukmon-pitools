@@ -139,7 +139,7 @@ def rmsExternal(cap_dir, arch_dir, config):
 
 
 def manualRerun(dated_dir):
-    """This function is used when you manually rerun the Ukmon post processing script. 
+    """This function is used to manually rerun the Ukmon post processing script. 
     To invoke this function, open a Terminal window and run the following:
 
     *python ../ukmon-pitools/ukmonPostProc.py dated_dir*

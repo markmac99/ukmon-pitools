@@ -68,16 +68,16 @@ def uploadOneEvent(cap_dir, dir_file, loc, s3):
 
 
 def singleUpload(cap_dir, dir_file):
-    """This function is used when you manually upload a single event.
+    """This function is used to manually upload a single event.
     It can also be used to test the connection - see note below. 
 
     To invoke this function, open a Terminal window and type
 
-    * python ../ukmon-pitools/sendToLive.py cap_dir file_to_send* 
+    *python ../ukmon-pitools/sendToLive.py cap_dir file_to_send* 
 
     args:
         cap_dir (str): capture dir OR the word 'test'
-        file_to_send (str): file to uoload OR the word 'test'
+        file_to_send (str): file to upload OR the word 'test'
 
     Comments:
         If both arguments are 'test' then a test file is uploaded. 
