@@ -5,16 +5,24 @@ refresh the toolset each night and make sure the security keys are up to date.  
 either created or installed, these are described below. 
 
 **liveMonitor.sh**
-    Shell script started from cron that runs the python script. 
-    To use this add a line to cron:
+    Shell script started from cron that triggers the process to monitor and upload events to the 
+    ukmon-live website. The script runs a python monitoring process described elsewhere in the 
+    documentation.To use this script add a line to crontab:
 
-    @boot sleep 3600 && /path/to/liveMonitor.sh > /home/pi/RMS_data/logs/ukmon-live.log 2>&1
+    *@boot sleep 3600 && /path/to/liveMonitor.sh > /home/pi/RMS_data/logs/ukmon-live.log 2>&1*
 
 **refreshTools.sh**
-    Shell script that refreshes the toolset and downloads any keyfile changes
-    To use this add a line to cron:
+    Shell script that refreshes the toolset and downloads any changes after each reboot. Its 
+    important that this is scheduled to run every day as the keyfiles are periodically rotated
+    and bugfixes and enhancements deployed through this script. To use this script add a line
+     to crontab:
 
-    @boot sleep 600 && /path/to/refreshTools.sh > /home/pi/RMS_data/logs/refreshTools.log 2>&1
+    *@boot sleep 600 && /path/to/refreshTools.sh > /home/pi/RMS_data/logs/refreshTools.log 2>&1*
+
+Other files
+----------
+These files are either created automatically by the refresh script, or can be created by the 
+user to enable extra features of the process. 
 
 **ukmon.ini live.key and archive.key**
 Configuration and security key files required for the operation of the module. The ini file 
