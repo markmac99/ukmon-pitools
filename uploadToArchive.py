@@ -13,7 +13,7 @@ import os
 import sys
 
 
-def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext):
+def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log=None):
     # upload a single file to ukmon, setting the mime type accordingly
     
     target = 'ukmon-shared'
@@ -39,13 +39,19 @@ def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext):
     desf= targf + camid + '/' + ymd[:4] + '/' + ymd[:6] + '/' + ymd + '/' + dir_file
     try:
         s3.meta.client.upload_file(srcf, target, desf, ExtraArgs={'ContentType': ctyp})
-        print(desf)
+        if log is None:
+            print(desf)
+        else:
+            log.info(desf)
     except Exception:
-        print('file not present: {}'.format(dir_file))
+        if log is None:
+            print('file not present: {}'.format(dir_file))
+        else:
+            log.info('file not present: {}'.format(dir_file))
     return
 
 
-def uploadToArchive(arch_dir):
+def uploadToArchive(arch_dir, log=None):
     # Upload all relevant files from *arch_dir* to ukmon's S3 Archive
 
     myloc = os.path.split(os.path.abspath(__file__))[0]
@@ -68,13 +74,13 @@ def uploadToArchive(arch_dir):
         file_ext = file_ext.lower()
         if ('FTPdetectinfo' in dir_file) and (file_ext == '.txt') and ('_original' not in file_name) and ('_backup' not in file_name):
             uploadOneFile(arch_dir, 'platepars_all_recalibrated.json', s3, targf, '.json')
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext)
+            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
         if (file_ext == '.mp4') and ('FF_' in file_name):
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext)
+            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
         elif file_ext in ('.jpg', '.kml', '.cal', '.json', '.csv') and ('DETECTED' not in file_name) and ('CAPTURED' not in file_name): 
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext)
+            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
         elif dir_file == 'mask.bmp' or dir_file == 'flat.bmp' or dir_file == '.config':
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext)
+            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
     return
 
 
