@@ -119,7 +119,7 @@ def rmsExternal(cap_dir, arch_dir, config):
     except Exception:
         log.info('timelapse creation not enabled')
 
-    uploadToArchive.uploadToArchive(arch_dir)
+    uploadToArchive.uploadToArchive(arch_dir, log)
 
     os.remove(rebootlockfile)
 
