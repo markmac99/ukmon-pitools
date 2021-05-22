@@ -73,7 +73,7 @@ def rmsExternal(cap_dir, arch_dir, config):
 
     initLogging(config, 'ukmon_')
     log = logging.getLogger("logger")
-    log.info('iStream external script started')
+    log.info('ukmon external script started')
     
     rebootlockfile = os.path.join(config.data_dir, config.reboot_lock_file)
     with open(rebootlockfile, 'w') as f:
