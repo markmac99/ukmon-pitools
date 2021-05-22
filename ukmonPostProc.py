@@ -18,6 +18,8 @@ import Utils.GenerateMP4s as gmp4
 import Utils.GenerateTimelapse as gti
 import RMS.ConfigReader as cr
 from importlib import import_module as impmod
+import logging
+from RMS.Logger import initLogging
 
 import uploadToArchive 
 
@@ -68,13 +70,17 @@ def installUkmonFeed():
 
 def rmsExternal(cap_dir, arch_dir, config):
     # called from RMS to trigger the UKMON specific code
+
+    initLogging(config, 'ukmon_')
+    log = logging.getLogger("logger")
+    log.info('iStream external script started')
     
     rebootlockfile = os.path.join(config.data_dir, config.reboot_lock_file)
     with open(rebootlockfile, 'w') as f:
         f.write('1')
 
     # stack and create jpgs from the potential detections
-    print('stacking the FF files')
+    log.info('stacking the FF files')
     sff.stackFFs(arch_dir, 'jpg', filter_bright=True)
     try:
         bff2i.batchFFtoImage(arch_dir, 'jpg', True)
@@ -86,7 +92,7 @@ def rmsExternal(cap_dir, arch_dir, config):
         f = open(os.path.join(myloc, 'domp4s'),'r') 
         f.close()
         # generate MP4s of detections
-        print('generating MP4s')
+        log.info('generating MP4s')
         ftpdate=''
         if os.path.split(arch_dir)[1] == '':
             ftpdate=os.path.split(os.path.split(arch_dir)[0])[1]
@@ -95,24 +101,23 @@ def rmsExternal(cap_dir, arch_dir, config):
         ftpfile_name="FTPdetectinfo_"+ftpdate+'.txt'
         gmp4.generateMP4s(arch_dir, ftpfile_name)
     except Exception:
-        print('mp4 creation not enabled')
+        log.info('mp4 creation not enabled')
     # generate an all-night timelapse and move it to arch_dir
 
     try:
         f = open(os.path.join(myloc, 'dotimelapse'),'r') 
         f.close()
         try: 
-            print('generating a timelapse')
+            log.info('generating a timelapse')
             gti.fps = 25
             gti.generateTimelapse(cap_dir, False)
             mp4name = os.path.basename(cap_dir) + '.mp4'
             shutil.move(os.path.join(cap_dir, mp4name), os.path.join(arch_dir, mp4name))
             
         except:
-            errmsg = 'unable to create timelapse - maybe capture folder removed already'
-            print(errmsg)
+            log.info('unable to create timelapse - maybe capture folder removed already')
     except Exception:
-        print('timelapse creation not enabled')
+        log.info('timelapse creation not enabled')
 
     uploadToArchive.uploadToArchive(arch_dir)
 
@@ -122,14 +127,14 @@ def rmsExternal(cap_dir, arch_dir, config):
         with open(os.path.join(myloc, 'extrascript'),'r') as extraf:
             extrascript=extraf.readline().strip()
 
-        print('running additional script {:s}'.format(extrascript))
+        log.info('running additional script {:s}'.format(extrascript))
         sloc, sname = os.path.split(extrascript)
         sys.path.append(sloc)
         scrname, _ = os.path.splitext(sname)
         nextscr=impmod(scrname)
         nextscr.rmsExternal(cap_dir, arch_dir, config)
-    except OSError:
-        print('additional script not called')
+    except (IOError,OSError):
+        log.info('additional script not called')
         try:
             os.remove(rebootlockfile)
         except:
