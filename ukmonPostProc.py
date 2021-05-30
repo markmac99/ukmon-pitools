@@ -71,8 +71,12 @@ def installUkmonFeed():
 def rmsExternal(cap_dir, arch_dir, config):
     # called from RMS to trigger the UKMON specific code
 
-    initLogging(config, 'ukmon_')
+    # clear existing log handlers
     log = logging.getLogger("logger")
+    while len(log.handlers) > 0:
+        log.removeHandler(log.handlers[0])
+        
+    initLogging(config, 'ukmon_')
     log.info('ukmon external script started')
     
     rebootlockfile = os.path.join(config.data_dir, config.reboot_lock_file)
