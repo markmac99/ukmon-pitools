@@ -73,7 +73,7 @@ def rmsExternal(cap_dir, arch_dir, config):
 
     # clear existing log handlers
     log = logging.getLogger("logger")
-    while log.hasHandlers():
+    while len(log.handlers) > 0:
         log.removeHandler(log.handlers[0])
         
     initLogging(config, 'ukmon_')
