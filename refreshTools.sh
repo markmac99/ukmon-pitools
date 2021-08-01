@@ -8,6 +8,13 @@ source $here/ukmon.ini
 cd $here
 
 if [ -f  .firstrun ] ; then
+    if [ $(file ukmon.ini | grep CRLF | wc -l) -ne 0 ] ; then
+        echo 'fixing ukmon.ini'
+        cp ukmon.ini tmp.ini
+        # dos2unix not installed on the pi
+        tr -d '\r' < tmp.ini > ukmon.ini
+        rm -f tmp.ini
+    fi 
     sftp -i ~/.ssh/ukmon -q $LOCATION@$UKMONHELPER << EOF
 get ukmon.ini
 get live.key
