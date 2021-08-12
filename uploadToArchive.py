@@ -126,7 +126,7 @@ def fireballUpload(ffname, log=None):
     dirpat = ts.strftime('%Y%m%d')
     basarc = os.path.join(rmsdatadir, 'CapturedFiles')
     cap_dirs = [name for name in os.listdir(basarc) if (os.path.isdir(os.path.join(basarc, name)) and dirpat in name)]
-    if len(cap_dirs > 0):
+    if len(cap_dirs) > 0:
         fldr = cap_dirs[0]
 #        arch_dir = os.path.join(basarc, fldr)
         cap_dir = os.path.join(rmsdatadir, 'CapturedFiles', fldr)
