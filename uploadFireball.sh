@@ -8,7 +8,7 @@ export PYTHONPATH=/home/pi/source/ukmon-pitools
 python << EOD
 import uploadToArchive as ua
 import sys
-if len(sys.argv) < 2: 
+if len(sys.argv) < 1: 
     print('usage: ./uploadFireball.sh FF_filename.fits')
 else:
     ua.fireballUpload(sys.argv[1])
