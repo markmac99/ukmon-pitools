@@ -11,6 +11,7 @@
 import boto3
 import os
 import sys
+import glob
 
 
 def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log=None):
@@ -24,6 +25,8 @@ def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log=None):
     ctyp='text/plain'
     if file_ext=='.jpg': 
         ctyp = 'image/jpeg'
+    if file_ext=='.fits': 
+        ctyp = 'image/fits'
     elif file_ext=='.png': 
         ctyp = 'image/png'
     elif file_ext=='.bmp': 
@@ -81,6 +84,19 @@ def uploadToArchive(arch_dir, log=None):
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
         elif dir_file == 'mask.bmp' or dir_file == 'flat.bmp' or dir_file == '.config':
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
+    
+    # upload two FITs files from around midnight if possible
+    # to be used for platepar creation if needed
+    fitslist = glob.glob1(arch_dir, 'FF*.fits')
+    if len(fitslist) > 0: 
+        tss = []
+        for ffname in fitslist:
+            tim=ffname[19:25]
+            tss.append([tim, ffname])
+        tss.sort()
+        uploadOneFile(arch_dir, tss[0][1], s3, targf, '.fits', log)
+        uploadOneFile(arch_dir, tss[-1][1], s3, targf, '.fits', log)
+
     return
 
 
