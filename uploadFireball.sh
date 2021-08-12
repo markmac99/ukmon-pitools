@@ -5,11 +5,11 @@ source $here/ukmon.ini
 
 cd ~/source/RMS
 export PYTHONPATH=/home/pi/source/ukmon-pitools
-if [ "$1" -eq "" ] ; then
+if [ "$1" == "" ] ; then
     echo usage ./uploadFireball.sh FF_name.fits
     exit 0
 fi 
 python << EOD
 import uploadToArchive as ua
-ua.fireballUpload( ${1} )
+ua.fireballUpload("${1}")
 EOD
