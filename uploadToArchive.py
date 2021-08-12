@@ -130,7 +130,7 @@ def fireballUpload(ffname, log=None):
         fldr = cap_dirs[0]
 #        arch_dir = os.path.join(basarc, fldr)
         cap_dir = os.path.join(rmsdatadir, 'CapturedFiles', fldr)
-        fbname = 'FR' + ffname[3:-5] + '.bin'
+        fbname = 'FR' + ffname[2:-5] + '.bin'
         uploadOneFile(cap_dir, fbname, s3, targf, '.fits', log)        
         uploadOneFile(cap_dir, ffname, s3, targf, '.fits', log)        
     else:
