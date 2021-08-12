@@ -9,7 +9,7 @@ python << EOD
 import uploadToArchive as ua
 import sys
 if len(sys.argv) < 2: 
-    print('usage: ./uploadFireball.sh FF_filename.fits)
+    print('usage: ./uploadFireball.sh FF_filename.fits')
 else:
     ua.fireballUpload(sys.argv[1])
 EOD
