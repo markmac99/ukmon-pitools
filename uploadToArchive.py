@@ -82,7 +82,7 @@ def uploadToArchive(arch_dir, log=None):
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
         if (file_ext == '.mp4') and ('FF_' in file_name):
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
-        elif file_ext in ('.jpg', '.kml', '.cal', '.json', '.csv') and ('DETECTED' not in file_name) and ('CAPTURED' not in file_name): 
+        elif file_ext in ('.png', '.jpg', '.kml', '.cal', '.json', '.csv') and ('DETECTED' not in file_name) and ('CAPTURED' not in file_name): 
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
         elif dir_file == 'mask.bmp' or dir_file == 'flat.bmp' or dir_file == '.config':
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
