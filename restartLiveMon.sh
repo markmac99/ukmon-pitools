@@ -12,7 +12,7 @@ fi
 x=$(ps -ef | grep liveMon |wc -l)
 if [[ $x -lt 2 || $force -eq 1 ]]
 then 
-    pids=$(ps -fn | grep liveMon | grep -v grep | awk '{print $1}')
+    pids=$(ps -ef | grep liveMon | grep -v grep | awk '{print $2}')
     if [ "$pids" != "" ] 
     then 
         kill -9 $pids
