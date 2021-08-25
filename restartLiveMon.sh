@@ -5,7 +5,7 @@
 # just add this to your crontab:
 # */10 * * * * /home/pi/source/ukmon-pitools/restartLiveMon.sh >/dev/null 2>&1
 force=0
-if [ $# -gt 1 ] 
+if [ $# -gt 0 ] 
 then
     force=1
 fi 
