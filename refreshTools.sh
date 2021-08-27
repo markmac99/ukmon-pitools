@@ -8,40 +8,36 @@ cd $here
 
 source $here/ukmon.ini
 
-notconfig=$(grep NOTCONFIGURED $here/ukmon.ini | wc -l)
-
-if [[ -f  .firstrun && $notconfig -eq 0 ]] ; then
-    if [ $(file $here/ukmon.ini | grep CRLF | wc -l) -ne 0 ] ; then
-        echo 'fixing ukmon.ini'
-        cp $here/ukmon.ini $here/tmp.ini
-        # dos2unix not installed on the pi
-        tr -d '\r' < $here/tmp.ini > $here/ukmon.ini
-        rm -f $here/tmp.ini
-    fi 
-    sftp -i ~/.ssh/ukmon -q $LOCATION@$UKMONHELPER << EOF
-get ukmon.ini
-get live.key
-get archive.key
-exit
-EOF
-    chmod 0600 live.key archive.key
-    echo "testing connections"
-    source ~/vRMS/bin/activate
-    python $here/sendToLive.py test test
-    python $here/uploadToArchive.py test
-    echo "if you didnt see two success messages contact us for advice" 
-
-    if [ ! -f /home/pi/Desktop/UKMON_config.txt ] ; then 
-        ln -s /home/pi/source/ukmon-pitools/ukmon.ini /home/pi/Desktop/UKMON_config.txt
-    fi 
-fi 
-
 echo "refreshing toolset"
 git stash 
 git pull
 git stash apply
 
-if [ ! -f  .firstrun ] ; then
+if [ -f  .firstrun ] ; then 
+    if [ "$LOCATION" != "NOTCONFIGURED" ] ; then
+        if [ $(file $here/ukmon.ini | grep CRLF | wc -l) -ne 0 ] ; then
+            echo 'fixing ukmon.ini'
+            cp $here/ukmon.ini $here/tmp.ini
+            # dos2unix not installed on the pi
+            tr -d '\r' < $here/tmp.ini > $here/ukmon.ini
+            rm -f $here/tmp.ini
+        fi 
+        sftp -i ~/.ssh/ukmon -q $LOCATION@$UKMONHELPER << EOF
+get ukmon.ini
+get live.key
+get archive.key
+exit
+EOF
+        chmod 0600 live.key archive.key
+        echo "testing connections"
+        source ~/vRMS/bin/activate
+        python $here/sendToLive.py test test
+        python $here/uploadToArchive.py test
+        echo "if you didnt see two success messages contact us for advice" 
+    else
+        echo "Location missing - please update UKMON Config File using the desktop icon"
+    fi
+else 
     echo 1 > .firstrun
     echo "checking boto3 is installed for AWS connections"
     source ~/vRMS/bin/activate
@@ -60,11 +56,11 @@ if [ ! -f  .firstrun ] ; then
         read -p "Press any key to continue"
     fi
     python -c 'import ukmonPostProc as pp ; pp.installUkmonFeed();'
-    if [ ! -f /home/pi/Desktop/UKMON_config.txt ] ; then 
-        ln -s /home/pi/source/ukmon-pitools/ukmon.ini /home/pi/Desktop/UKMON_config.txt
-        ln -s /home/pi/source/ukmon-pitools/refreshTools.sh /home/pi/Desktop/refresh_UKMON_Tools.sh
-    fi 
 fi
+if [ ! -f /home/pi/Desktop/UKMON_config.txt ] ; then 
+    ln -s /home/pi/source/ukmon-pitools/ukmon.ini /home/pi/Desktop/UKMON_config.txt
+    ln -s /home/pi/source/ukmon-pitools/refreshTools.sh /home/pi/Desktop/refresh_UKMON_Tools.sh
+fi 
 
 crontab -l | egrep "refreshTools.sh" > /dev/null
 if [ $? == 1 ] ; then 
