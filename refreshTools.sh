@@ -37,6 +37,7 @@ EOF
     else
         echo "Location missing - please update UKMON Config File using the desktop icon"
         sleep 15
+        exit 1
     fi
 else 
     echo 1 > .firstrun
