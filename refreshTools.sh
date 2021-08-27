@@ -36,7 +36,7 @@ EOF
         echo "if you didnt see two success messages contact us for advice" 
     else
         echo "Location missing - please update UKMON Config File using the desktop icon"
-        sleep 30
+        sleep 15
     fi
 else 
     echo 1 > .firstrun
@@ -56,10 +56,14 @@ else
         echo ""
         read -p "Press any key to continue"
     fi
-    python -c 'import ukmonPostProc as pp ; pp.installUkmonFeed();'
+    if [ $(grep ukmonPost ../RMS/.config | wc -l) -eq 0 ] ; then
+        python -c 'import ukmonPostProc as pp ; pp.installUkmonFeed();'
+    fi 
 fi
 if [ ! -f /home/pi/Desktop/UKMON_config.txt ] ; then 
     ln -s /home/pi/source/ukmon-pitools/ukmon.ini /home/pi/Desktop/UKMON_config.txt
+fi 
+if [ ! -f /home/pi/Desktop/refresh_UKMON_Tools.sh ] ; then 
     ln -s /home/pi/source/ukmon-pitools/refreshTools.sh /home/pi/Desktop/refresh_UKMON_Tools.sh
 fi 
 
