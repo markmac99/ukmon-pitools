@@ -2,7 +2,8 @@
 
 # refresh UKmeteornetwork tools
 
-here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+#here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+here=/home/pi/source/ukmon-pitools
 cd $here
 
 source $here/ukmon.ini
