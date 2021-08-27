@@ -3,9 +3,9 @@
 # refresh UKmeteornetwork tools
 
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-source $here/ukmon.ini
-
 cd $here
+
+source $here/ukmon.ini
 
 notconfig=$(grep NOTCONFIGURED $here/ukmon.ini | wc -l)
 
@@ -61,6 +61,7 @@ if [ ! -f  .firstrun ] ; then
     python -c 'import ukmonPostProc as pp ; pp.installUkmonFeed();'
     if [ ! -f /home/pi/Desktop/UKMON_config.txt ] ; then 
         ln -s /home/pi/source/ukmon-pitools/ukmon.ini /home/pi/Desktop/UKMON_config.txt
+        ln -s /home/pi/source/ukmon-pitools/refreshTools.sh /home/pi/Desktop/refresh_UKMON_Tools.sh
     fi 
 fi
 
