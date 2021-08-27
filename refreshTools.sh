@@ -7,13 +7,15 @@ source $here/ukmon.ini
 
 cd $here
 
-if [ -f  .firstrun ] ; then
-    if [ $(file ukmon.ini | grep CRLF | wc -l) -ne 0 ] ; then
+notconfig=$(grep NOTCONFIGURED $here/ukmon.ini | wc -l)
+
+if [[ -f  .firstrun && $notconfig -eq 0 ]] ; then
+    if [ $(file $here/ukmon.ini | grep CRLF | wc -l) -ne 0 ] ; then
         echo 'fixing ukmon.ini'
-        cp ukmon.ini tmp.ini
+        cp $here/ukmon.ini $here/tmp.ini
         # dos2unix not installed on the pi
-        tr -d '\r' < tmp.ini > ukmon.ini
-        rm -f tmp.ini
+        tr -d '\r' < $here/tmp.ini > $here/ukmon.ini
+        rm -f $here/tmp.ini
     fi 
     sftp -i ~/.ssh/ukmon -q $LOCATION@$UKMONHELPER << EOF
 get ukmon.ini
@@ -27,6 +29,10 @@ EOF
     python $here/sendToLive.py test test
     python $here/uploadToArchive.py test
     echo "if you didnt see two success messages contact us for advice" 
+
+    if [ ! -f /home/pi/Desktop/UKMON_config.txt ] ; then 
+        ln -s /home/pi/source/ukmon-pitools/ukmon.ini /home/pi/Desktop/UKMON_config.txt
+    fi 
 fi 
 
 echo "refreshing toolset"
@@ -53,7 +59,11 @@ if [ ! -f  .firstrun ] ; then
         read -p "Press any key to continue"
     fi
     python -c 'import ukmonPostProc as pp ; pp.installUkmonFeed();'
+    if [ ! -f /home/pi/Desktop/UKMON_config.txt ] ; then 
+        ln -s /home/pi/source/ukmon-pitools/ukmon.ini /home/pi/Desktop/UKMON_config.txt
+    fi 
 fi
+
 crontab -l | egrep "refreshTools.sh" > /dev/null
 if [ $? == 1 ] ; then 
     echo "enabling daily toolset refresh"
