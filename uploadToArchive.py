@@ -60,8 +60,12 @@ def uploadToArchive(arch_dir, log=None):
     # Upload all relevant files from *arch_dir* to ukmon's S3 Archive
 
     myloc = os.path.split(os.path.abspath(__file__))[0]
-    filename = os.path.join(myloc, 'archive.key')
-    with open(filename, 'r') as fin:
+    keyfile = os.path.join(myloc, 'archive.key')
+    if os.path.isfile(keyfile) is False:
+        log.info('AWS keyfile not present')
+        exit(1)
+
+    with open(keyfile, 'r') as fin:
         key = fin.readline().split('=')[1].strip()
         secr = fin.readline().split('=')[1].strip()
         reg = fin.readline().split('=')[1].strip()
