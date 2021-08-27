@@ -36,6 +36,7 @@ EOF
         echo "if you didnt see two success messages contact us for advice" 
     else
         echo "Location missing - please update UKMON Config File using the desktop icon"
+        sleep 30
     fi
 else 
     echo 1 > .firstrun
