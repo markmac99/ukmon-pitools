@@ -3,7 +3,7 @@
 # refresh UKmeteornetwork tools
 
 #here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-here=/home/$USER/source/ukmon-pitools
+here=/home/$LOGNAME/source/ukmon-pitools
 cd $here
 
 source $here/ukmon.ini
@@ -72,7 +72,7 @@ crontab -l | egrep "refreshTools.sh" > /dev/null
 if [ $? == 1 ] ; then 
     echo "enabling daily toolset refresh"
     crontab -l > /tmp/crontab.tmp 
-    echo "@reboot sleep 60 && /home/$USER/source/ukmon-pitools/refreshTools.sh > /home/$USER/RMS_data/logs/refreshTools.log 2>&1" >> /tmp/crontab.tmp
+    echo "@reboot sleep 60 && /home/$LOGNAME/source/ukmon-pitools/refreshTools.sh > /home/$LOGNAME/RMS_data/logs/refreshTools.log 2>&1" >> /tmp/crontab.tmp
     crontab /tmp/crontab.tmp
     rm /tmp/crontab.tmp
 fi 
@@ -80,7 +80,7 @@ crontab -l | egrep "liveMonitor.sh" > /dev/null
 if [ $? == 1 ] ; then 
     echo "enabling live monitoring"
     crontab -l > /tmp/crontab.tmp 
-    echo "@reboot sleep 3600 && /home/$USER/source/ukmon-pitools/liveMonitor.sh >> /home/$USER/RMS_data/logs/ukmon-live.log 2>&1" >> /tmp/crontab.tmp
+    echo "@reboot sleep 3600 && /home/$LOGNAME/source/ukmon-pitools/liveMonitor.sh >> /home/$LOGNAME/RMS_data/logs/ukmon-live.log 2>&1" >> /tmp/crontab.tmp
     crontab /tmp/crontab.tmp
     rm /tmp/crontab.tmp
 fi 
