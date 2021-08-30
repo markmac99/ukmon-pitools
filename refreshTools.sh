@@ -3,6 +3,8 @@
 # refresh UKmeteornetwork tools
 
 here=/home/$LOGNAME/source/ukmon-pitools
+cd $here
+
 source $here/ukmon.ini
 
 echo "refreshing toolset"
@@ -10,32 +12,34 @@ git stash
 git pull
 git stash apply
 
-cd $here
-
-if [ -f  .firstrun ] ; then
-    if [ $(file ukmon.ini | grep CRLF | wc -l) -ne 0 ] ; then
-        echo 'fixing ukmon.ini'
-        cp ukmon.ini tmp.ini
-        # dos2unix not installed on the pi
-        tr -d '\r' < tmp.ini > ukmon.ini
-        rm -f tmp.ini
-    fi 
-    sftp -i ~/.ssh/ukmon -q $LOCATION@$UKMONHELPER << EOF
+if [ -f  $here/.firstrun ] ; then 
+    if [[ "$LOCATION" != "NOTCONFIGURED"  && "$LOCATION" != "" ]] ; then
+        if [ $(file $here/ukmon.ini | grep CRLF | wc -l) -ne 0 ] ; then
+            echo 'fixing ukmon.ini'
+            cp $here/ukmon.ini $here/tmp.ini
+            # dos2unix not installed on the pi
+            tr -d '\r' < $here/tmp.ini > $here/ukmon.ini
+            rm -f $here/tmp.ini
+        fi 
+        sftp -i ~/.ssh/ukmon -q $LOCATION@$UKMONHELPER << EOF
 get ukmon.ini
 get live.key
 get archive.key
 exit
 EOF
-    chmod 0600 live.key archive.key
-    echo "testing connections"
-    source ~/vRMS/bin/activate
-    python $here/sendToLive.py test test
-    python $here/uploadToArchive.py test
-    echo "if you didnt see two success messages contact us for advice" 
-fi 
-
-if [ ! -f  .firstrun ] ; then
-    echo 1 > .firstrun
+        chmod 0600 live.key archive.key
+        echo "testing connections"
+        source ~/vRMS/bin/activate
+        python $here/sendToLive.py test test
+        python $here/uploadToArchive.py test
+        echo "if you didnt see two success messages contact us for advice" 
+    else
+        echo "Location missing - please update UKMON Config File using the desktop icon"
+        sleep 15
+        exit 1
+    fi
+else 
+    echo 1 > $here/.firstrun
     echo "checking boto3 is installed for AWS connections"
     source ~/vRMS/bin/activate
     pip list | grep boto3
@@ -53,7 +57,6 @@ if [ ! -f  .firstrun ] ; then
         read -p "Press any key to continue"
     fi
 fi
-
 if [ $(grep ukmonPost ~/source/RMS/.config | wc -l) -eq 0 ] ; then
     python -c 'import ukmonPostProc as pp ; pp.installUkmonFeed();'
 fi 
