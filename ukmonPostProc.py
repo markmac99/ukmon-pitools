@@ -156,7 +156,7 @@ def manualRerun(dated_dir):
     Args:
         dated_dir (str): This is the name of the folder to upload eg UK000F_20210512_202826_913898
     """
-    config = cr.parse(".config")
+    config = cr.parse(os.path.expanduser('~/source/RMS/.config'))
     cap_dir = os.path.join(config.data_dir, 'CapturedFiles', dated_dir)
     arch_dir = os.path.join(config.data_dir, 'ArchivedFiles', dated_dir)
     rmsExternal(cap_dir, arch_dir, config)
