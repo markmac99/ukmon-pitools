@@ -75,6 +75,7 @@ if [ $? == 1 ] ; then
     crontab /tmp/crontab.tmp
     rm /tmp/crontab.tmp
 fi 
+
 crontab -l | egrep "liveMonitor.sh" > /dev/null
 if [ $? == 1 ] ; then 
     echo "enabling live monitoring"
