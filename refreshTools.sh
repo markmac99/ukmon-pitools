@@ -13,7 +13,7 @@ git pull
 git stash apply
 
 if [ -f  $here/.firstrun ] ; then 
-    if [ "$LOCATION" != "NOTCONFIGURED" ] ; then
+    if [[ "$LOCATION" != "NOTCONFIGURED"  && "$LOCATION" != "" ]] ; then
         if [ $(file $here/ukmon.ini | grep CRLF | wc -l) -ne 0 ] ; then
             echo 'fixing ukmon.ini'
             cp $here/ukmon.ini $here/tmp.ini
