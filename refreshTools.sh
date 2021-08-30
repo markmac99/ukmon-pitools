@@ -2,7 +2,6 @@
 
 # refresh UKmeteornetwork tools
 
-#here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 here=/home/$LOGNAME/source/ukmon-pitools
 cd $here
 
@@ -13,7 +12,7 @@ git stash
 git pull
 git stash apply
 
-if [ -f  .firstrun ] ; then 
+if [ -f  $here/.firstrun ] ; then 
     if [ "$LOCATION" != "NOTCONFIGURED" ] ; then
         if [ $(file $here/ukmon.ini | grep CRLF | wc -l) -ne 0 ] ; then
             echo 'fixing ukmon.ini'
@@ -40,7 +39,7 @@ EOF
         exit 1
     fi
 else 
-    echo 1 > .firstrun
+    echo 1 > $here/.firstrun
     echo "checking boto3 is installed for AWS connections"
     source ~/vRMS/bin/activate
     pip list | grep boto3
