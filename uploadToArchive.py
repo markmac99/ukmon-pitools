@@ -11,6 +11,9 @@
 import boto3
 import os
 import sys
+import glob
+import datetime
+import RMS.ConfigReader as cr
 
 
 def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log=None):
@@ -24,6 +27,8 @@ def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log=None):
     ctyp='text/plain'
     if file_ext=='.jpg': 
         ctyp = 'image/jpeg'
+    if file_ext=='.fits': 
+        ctyp = 'image/fits'
     elif file_ext=='.png': 
         ctyp = 'image/png'
     elif file_ext=='.bmp': 
@@ -77,10 +82,59 @@ def uploadToArchive(arch_dir, log=None):
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
         if (file_ext == '.mp4') and ('FF_' in file_name):
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
-        elif file_ext in ('.jpg', '.kml', '.cal', '.json', '.csv') and ('DETECTED' not in file_name) and ('CAPTURED' not in file_name): 
+        elif file_ext in ('.png', '.jpg', '.kml', '.cal', '.json', '.csv') and ('DETECTED' not in file_name) and ('CAPTURED' not in file_name): 
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
         elif dir_file == 'mask.bmp' or dir_file == 'flat.bmp' or dir_file == '.config':
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
+    
+    # upload two FITs files from around midnight if possible
+    # to be used for platepar creation if needed
+    fitslist = glob.glob1(arch_dir, 'FF*.fits')
+    if len(fitslist) > 0: 
+        tss = []
+        for ffname in fitslist:
+            tim=ffname[19:25]
+            tss.append([tim, ffname])
+        tss.sort()
+        uploadOneFile(arch_dir, tss[0][1], s3, targf, '.fits', log)
+        uploadOneFile(arch_dir, tss[-1][1], s3, targf, '.fits', log)
+
+    return
+
+
+def fireballUpload(ffname, log=None):
+    cfgname = '.config'
+    config = cr.parse(cfgname)
+    rmsdatadir = config.data_dir
+
+    myloc = os.path.split(os.path.abspath(__file__))[0]
+    filename = os.path.join(myloc, 'archive.key')
+    with open(filename, 'r') as fin:
+        key = fin.readline().split('=')[1].strip()
+        secr = fin.readline().split('=')[1].strip()
+        reg = fin.readline().split('=')[1].strip()
+        targf = fin.readline().split('=')[1].strip()
+    if targf[0] == '"':
+        targf = targf[1:len(targf)-1]
+    conn = boto3.Session(aws_access_key_id=key, aws_secret_access_key=secr) 
+    s3 = conn.resource('s3', region_name=reg)
+
+    dtstamp = ffname[10:25]
+    ts = datetime.datetime.strptime(dtstamp,'%Y%m%d_%H%M%S')
+    if ts.hour < 12:
+        ts = ts + datetime.timedelta(days=-1)
+    dirpat = ts.strftime('%Y%m%d')
+    basarc = os.path.join(rmsdatadir, 'CapturedFiles')
+    cap_dirs = [name for name in os.listdir(basarc) if (os.path.isdir(os.path.join(basarc, name)) and dirpat in name)]
+    if len(cap_dirs) > 0:
+        fldr = cap_dirs[0]
+#        arch_dir = os.path.join(basarc, fldr)
+        cap_dir = os.path.join(rmsdatadir, 'CapturedFiles', fldr)
+        fbname = 'FR' + ffname[2:-5] + '.bin'
+        uploadOneFile(cap_dir, fbname, s3, targf, '.fits', log)        
+        uploadOneFile(cap_dir, ffname, s3, targf, '.fits', log)        
+    else:
+        print('unable to find source folder')
     return
 
 
