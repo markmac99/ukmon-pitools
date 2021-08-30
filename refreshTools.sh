@@ -61,7 +61,7 @@ if [ $(grep ukmonPost ~/source/RMS/.config | wc -l) -eq 0 ] ; then
     python -c 'import ukmonPostProc as pp ; pp.installUkmonFeed();'
 fi 
 if [ ! -f ~/Desktop/UKMON_config.txt ] ; then 
-    ln -s ~/source/ukmon-pitools/ukmon.ini /~/Desktop/UKMON_config.txt
+    ln -s ~/source/ukmon-pitools/ukmon.ini ~/Desktop/UKMON_config.txt
 fi 
 if [ ! -f ~/Desktop/refresh_UKMON_Tools.sh ] ; then 
     ln -s ~/source/ukmon-pitools/refreshTools.sh ~/Desktop/refresh_UKMON_Tools.sh
