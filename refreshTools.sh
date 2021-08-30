@@ -3,7 +3,7 @@
 # refresh UKmeteornetwork tools
 
 #here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-here=/home/pi/source/ukmon-pitools
+here=/home/$USER/source/ukmon-pitools
 cd $here
 
 source $here/ukmon.ini
@@ -57,22 +57,22 @@ else
         echo ""
         read -p "Press any key to continue"
     fi
-    if [ $(grep ukmonPost ../RMS/.config | wc -l) -eq 0 ] ; then
-        python -c 'import ukmonPostProc as pp ; pp.installUkmonFeed();'
-    fi 
 fi
-if [ ! -f /home/pi/Desktop/UKMON_config.txt ] ; then 
-    ln -s /home/pi/source/ukmon-pitools/ukmon.ini /home/pi/Desktop/UKMON_config.txt
+if [ $(grep ukmonPost ~/source/RMS/.config | wc -l) -eq 0 ] ; then
+    python -c 'import ukmonPostProc as pp ; pp.installUkmonFeed();'
 fi 
-if [ ! -f /home/pi/Desktop/refresh_UKMON_Tools.sh ] ; then 
-    ln -s /home/pi/source/ukmon-pitools/refreshTools.sh /home/pi/Desktop/refresh_UKMON_Tools.sh
+if [ ! -f ~/Desktop/UKMON_config.txt ] ; then 
+    ln -s ~/source/ukmon-pitools/ukmon.ini /~/Desktop/UKMON_config.txt
+fi 
+if [ ! -f ~/Desktop/refresh_UKMON_Tools.sh ] ; then 
+    ln -s ~/source/ukmon-pitools/refreshTools.sh ~/Desktop/refresh_UKMON_Tools.sh
 fi 
 
 crontab -l | egrep "refreshTools.sh" > /dev/null
 if [ $? == 1 ] ; then 
     echo "enabling daily toolset refresh"
     crontab -l > /tmp/crontab.tmp 
-    echo "@reboot sleep 60 && /home/pi/source/ukmon-pitools/refreshTools.sh > /home/pi/RMS_data/logs/refreshTools.log 2>&1" >> /tmp/crontab.tmp
+    echo "@reboot sleep 60 && /home/$USER/source/ukmon-pitools/refreshTools.sh > /home/$USER/RMS_data/logs/refreshTools.log 2>&1" >> /tmp/crontab.tmp
     crontab /tmp/crontab.tmp
     rm /tmp/crontab.tmp
 fi 
@@ -80,7 +80,7 @@ crontab -l | egrep "liveMonitor.sh" > /dev/null
 if [ $? == 1 ] ; then 
     echo "enabling live monitoring"
     crontab -l > /tmp/crontab.tmp 
-    echo "@reboot sleep 3600 && /home/pi/source/ukmon-pitools/liveMonitor.sh >> /home/pi/RMS_data/logs/ukmon-live.log 2>&1" >> /tmp/crontab.tmp
+    echo "@reboot sleep 3600 && /home/$USER/source/ukmon-pitools/liveMonitor.sh >> /home/$USER/RMS_data/logs/ukmon-live.log 2>&1" >> /tmp/crontab.tmp
     crontab /tmp/crontab.tmp
     rm /tmp/crontab.tmp
 fi 

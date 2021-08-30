@@ -122,7 +122,7 @@ def singleUpload(cap_dir, dir_file):
     s3 = conn.resource('s3')
     # read a few variables from the RMS config file
     cfg = configparser.ConfigParser()
-    cfg.read('/home/pi/source/RMS/.config')
+    cfg.read(os.path.expanduser('~/source/RMS/.config'))
     loc = []
     loc.append(float(cfg['System']['latitude'].split()[0]))
     loc.append(float(cfg['System']['longitude'].split()[0]))

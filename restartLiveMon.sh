@@ -18,5 +18,5 @@ then
         kill -9 $pids
     fi 
     echo "restarting liveMonitor"
-    /home/pi/source/ukmon-pitools/liveMonitor.sh >> /home/pi/RMS_data/logs/ukmon-live.log 2>&1 &
+    ~/source/ukmon-pitools/liveMonitor.sh >> ~/RMS_data/logs/ukmon-live.log 2>&1 &
 fi

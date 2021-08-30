@@ -33,7 +33,7 @@ def installUkmonFeed():
     """
     myloc = os.path.split(os.path.abspath(__file__))[0]
     newpath = os.path.join(myloc, 'ukmonPostProc.py')
-    cfgname = '/home/pi/source/RMS/.config'
+    cfgname = os.path.expanduser('~/source/RMS/.config')
     config = cr.parse(cfgname)
     esr = config.external_script_run
     extl = config.external_script_path
@@ -156,9 +156,9 @@ def manualRerun(dated_dir):
     Args:
         dated_dir (str): This is the name of the folder to upload eg UK000F_20210512_202826_913898
     """
-    cap_dir = os.path.join('/home/pi/RMS_data/CapturedFiles', dated_dir)
-    arch_dir = os.path.join('/home/pi/RMS_data/ArchivedFiles', dated_dir)
     config = cr.parse(".config")
+    cap_dir = os.path.join(config.data_dir, 'CapturedFiles', dated_dir)
+    arch_dir = os.path.join(config.data_dir, 'ArchivedFiles', dated_dir)
     rmsExternal(cap_dir, arch_dir, config)
 
 
