@@ -5,6 +5,11 @@
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 source $here/ukmon.ini
 
+echo "refreshing toolset"
+git stash 
+git pull
+git stash apply
+
 cd $here
 
 if [ -f  .firstrun ] ; then
@@ -28,11 +33,6 @@ EOF
     python $here/uploadToArchive.py test
     echo "if you didnt see two success messages contact us for advice" 
 fi 
-
-echo "refreshing toolset"
-git stash 
-git pull
-git stash apply
 
 if [ ! -f  .firstrun ] ; then
     echo 1 > .firstrun
