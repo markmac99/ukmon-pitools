@@ -56,6 +56,12 @@ else
         echo ""
         read -p "Press any key to continue"
     fi
+    if [ ! -f $here/ukmon.ini ] ; then 
+        echo  "# config data for this station" > $here/ukmon.ini
+        echo  "export LOCATION=NOTCONFIGURED" >> $here/ukmon.ini
+        echo  "export UKMONHELPER=3.8.65.98" >> $here/ukmon.ini
+        echo  "export UKMONKEY=~/.ssh/ukmon" >> $here/ukmon.ini
+    fi 
 fi
 if [ $(grep ukmonPost ~/source/RMS/.config | wc -l) -eq 0 ] ; then
     python -c 'import ukmonPostProc as pp ; pp.installUkmonFeed();'
