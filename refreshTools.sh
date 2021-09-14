@@ -12,6 +12,13 @@ git stash
 git pull
 git stash apply
 
+if [ ! -f $here/ukmon.ini ] ; then
+    echo  "# config data for this station" > $here/ukmon.ini
+    echo  "export LOCATION=NOTCONFIGURED" >> $here/ukmon.ini
+    echo  "export UKMONHELPER=3.8.65.98" >> $here/ukmon.ini
+    echo  "export UKMONKEY=~/.ssh/ukmon" >> $here/ukmon.ini
+fi 
+
 if [ -f  $here/.firstrun ] ; then 
     if [[ "$LOCATION" != "NOTCONFIGURED"  && "$LOCATION" != "" ]] ; then
         if [ $(file $here/ukmon.ini | grep CRLF | wc -l) -ne 0 ] ; then
@@ -57,13 +64,6 @@ else
         read -p "Press any key to continue"
     fi
 fi
-
-if [ ! -f $here/ukmon.ini ] ; then
-    echo  "# config data for this station" > $here/ukmon.ini
-    echo  "export LOCATION=NOTCONFIGURED" >> $here/ukmon.ini
-    echo  "export UKMONHELPER=3.8.65.98" >> $here/ukmon.ini
-    echo  "export UKMONKEY=~/.ssh/ukmon" >> $here/ukmon.ini
-fi 
 
 if [ $(grep ukmonPost ~/source/RMS/.config | wc -l) -eq 0 ] ; then
     python -c 'import ukmonPostProc as pp ; pp.installUkmonFeed();'
