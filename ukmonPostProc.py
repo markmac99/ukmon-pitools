@@ -125,8 +125,8 @@ def rmsExternal(cap_dir, arch_dir, config):
 
     uploadToArchive.uploadToArchive(arch_dir, log)
 
-    os.remove(rebootlockfile)
-
+    # do not remote reboot lock file if running another script
+    # os.remove(rebootlockfile)
     try:
         with open(os.path.join(myloc, 'extrascript'),'r') as extraf:
             extrascript=extraf.readline().strip()
