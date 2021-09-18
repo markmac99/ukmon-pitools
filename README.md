@@ -2,6 +2,8 @@ ukmeteornetwork toolset for RMS pi meteor cameras
 =================================================
 These tools manage uploads of RMS data to the UK Meteor Network Archive and Live-stream.
 
+There is more information about RMS and the toolset in the wiki [here] (https://github.com/markmac99/ukmon-pitools/wiki "UKMON Wiki")
+
 INSTALLATION
 ------------
 * Login to your pi using VNC or AnyDesk or TeamViewer, open a Terminal window from the Accessories menu, then type the following
@@ -37,7 +39,7 @@ To enable these, create files named "domp4s" or "dotimelapse" in the same folder
 Running an Additional Script such as the Istrastream feed
 ---------------------------------------------------------
 If you want to run an additional Python script after this one finishes, create a file named "extrascript"  in the same folder, containing a single line with the full path to the script, eg to enable the feed to istrastream:  
-> echo "/home/pi/source/RMs/iStream/iStream.py" > /home/pi/source/ukmon-pitools/extrascript  
+> echo "/home/pi/source/RMS/iStream/iStream.py" > /home/pi/source/ukmon-pitools/extrascript  
 
 This script will be passed the capture_dir, archive_dir and RMS config object in the same way as RMS
 passes these to any external script. 
