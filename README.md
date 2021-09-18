@@ -2,7 +2,7 @@ ukmeteornetwork toolset for RMS pi meteor cameras
 =================================================
 These tools manage uploads of RMS data to the UK Meteor Network Archive and Live-stream.
 
-There is more information about RMS and the toolset in the wiki [here] (https://github.com/markmac99/ukmon-pitools/wiki "UKMON Wiki")
+There is more information about RMS and the toolset in the wiki [here](https://github.com/markmac99/ukmon-pitools/wiki "UKMON Wiki")
 
 INSTALLATION
 ------------
