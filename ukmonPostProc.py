@@ -86,12 +86,14 @@ def rmsExternal(cap_dir, arch_dir, config):
     # stack and create jpgs from the potential detections
     log.info('stacking the FF files')
     sff.stackFFs(arch_dir, 'jpg', filter_bright=True)
+    log.info('creating JPGs')
     try:
         bff2i.batchFFtoImage(arch_dir, 'jpg', True)
     except:
         bff2i.batchFFtoImage(arch_dir, 'jpg')
 
     myloc = os.path.split(os.path.abspath(__file__))[0]
+    log.info('app home is {}'.format(myloc))
     try:
         f = open(os.path.join(myloc, 'domp4s'),'r') 
         f.close()
