@@ -50,9 +50,9 @@ def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log=None):
             log.info(desf)
     except Exception:
         if log is None:
-            print('file not present: {}'.format(dir_file))
+            print('upload failed: {}'.format(dir_file))
         else:
-            log.info('file not present: {}'.format(dir_file))
+            log.info('upload failed: {}'.format(dir_file))
     return
 
 
