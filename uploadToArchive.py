@@ -98,9 +98,10 @@ def uploadToArchive(arch_dir, log=None):
         js = json.load(ppf)
     ffs=[k for k in js.keys() if js[k]['auto_recalibrated'] is True]
     if len(ffs) > 0:
+        cap_dir = arch_dir.replace('ArchivedFiles','CapturedFiles')
         uploadffs = random.sample(ffs, 2)
         for ff in uploadffs:
-            uploadOneFile(arch_dir, ff, s3, targf, '.fits', log)    
+            uploadOneFile(cap_dir, ff, s3, targf, '.fits', log)    
 
     return
 
