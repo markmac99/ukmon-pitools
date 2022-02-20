@@ -11,8 +11,9 @@
 import boto3
 import os
 import sys
-import glob
 import datetime
+import json
+import random
 import RMS.ConfigReader as cr
 
 
@@ -91,17 +92,16 @@ def uploadToArchive(arch_dir, log=None):
         elif dir_file == 'mask.bmp' or dir_file == 'flat.bmp' or dir_file == '.config':
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
     
-    # upload two FITs files from around midnight if possible
+    # upload two FITs files chosen at random from the recalibrated ones
     # to be used for platepar creation if needed
-    fitslist = glob.glob1(arch_dir, 'FF*.fits')
-    if len(fitslist) > 0: 
-        tss = []
-        for ffname in fitslist:
-            tim=ffname[19:25]
-            tss.append([tim, ffname])
-        tss.sort()
-        uploadOneFile(arch_dir, tss[0][1], s3, targf, '.fits', log)
-        uploadOneFile(arch_dir, tss[-1][1], s3, targf, '.fits', log)
+    with open(os.path.join(arch_dir, 'platepars_all_recalibrated.json')) as ppf:
+        js = json.load(ppf)
+    ffs=[k for k in js.keys() if js[k]['auto_recalibrated'] is True]
+    if len(ffs) > 0:
+        cap_dir = arch_dir.replace('ArchivedFiles','CapturedFiles')
+        uploadffs = random.sample(ffs, 2)
+        for ff in uploadffs:
+            uploadOneFile(cap_dir, ff, s3, targf, '.fits', log)    
 
     return
 

@@ -14,7 +14,7 @@ INSTALLATION
 
 * When prompted, copy the SSH public key. 
 
-* Email the key to markmcintyre99@googlemail.com along with your location (eg the name of your town or village) and the rough direction your camera points in eg SW, S, NE. The location should be no more than 16 characters. We will also need your camera ID, latitude, longitude and elevation if possible, so that your data can be included in the Orbit and Trajectory solving routines. 
+* Email the key to markmcintyre99@googlemail.com along with your location (eg the name of your town or village) and the rough direction your camera points in eg SW, S, NE. The location should be no more than 16 characters. We will also need your camera ID, latitude, longitude and elevation from the RMS config file so that your data can be included in the Orbit and Trajectory solving routines. 
 
 * We will add your key to our server and send you a small config file.  Copy this file into */home/pi/source/ukmon-pitools* 
 * Once you've installed the ini file, re-run the *refreshTools.sh* script to download your security keys and bring the tools up to date. Answer 'yes' when prompted to accept the security key. 
@@ -41,8 +41,7 @@ Running an Additional Script such as the Istrastream feed
 If you want to run an additional Python script after this one finishes, create a file named "extrascript"  in the same folder, containing a single line with the full path to the script, For example to enable the feed to istrastream, you could open a Terminal window and type the following:  
 > echo "/home/pi/source/RMS/iStream/iStream.py" > /home/pi/source/ukmon-pitools/extrascript  
 
-This script will be passed the capture_dir, archive_dir and RMS config object in the same way as RMS
-passes these to any external script. 
+This script will be passed the capture_dir, archive_dir and RMS config object in the same way as RMS passes these to any external script. 
 
 Note that before enabling a feed to Istrastream you must email info@istrastream.com with your camera ID, location and lens focal length. They'll enable your uploads and let you know. You'll get back instructions for how to enable iStream but please follow the above notes instead. 
 
@@ -75,4 +74,7 @@ details of our sftp server used to distribute security keys.
 
 Questions
 =========
-Any questions, concerns or suggestions to me via markmcintyre99@googlemail.com  
+Any questions, concerns or suggestions:
+* Check the wiki here https://github.com/markmac99/ukmon-pitools/wiki
+* Join our group on Groups.io https://groups.io/g/ukmeteornetwork/topics
+* As a last resort, email me via markmcintyre99@googlemail.com  
