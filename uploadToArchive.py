@@ -35,7 +35,7 @@ def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log=None):
     elif file_ext=='.bmp': 
         ctyp = 'image/bmp'
     elif file_ext=='.mp4': 
-        ctyp = 'vide0/mp4'
+        ctyp = 'video/mp4'
     if file_ext=='.csv': 
         ctyp = 'text/csv'
     elif file_ext=='.json': 
