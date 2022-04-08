@@ -64,7 +64,7 @@ def uploadToArchive(arch_dir, log=None):
     keyfile = os.path.join(myloc, 'archive.key')
     if os.path.isfile(keyfile) is False:
         log.info('AWS keyfile not present')
-        exit(1)
+        return
 
     with open(keyfile, 'r') as fin:
         key = fin.readline().split('=')[1].strip()
