@@ -125,10 +125,12 @@ def rmsExternal(cap_dir, arch_dir, config):
     except Exception:
         log.info('timelapse creation not enabled')
 
+    log.info('uploading to archive')
     uploadToArchive.uploadToArchive(arch_dir, log)
 
     # do not remote reboot lock file if running another script
     # os.remove(rebootlockfile)
+    log.info('about to test for extra script')
     try:
         with open(os.path.join(myloc, 'extrascript'),'r') as extraf:
             extrascript=extraf.readline().strip()
