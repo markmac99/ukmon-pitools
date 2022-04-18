@@ -35,7 +35,7 @@ def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log=None):
     elif file_ext=='.bmp': 
         ctyp = 'image/bmp'
     elif file_ext=='.mp4': 
-        ctyp = 'vide0/mp4'
+        ctyp = 'video/mp4'
     if file_ext=='.csv': 
         ctyp = 'text/csv'
     elif file_ext=='.json': 
@@ -64,7 +64,7 @@ def uploadToArchive(arch_dir, log=None):
     keyfile = os.path.join(myloc, 'archive.key')
     if os.path.isfile(keyfile) is False:
         log.info('AWS keyfile not present')
-        exit(1)
+        return
 
     with open(keyfile, 'r') as fin:
         key = fin.readline().split('=')[1].strip()
