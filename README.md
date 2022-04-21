@@ -16,10 +16,7 @@ INSTALLATION
 
 * Email the key to markmcintyre99@googlemail.com along with your location (eg the name of your town or village) and the rough direction your camera points in eg SW, S, NE. The location should be no more than 16 characters. We will also need your camera ID, latitude, longitude and elevation from the RMS config file so that your data can be included in the Orbit and Trajectory solving routines. 
 
-* We will add your key to our server and send you a small config file.  Copy this file into */home/pi/source/ukmon-pitools* 
-* Once you've installed the ini file, re-run the *refreshTools.sh* script to download your security keys and bring the tools up to date. Answer 'yes' when prompted to accept the security key. 
-
-* The refresh process will also update the RMS config file so that it runs the UKMON uploader process after each night's data capture finishes. If you already had a post-processing script configured, such as Istrastream, this will be preserved and will run after the UKMON job. The original config file is backed up to the ukmon-pitools folder. 
+* We will add your key to our server and send you instructions for how to complete the setup.  
 
 
 HOW THE TOOLS WORK

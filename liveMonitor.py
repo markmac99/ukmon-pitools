@@ -37,6 +37,9 @@ def monitorLogFile():
     myloc = os.path.split(os.path.abspath(__file__))[0]
 
     # get credentials
+    if not os.path.isfile(os.path.join(myloc, 'live.key')):
+        print('AWS key not present, aborting')
+        exit(1)
     with open(os.path.join(myloc, 'live.key'), 'r') as inif:
         lines = inif.readlines()
         for li in lines:
