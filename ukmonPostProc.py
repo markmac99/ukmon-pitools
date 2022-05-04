@@ -24,7 +24,7 @@ from RMS.Logger import initLogging
 import uploadToArchive 
 
 
-def installUkmonFeed():
+def installUkmonFeed(rmscfg='~/source/RMS/.config'):
     """ This function installs the UKMon postprocessing script into the RMS config file.
     It is called from the refreshTools script during initial installation and should never
     be called outside of that unless you're *certain* you know what you're doing. The script 
@@ -33,7 +33,7 @@ def installUkmonFeed():
     """
     myloc = os.path.split(os.path.abspath(__file__))[0]
     newpath = os.path.join(myloc, 'ukmonPostProc.py')
-    cfgname = os.path.expanduser('~/source/RMS/.config')
+    cfgname = os.path.expanduser(rmscfg)
     config = cr.parse(cfgname)
     esr = config.external_script_run
     extl = config.external_script_path
