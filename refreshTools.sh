@@ -92,5 +92,6 @@ if [ $? == 1 ] ; then
     crontab /tmp/crontab.tmp
     rm /tmp/crontab.tmp
 fi 
+echo got here
 sleep 5
 echo "done"
