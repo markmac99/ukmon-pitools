@@ -13,10 +13,10 @@ if [ ! -f $here/ukmon.ini ] ; then
     echo  "export RMSCFG=~/source/RMS/.config " >> $here/ukmon.ini
     echo "location not configured yet"
 fi 
-if [ $(grep RMSCFG $here/ukmon.ini | wc -l)  -eq 0 ] ; then
-    echo  "export RMSCFG=~/source/RMS/.config " >> $here/ukmon.ini
-fi 
 source $here/ukmon.ini
+if [ "$RMSCFG" == "" ] ; then
+    export RMSCFG=~/source/RMS/.config
+fi 
 
 echo "refreshing toolset"
 git stash 
