@@ -30,6 +30,14 @@ if [ $? -eq 1 ] ; then
     pip install boto3
 fi 
 
+if [ ! -f ~/Desktop/UKMON_config.txt ] ; then 
+    ln -s $here/ukmon.ini ~/Desktop/UKMON_config.txt
+fi 
+if [ ! -f ~/Desktop/refresh_UKMON_Tools.sh ] ; then 
+    ln -s $here/refreshTools.sh ~/Desktop/refresh_UKMON_Tools.sh
+fi 
+
+
 if [ ! -f  ~/.ssh/ukmon ] ; then 
     echo "creating ukmon ssh key"
     ssh-keygen -t rsa -f ~/.ssh/ukmon -q -N ''
@@ -71,12 +79,6 @@ fi
 
 if [ $(grep ukmonPost $RMSCFG | wc -l) -eq 0 ] ; then
     python -c "import ukmonPostProc as pp ; pp.installUkmonFeed('${RMSCFG}');"
-fi 
-if [ ! -f ~/Desktop/UKMON_config.txt ] ; then 
-    ln -s $here/ukmon.ini ~/Desktop/UKMON_config.txt
-fi 
-if [ ! -f ~/Desktop/refresh_UKMON_Tools.sh ] ; then 
-    ln -s $here/refreshTools.sh ~/Desktop/refresh_UKMON_Tools.sh
 fi 
 
 crontab -l | egrep "refreshTools.sh" > /dev/null
