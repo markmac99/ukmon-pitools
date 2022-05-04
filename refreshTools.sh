@@ -13,6 +13,9 @@ if [ ! -f $here/ukmon.ini ] ; then
     echo  "export RMSCFG=~/source/RMS/.config " >> $here/ukmon.ini
     echo "location not configured yet"
 fi 
+if [ $(grep RMSCFG $here/ukmon.ini | wc -l)  -eq 0 ] ; then
+    echo  "export RMSCFG=~/source/RMS/.config " >> $here/ukmon.ini
+fi 
 source $here/ukmon.ini
 
 echo "refreshing toolset"
@@ -58,6 +61,7 @@ EOF
     python $here/sendToLive.py test test
     python $here/uploadToArchive.py test
     echo "if you didnt see two success messages contact us for advice" 
+    read -p "Press any key to continue"
 else
     echo "Location missing - please update UKMON Config File using the desktop icon"
     sleep 5
@@ -92,6 +96,4 @@ if [ $? == 1 ] ; then
     crontab /tmp/crontab.tmp
     rm /tmp/crontab.tmp
 fi 
-echo got here
-sleep 5
 echo "done"
