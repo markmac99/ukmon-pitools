@@ -70,7 +70,7 @@ else
 fi
 
 if [ $(grep ukmonPost $RMSCFG | wc -l) -eq 0 ] ; then
-    python -c "import ukmonPostProc as pp ; pp.installUkmonFeed(${RMSCFG});"
+    python -c "import ukmonPostProc as pp ; pp.installUkmonFeed('${RMSCFG}');"
 fi 
 if [ ! -f ~/Desktop/UKMON_config.txt ] ; then 
     ln -s $here/ukmon.ini ~/Desktop/UKMON_config.txt
