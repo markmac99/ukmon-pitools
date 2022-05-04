@@ -60,7 +60,8 @@ EOF
     echo "if you didnt see two success messages contact us for advice" 
 else
     echo "Location missing - please update UKMON Config File using the desktop icon"
-    sleep 15
+    sleep 5
+    read -p "Press any key to continue"
     exit 1
 fi
 
