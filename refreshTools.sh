@@ -5,6 +5,7 @@
 here=/home/$LOGNAME/source/ukmon-pitools
 cd $here
 
+# create a default config file if missing
 if [ ! -f $here/ukmon.ini ] ; then
     echo  "# config data for this station" > $here/ukmon.ini
     echo  "export LOCATION=NOTCONFIGURED" >> $here/ukmon.ini
@@ -13,7 +14,9 @@ if [ ! -f $here/ukmon.ini ] ; then
     echo  "export RMSCFG=~/source/RMS/.config " >> $here/ukmon.ini
     echo "location not configured yet"
 fi 
+# read in the config file
 source $here/ukmon.ini
+# added 2022-05-04 to allow for non-standard config file locations
 if [ "$RMSCFG" == "" ] ; then
     export RMSCFG=~/source/RMS/.config
 fi 
@@ -30,6 +33,7 @@ if [ $? -eq 1 ] ; then
     pip install boto3
 fi 
 
+# adding desktop icons if not already present
 if [ ! -f ~/Desktop/UKMON_config.txt ] ; then 
     ln -s $here/ukmon.ini ~/Desktop/UKMON_config.txt
 fi 
@@ -37,7 +41,7 @@ if [ ! -f ~/Desktop/refresh_UKMON_Tools.sh ] ; then
     ln -s $here/refreshTools.sh ~/Desktop/refresh_UKMON_Tools.sh
 fi 
 
-
+# creating an ssh key if not already present
 if [ ! -f  ~/.ssh/ukmon ] ; then 
     echo "creating ukmon ssh key"
     ssh-keygen -t rsa -f ~/.ssh/ukmon -q -N ''
@@ -49,6 +53,8 @@ if [ ! -f  ~/.ssh/ukmon ] ; then
     read -p "Press any key to continue"
 fi
 
+# if the station is configured, retrieve the AWS keys
+# and test connectivity. Also checks the ukmon.ini file is in unix format
 if [[ "$LOCATION" != "NOTCONFIGURED"  && "$LOCATION" != "" ]] ; then
     if [ $(file $here/ukmon.ini | grep CRLF | wc -l) -ne 0 ] ; then
         echo 'fixing ukmon.ini'
@@ -77,10 +83,16 @@ else
     exit 1
 fi
 
+# pause to make sure RMS isn't simultaneously refreshing
+while [ $(grep XX0001 ~/source/RMS/.config | wc -l) -eq 1 ] ; do 
+    sleep 30
+done
+# update the external script settings 
 if [ $(grep ukmonPost $RMSCFG | wc -l) -eq 0 ] ; then
     python -c "import ukmonPostProc as pp ; pp.installUkmonFeed('${RMSCFG}');"
 fi 
 
+# add the required crontab entries
 crontab -l | egrep "refreshTools.sh" > /dev/null
 if [ $? == 1 ] ; then 
     echo "enabling daily toolset refresh"

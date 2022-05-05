@@ -146,6 +146,7 @@ def rmsExternal(cap_dir, arch_dir, config):
         try:
             os.remove(rebootlockfile)
         except:
+            log.info('unable to remove reboot lock file, pi will not reboot')
             pass
     
     return
