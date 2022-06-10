@@ -6,14 +6,14 @@ cd logtmp
 #
 # Script to gather the logfiles and upload them for debugging & analysis
 #
-source /home/pi/source/ukmon-pitools/ukmon.ini
+source /home/${LOGNAME}/source/ukmon-pitools/ukmon.ini
 sudo cp /var/log/kern.log .
-sudo chown pi:pi kern.log
+sudo chown $:{user}:${LOGNAME} kern.log
 cp /var/log/messages ./messages.log
-cp /home/pi/source/RMS/.config ./${LOCATION}.config
-cp /home/pi/source/RMS/platepar_cmn2010.cal ./${LOCATION}.cal
-cp /home/pi/source/ukmon-pitools/*.key .
-cp /home/pi/source/ukmon-pitools/*.ini .
+cp /home/${LOGNAME}/source/RMS/.config ./${LOCATION}.config
+cp /home/${LOGNAME}/source/RMS/platepar_cmn2010.cal ./${LOCATION}.cal
+cp /home/${LOGNAME}/source/ukmon-pitools/*.key .
+cp /home/${LOGNAME}/source/ukmon-pitools/*.ini .
 crontab -l > ./crontab.txt
 find  .. -maxdepth 1 -name "*.log*" -type f -mtime -5 -exec cp {} . \;
 ZIPFILE=/tmp/${LOCATION}_logs.tgz

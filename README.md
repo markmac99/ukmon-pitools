@@ -7,7 +7,7 @@ There is more information about RMS and the toolset in the wiki [here](https://g
 INSTALLATION
 ------------
 * Login to your pi using VNC or AnyDesk or TeamViewer, open a Terminal window from the Accessories menu, then type the following
-> cd /home/pi/source  
+> cd $HOME/source  
 > git clone https://github.com/markmac99/ukmon-pitools.git  
 > cd ukmon-pitools  
 > ./refreshTools.sh  
@@ -30,13 +30,13 @@ MP4s and Timelapse
 ------------------
 The script can  create MP4s of each detection and a timelapse of the  whole night. 
 To enable these, create files named "domp4s" or "dotimelapse" in the same folder as the script:  
-> echo "1" > /home/pi/source/ukmon-pitools/domp4s  
-> echo "1" > /home/pi/source/ukmon-pitools/dotimelapse  
+> echo "1" > $HOME/source/ukmon-pitools/domp4s  
+> echo "1" > $HOME/source/ukmon-pitools/dotimelapse  
 
 Running an Additional Script such as the Istrastream feed
 ---------------------------------------------------------
 If you want to run an additional Python script after this one finishes, create a file named "extrascript"  in the same folder, containing a single line with the full path to the script, For example to enable the feed to istrastream, you could open a Terminal window and type the following:  
-> echo "/home/pi/source/RMS/iStream/iStream.py" > /home/pi/source/ukmon-pitools/extrascript  
+> echo "$HOME/source/RMS/iStream/iStream.py" > $HOME/source/ukmon-pitools/extrascript  
 
 This script will be passed the capture_dir, archive_dir and RMS config object in the same way as RMS passes these to any external script. 
 
@@ -48,7 +48,7 @@ This does the actual  uploading to the UK meteor network archive. Can be called 
 eg  
 > python uploadToArchive.py UK0006_20210312_183741_206154  
 
-this will upload from /home/pi/RMS_data/ArchivedFiles/UK0006_20210312_183741_206154
+this will upload from $HOME/RMS_data/ArchivedFiles/UK0006_20210312_183741_206154
 
 liveMonitor.sh
 ==============

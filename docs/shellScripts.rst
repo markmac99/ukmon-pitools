@@ -4,6 +4,10 @@ There are two scripts, one to monitor the live datastream and send files to ukmo
 refresh the toolset each night and make sure the security keys are up to date.  A few other files are 
 either created or installed, these are described below. 
 
+**Note about hardware**
+If you've installed on linux hardware instead of a Pi,  replace the username "pi" 
+with the userid that you used when you installed RMS and ukmon-pitools. 
+
 **liveMonitor.sh**
     Shell script started from cron that triggers the process to monitor and upload events to the 
     ukmon-live website. The script runs a python monitoring process described elsewhere in the 
