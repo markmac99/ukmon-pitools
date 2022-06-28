@@ -42,6 +42,10 @@ def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log=None):
         ctyp = 'application/json'
 
     srcf = os.path.join(arch_dir, dir_file)
+    if log is None:
+        print(srcf)
+    else:
+        log.info(srcf)
     desf= targf + camid + '/' + ymd[:4] + '/' + ymd[:6] + '/' + ymd + '/' + dir_file
     try:
         s3.meta.client.upload_file(srcf, target, desf, ExtraArgs={'ContentType': ctyp})
@@ -83,7 +87,8 @@ def uploadToArchive(arch_dir, log=None):
         file_name, file_ext = os.path.splitext(dir_file)
         file_ext = file_ext.lower()
         if ('FTPdetectinfo' in dir_file) and (file_ext == '.txt') and ('_original' not in file_name) and ('_backup' not in file_name):
-            uploadOneFile(arch_dir, 'platepars_all_recalibrated.json', s3, targf, '.json')
+            if os.path.isfile(os.path.join(arch_dir, 'platepars_all_recalibrated.json')):
+                uploadOneFile(arch_dir, 'platepars_all_recalibrated.json', s3, targf, '.json')
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
         if (file_ext == '.mp4') and ('FF_' in file_name):
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
