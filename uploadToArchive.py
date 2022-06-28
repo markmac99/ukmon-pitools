@@ -83,7 +83,8 @@ def uploadToArchive(arch_dir, log=None):
         file_name, file_ext = os.path.splitext(dir_file)
         file_ext = file_ext.lower()
         if ('FTPdetectinfo' in dir_file) and (file_ext == '.txt') and ('_original' not in file_name) and ('_backup' not in file_name):
-            uploadOneFile(arch_dir, 'platepars_all_recalibrated.json', s3, targf, '.json')
+            if os.path.isfile(os.path.join(arch_dir, 'platepars_all_recalibrated.json')):
+                uploadOneFile(arch_dir, 'platepars_all_recalibrated.json', s3, targf, '.json')
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
         if (file_ext == '.mp4') and ('FF_' in file_name):
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
