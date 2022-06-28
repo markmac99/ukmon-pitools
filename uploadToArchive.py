@@ -42,10 +42,6 @@ def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log=None):
         ctyp = 'application/json'
 
     srcf = os.path.join(arch_dir, dir_file)
-    if log is None:
-        print(srcf)
-    else:
-        log.info(srcf)
     desf= targf + camid + '/' + ymd[:4] + '/' + ymd[:6] + '/' + ymd + '/' + dir_file
     try:
         s3.meta.client.upload_file(srcf, target, desf, ExtraArgs={'ContentType': ctyp})
