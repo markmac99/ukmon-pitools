@@ -14,6 +14,7 @@ import sys
 import datetime
 import json
 import random
+import glob
 import RMS.ConfigReader as cr
 
 
@@ -95,12 +96,15 @@ def uploadToArchive(arch_dir, log=None):
     
     # upload two FITs files chosen at random from the recalibrated ones
     # to be used for platepar creation if needed
-    with open(os.path.join(arch_dir, 'platepars_all_recalibrated.json')) as ppf:
-        js = json.load(ppf)
-    ffs=[k for k in js.keys() if js[k]['auto_recalibrated'] is True]
+    if os.path.isfile(os.path.join(arch_dir, 'platepars_all_recalibrated.json')):
+        with open(os.path.join(arch_dir, 'platepars_all_recalibrated.json')) as ppf:
+            js = json.load(ppf)
+        ffs=[k for k in js.keys() if js[k]['auto_recalibrated'] is True]
+    else:
+        ffs = glob.glob1(arch_dir, 'FF*.fits')
     if len(ffs) > 0:
         cap_dir = arch_dir.replace('ArchivedFiles','CapturedFiles')
-        uploadffs = random.sample(ffs, 2)
+        uploadffs = random.sample(ffs, min(2, len(ffs)))
         for ff in uploadffs:
             uploadOneFile(cap_dir, ff, s3, targf, '.fits', log)    
 
