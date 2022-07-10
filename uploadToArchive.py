@@ -83,13 +83,18 @@ def uploadToArchive(arch_dir, log=None):
     for dir_file in dir_contents:
         file_name, file_ext = os.path.splitext(dir_file)
         file_ext = file_ext.lower()
+        # platepar must be uploaded before FTPdetect file
         if ('FTPdetectinfo' in dir_file) and (file_ext == '.txt') and ('_original' not in file_name) and ('_backup' not in file_name):
             if os.path.isfile(os.path.join(arch_dir, 'platepars_all_recalibrated.json')):
-                uploadOneFile(arch_dir, 'platepars_all_recalibrated.json', s3, targf, '.json')
+                uploadOneFile(arch_dir, 'platepars_all_recalibrated.json', s3, targf, '.json', log)
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
-        if (file_ext == '.mp4') and ('FF_' in file_name):
+        # mp4 must be uploaded before corresponding jpg
+        elif (file_ext == '.jpg') and ('FF_' in file_name):
+            mp4f = dir_file.replace('.jpg', '.mp4')
+            if os.path.isfile(os.path.join(arch_dir, mp4f)):
+                uploadOneFile(arch_dir, mp4f, s3, targf, '.mp4', log)
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
-        elif file_ext in ('.png', '.jpg', '.kml', '.cal', '.json', '.csv') and ('DETECTED' not in file_name) and ('CAPTURED' not in file_name): 
+        elif file_ext in ('.png', '.kml', '.cal', '.json', '.csv'): 
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
         elif dir_file == 'mask.bmp' or dir_file == 'flat.bmp' or dir_file == '.config':
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
