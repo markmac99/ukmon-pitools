@@ -94,6 +94,10 @@ def uploadToArchive(arch_dir, log=None):
             if os.path.isfile(os.path.join(arch_dir, mp4f)):
                 uploadOneFile(arch_dir, mp4f, s3, targf, '.mp4', log)
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
+        elif (file_ext == '.jpg') and ('stack_' in file_name) and ('track' not in file_name):
+            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
+        elif (file_ext == '.jpg') and ('calib' in file_name):
+            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
         elif file_ext in ('.png', '.kml', '.cal', '.json', '.csv'): 
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, log)
         elif dir_file == 'mask.bmp' or dir_file == 'flat.bmp' or dir_file == '.config':
