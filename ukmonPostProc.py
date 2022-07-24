@@ -148,7 +148,10 @@ def rmsExternal(cap_dir, arch_dir, config):
         except:
             log.info('unable to remove reboot lock file, pi will not reboot')
             pass
-    
+
+    # clear log handlers again
+    while len(log.handlers) > 0:
+        log.removeHandler(log.handlers[0])  
     return
 
 
