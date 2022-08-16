@@ -85,7 +85,7 @@ def rmsExternal(cap_dir, arch_dir, config):
 
     # stack and create jpgs from the potential detections
     log.info('stacking the FF files')
-    sff.stackFFs(arch_dir, 'jpg', filter_bright=True)
+    sff.stackFFs(arch_dir, 'jpg', filter_bright=True, subavg=True)
     log.info('creating JPGs')
     try:
         bff2i.batchFFtoImage(arch_dir, 'jpg', True)
@@ -148,7 +148,10 @@ def rmsExternal(cap_dir, arch_dir, config):
         except:
             log.info('unable to remove reboot lock file, pi will not reboot')
             pass
-    
+
+    # clear log handlers again
+    while len(log.handlers) > 0:
+        log.removeHandler(log.handlers[0])  
     return
 
 
