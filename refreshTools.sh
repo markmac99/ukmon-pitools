@@ -12,9 +12,6 @@ if [ ! -f $here/ukmon.ini ] ; then
     echo  "export UKMONHELPER=3.8.65.98" >> $here/ukmon.ini
     echo  "export UKMONKEY=~/.ssh/ukmon" >> $here/ukmon.ini
     echo  "export RMSCFG=~/source/RMS/.config " >> $here/ukmon.ini
-    echo  "export ARCHBUCK=TBC" >> $here/ukmon.ini
-    echo  "export LIVEBUCK=TBC" >> $here/ukmon.ini
-    echo  "export WEBBUCK=TBC" >> $here/ukmon.ini 
     echo "location not configured yet"
 fi 
 # read in the config file

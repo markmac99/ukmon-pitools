@@ -99,7 +99,7 @@ def singleUpload(cap_dir, dir_file):
         exit(1)
 
     # get credentials
-    keys = readKeyFile(os.path.join(myloc, 'archive.key'))
+    keys = readKeyFile(os.path.join(myloc, 'live.key'))
     awskey = keys['AWS_ACCESS_KEY_ID']
     awssec = keys['AWS_SECRET_ACCESS_KEY']
     awsreg = keys['LIVEREGION']

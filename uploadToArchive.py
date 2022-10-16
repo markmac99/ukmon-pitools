@@ -35,6 +35,9 @@ def readKeyFile(filename):
             if val[0]=='"':
                 val = val[1:len(val)-1]
             vals[data[0]] = val
+    
+    if 'S3FOLDER' not in vals:
+        vals['S3FOLDER'] = f'archive/{vals["CAMLOC"]}'
     if 'ARCHBUCKET' not in vals:
         vals['ARCHBUCKET'] = 'ukmon-shared'
     if 'LIVEBUCKET' not in vals:
@@ -103,7 +106,7 @@ def uploadToArchive(arch_dir, log=None):
     # Upload all relevant files from *arch_dir* to ukmon's S3 Archive
 
     myloc = os.path.split(os.path.abspath(__file__))[0]
-    keyfile = os.path.join(myloc, 'archive.key')
+    keyfile = os.path.join(myloc, 'live.key')
     if os.path.isfile(keyfile) is False:
         log.info('AWS keyfile not present')
         return
@@ -175,7 +178,7 @@ def fireballUpload(ffname, log=None):
     rmsdatadir = os.path.expanduser(cfg['Capture']['data_dir'])
 
     myloc = os.path.split(os.path.abspath(__file__))[0]
-    filename = os.path.join(myloc, 'archive.key')
+    filename = os.path.join(myloc, 'live.key')
     keys = readKeyFile(filename)
     targf = keys['S3FOLDER']
     reg = keys['ARCHREGION']
@@ -214,7 +217,7 @@ def manualUpload(targ_dir):
             f.write('test')
         try:
             myloc = os.path.split(os.path.abspath(__file__))[0]
-            filename = os.path.join(myloc, 'archive.key')
+            filename = os.path.join(myloc, 'live.key')
             keys = readKeyFile(filename)
             target = keys['ARCHBUCKET']
             reg = keys['ARCHREGION']
