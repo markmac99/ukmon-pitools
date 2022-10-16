@@ -12,6 +12,9 @@ if [ ! -f $here/ukmon.ini ] ; then
     echo  "export UKMONHELPER=3.8.65.98" >> $here/ukmon.ini
     echo  "export UKMONKEY=~/.ssh/ukmon" >> $here/ukmon.ini
     echo  "export RMSCFG=~/source/RMS/.config " >> $here/ukmon.ini
+    echo  "export ARCHBUCK=TBC" >> $here/ukmon.ini
+    echo  "export LIVEBUCK=TBC" >> $here/ukmon.ini
+    echo  "export WEBBUCK=TBC" >> $here/ukmon.ini 
     echo "location not configured yet"
 fi 
 # read in the config file
@@ -71,6 +74,7 @@ exit
 EOF
     chmod 0600 live.key archive.key
     echo "testing connections"
+    source $here/ukmon.ini
     source ~/vRMS/bin/activate
     python $here/sendToLive.py test test
     python $here/uploadToArchive.py test
@@ -89,6 +93,7 @@ while [ $(grep XX0001 ~/source/RMS/.config | wc -l) -eq 1 ] ; do
 done
 # update the external script settings 
 if [ $(grep ukmonPost $RMSCFG | wc -l) -eq 0 ] ; then
+    source $here/ukmon.ini
     python -c "import ukmonPostProc as pp ; pp.installUkmonFeed('${RMSCFG}');"
 fi 
 

@@ -1,5 +1,5 @@
 #
-# python script to upload one event to ukmon-live
+# python script to upload one event to a target bucket for live feeds
 #
 # to use this file to manually upload a file do
 #   python sendToLive.py cap_dir ff_name
@@ -16,7 +16,7 @@ import configparser
 def uploadOneEvent(cap_dir, dir_file, loc, s3):
     print('{:s} {:s} {:s} {:s}'.format(cap_dir, dir_file, loc[4], loc[3]))
     sys.stdout.flush()
-    target = 'ukmon-live'
+    target = os.getenv('LIVEBUCK', default='ukmon-live')
     spls = dir_file.split('_')
     camid = spls[1]
     ymd = spls[2]
@@ -121,6 +121,7 @@ def singleUpload(cap_dir, dir_file):
     conn = boto3.Session(aws_access_key_id=awskey, aws_secret_access_key=awssec, region_name=awsreg) 
     s3 = conn.resource('s3')
     # read a few variables from the RMS config file
+    target = os.getenv('LIVEBUCK', default='ukmon-live')
     cfg = configparser.ConfigParser()
     cfg.read(os.path.expanduser('~/source/RMS/.config'))
     loc = []
@@ -134,13 +135,13 @@ def singleUpload(cap_dir, dir_file):
             f.write('test')
         
         try:
-            s3.meta.client.upload_file('/tmp/test.txt', 'ukmon-live', 'test.txt')
+            s3.meta.client.upload_file('/tmp/test.txt', target, 'test.txt')
             key = {'Objects': []}
             key['Objects'] = [{'Key': 'test.txt'}]
-            s3.meta.client.delete_objects(Bucket='ukmon-live', Delete=key)
+            s3.meta.client.delete_objects(Bucket=target, Delete=key)
             print('test successful')
         except Exception:
-            print('unable to upload to ukmon-live - check key information')
+            print(f'unable to upload to {target} - check key information')
         os.remove('/tmp/test.txt')
     else:
         uploadOneEvent(cap_dir, dir_file, loc, s3)
