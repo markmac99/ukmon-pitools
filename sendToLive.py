@@ -11,6 +11,7 @@ import shutil
 import tempfile
 import boto3
 import configparser
+from uploadToArchive import readKeyFile
 
 
 def uploadOneEvent(cap_dir, dir_file, loc, s3):
@@ -90,45 +91,31 @@ def singleUpload(cap_dir, dir_file):
     awsreg = None
     myloc = os.path.split(os.path.abspath(__file__))[0]
     # get camera location from ini file
-    with open(os.path.join(myloc, 'ukmon.ini'), 'r') as inif:
-        lines = inif.readlines()
-        for li in lines:
-            if 'LOCATION' in li:
-                camloc = li.split('=')[1].strip()
-                break
-    if camloc is None:
+    inifvals = readKeyFile(os.path.join(myloc, 'ukmon.ini'))
+    camloc = inifvals['LOCATION']
+    rmscfg = inifvals['RMSCFG']
+    if camloc == 'NOTCONFIGURED':
         print('LOCATION not found in ini file, aborting')
         exit(1)
 
     # get credentials
-    try: 
-        with open(os.path.join(myloc, 'live.key'), 'r') as inif:
-            lines = inif.readlines()
-            for li in lines:
-                if 'AWS_ACCESS_KEY_ID' in li:
-                    awskey = li.split('=')[1].strip()
-                if 'AWS_SECRET_ACCESS_KEY' in li:
-                    awssec = li.split('=')[1].strip()
-                if 'AWS_DEFAULT_REGION' in li:
-                    awsreg = li.split('=')[1].strip()
-    except Exception:
-        print('unable to locate AWS credentials, aborting')
-        exit(1)
-    if awssec is None or awskey is None or awsreg is None:
-        print('credentials file malformed, aborting')
-        exit(1)
+    keys = readKeyFile(os.path.join(myloc, 'archive.key'))
+    awskey = keys['AWS_ACCESS_KEY_ID']
+    awssec = keys['AWS_SECRET_ACCESS_KEY']
+    awsreg = keys['LIVEREGION']
+    target = keys['LIVEBUCKET']
 
     conn = boto3.Session(aws_access_key_id=awskey, aws_secret_access_key=awssec, region_name=awsreg) 
     s3 = conn.resource('s3')
     # read a few variables from the RMS config file
-    target = os.getenv('LIVEBUCK', default='ukmon-live')
-    cfg = configparser.ConfigParser()
-    cfg.read(os.path.expanduser('~/source/RMS/.config'))
+    cfg = configparser.ConfigParser(inline_comment_prefixes=(';'))
+    cfg.read(os.path.expanduser(rmscfg))
+
     loc = []
-    loc.append(float(cfg['System']['latitude'].split()[0]))
-    loc.append(float(cfg['System']['longitude'].split()[0]))
-    loc.append(float(cfg['System']['elevation'].split()[0]))
-    loc.append(cfg['System']['stationID'].split()[0])
+    loc.append(float(cfg['System']['latitude']))
+    loc.append(float(cfg['System']['longitude']))
+    loc.append(float(cfg['System']['elevation']))
+    loc.append(cfg['System']['stationID'])
     loc.append(camloc)
     if sys.argv[1] == 'test' and sys.argv[2] == 'test':
         with open('/tmp/test.txt', 'w') as f:
