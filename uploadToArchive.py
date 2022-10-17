@@ -115,7 +115,7 @@ def uploadToArchive(arch_dir, log=None):
     reg = keys['ARCHREGION']
     conn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY']) 
     s3 = conn.resource('s3', region_name=reg)
-    targf = keys['S3FOLDER']
+    targf = os.path.normpath(keys['S3FOLDER'])
     # upload the files but make sure we do the platepars file before the FTP file
     # otherwise there's a risk the matching engine will miss it
     dir_contents = os.listdir(arch_dir)
