@@ -62,7 +62,7 @@ def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log=None, force
     spls = daydir.split('_')
     camid = spls[0]
     ymd = spls[1]
-    desf= targf + camid + '/' + ymd[:4] + '/' + ymd[:6] + '/' + ymd + '/' + dir_file
+    desf= f'{targf}/{camid}/{ymd[:4]}/{ymd[:6]}/{ymd}/{dir_file}'
     ctyp='text/plain'
     if file_ext=='.jpg': 
         ctyp = 'image/jpeg'
