@@ -51,6 +51,8 @@ def readKeyFile(filename):
     if 'MATCHDIR' not in vals:
         vals['MATCHDIR'] = 'matches/RMSCorrelate'
     #print(vals)
+    if vals['S3FOLDER'][-1] =='/':
+        vals['S3FOLDER'] = vals['S3FOLDER'][:-1]
     return vals
 
 
@@ -66,7 +68,10 @@ def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log=None, force
     ctyp='text/plain'
     if file_ext=='.jpg': 
         ctyp = 'image/jpeg'
-    if file_ext=='.fits': 
+        if 'FF_' in dir_file:
+            target=keys['WEBBUCKET']
+            desf = f'img/single/{ymd[:4]}/{ymd[:6]}/{dir_file}'
+    elif file_ext=='.fits': 
         ctyp = 'image/fits'
     elif file_ext=='.png': 
         ctyp = 'image/png'
@@ -74,16 +79,19 @@ def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log=None, force
         ctyp = 'image/bmp'
     elif file_ext=='.mp4': 
         ctyp = 'video/mp4'
-    if file_ext=='.csv': 
+        if 'FF_' in dir_file:
+            target=keys['WEBBUCKET']
+            desf = f'img/mp4/{ymd[:4]}/{ymd[:6]}/{dir_file}'
+    elif file_ext=='.csv': 
         ctyp = 'text/csv'
-    elif file_ext=='.json' and "platepars_all" in dir_file: 
+    elif file_ext=='.json':
         ctyp = 'application/json'
-        desf = f'{keys["MATCHDIR"]}/{camid}/{daydir}/{dir_file}'
-    elif file_ext=='.json': 
-        ctyp = 'application/json'
+        if 'platepars_all' in dir_file: 
+            desf = f'{keys["MATCHDIR"]}/{camid}/{daydir}/{dir_file}'
     elif dir_file == f'FTPdetectinfo_{daydir}.txt': 
         ctyp = 'text/plain'
         desf = f'{keys["MATCHDIR"]}/{camid}/{daydir}/{dir_file}'
+
     if force_matchdir is True:
         desf = f'{keys["MATCHDIR"]}/{camid}/{daydir}/{dir_file}'
 
@@ -115,7 +123,8 @@ def uploadToArchive(arch_dir, log=None):
     reg = keys['ARCHREGION']
     conn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY']) 
     s3 = conn.resource('s3', region_name=reg)
-    targf = os.path.normpath(keys['S3FOLDER'])
+    targf = keys['S3FOLDER']
+
     # upload the files but make sure we do the platepars file before the FTP file
     # otherwise there's a risk the matching engine will miss it
     dir_contents = os.listdir(arch_dir)
