@@ -38,6 +38,8 @@ def readKeyFile(filename):
     
     if 'S3FOLDER' not in vals and 'CAMLOC' in vals:
         vals['S3FOLDER'] = f'archive/{vals["CAMLOC"]}'
+        if vals['S3FOLDER'][-1] =='/':
+            vals['S3FOLDER'] = vals['S3FOLDER'][:-1]
     if 'ARCHBUCKET' not in vals:
         vals['ARCHBUCKET'] = 'ukmon-shared'
     if 'LIVEBUCKET' not in vals:
@@ -51,8 +53,6 @@ def readKeyFile(filename):
     if 'MATCHDIR' not in vals:
         vals['MATCHDIR'] = 'matches/RMSCorrelate'
     #print(vals)
-    if vals['S3FOLDER'][-1] =='/':
-        vals['S3FOLDER'] = vals['S3FOLDER'][:-1]
     return vals
 
 

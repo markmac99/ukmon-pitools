@@ -66,7 +66,6 @@ if [[ "$LOCATION" != "NOTCONFIGURED"  && "$LOCATION" != "" ]] ; then
     sftp -i ~/.ssh/ukmon -q $LOCATION@$UKMONHELPER << EOF
 get ukmon.ini
 get live.key
-get archive.key
 exit
 EOF
     chmod 0600 live.key archive.key
