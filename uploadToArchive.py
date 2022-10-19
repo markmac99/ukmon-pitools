@@ -35,11 +35,10 @@ def readKeyFile(filename):
             if val[0]=='"':
                 val = val[1:len(val)-1]
             vals[data[0]] = val
-    
     if 'S3FOLDER' not in vals and 'CAMLOC' in vals:
         vals['S3FOLDER'] = f'archive/{vals["CAMLOC"]}'
-        if vals['S3FOLDER'][-1] =='/':
-            vals['S3FOLDER'] = vals['S3FOLDER'][:-1]
+    if 'S3FOLDER' in vals and vals['S3FOLDER'][-1] == '/':
+        vals['S3FOLDER'] = vals['S3FOLDER'][:-1]
     if 'ARCHBUCKET' not in vals:
         vals['ARCHBUCKET'] = 'ukmon-shared'
     if 'LIVEBUCKET' not in vals:
