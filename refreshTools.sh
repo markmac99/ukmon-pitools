@@ -68,7 +68,8 @@ get ukmon.ini
 get live.key
 exit
 EOF
-    chmod 0600 live.key archive.key
+    chmod 0600 live.key
+    if [ -f archive.key] ; then \rm archive.key ; fi
     echo "testing connections"
     source $here/ukmon.ini
     source ~/vRMS/bin/activate
