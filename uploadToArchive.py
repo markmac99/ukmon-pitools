@@ -55,21 +55,23 @@ def readKeyFile(filename):
     return vals
 
 
-def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log=None, force_matchdir=False):
-    # upload a single file to ukmon, setting the mime type accordingly
-    
+def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log=None):
+    if 'ukmon' in keys['ARCHBUCKET']:
+        uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys, log=None)
+    else:
+        uploadOneFileOther(arch_dir, dir_file, s3, targf, file_ext, keys, log=None)
+    return 
+
+
+def uploadOneFileOther(arch_dir, dir_file, s3, targf, file_ext, keys, log=None):
     target = keys['ARCHBUCKET']
     daydir = os.path.split(arch_dir)[1]
     spls = daydir.split('_')
     camid = spls[0]
-    ymd = spls[1]
-    desf= f'{targf}/{camid}/{ymd[:4]}/{ymd[:6]}/{ymd}/{dir_file}'
+    desf= f'{targf}/{camid}/{daydir}/{dir_file}'
     ctyp='text/plain'
     if file_ext=='.jpg': 
         ctyp = 'image/jpeg'
-        if 'FF_' in dir_file:
-            target=keys['WEBBUCKET']
-            desf = f'img/single/{ymd[:4]}/{ymd[:6]}/{dir_file}'
     elif file_ext=='.fits': 
         ctyp = 'image/fits'
     elif file_ext=='.png': 
@@ -78,21 +80,10 @@ def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log=None, force
         ctyp = 'image/bmp'
     elif file_ext=='.mp4': 
         ctyp = 'video/mp4'
-        if 'FF_' in dir_file:
-            target=keys['WEBBUCKET']
-            desf = f'img/mp4/{ymd[:4]}/{ymd[:6]}/{dir_file}'
     elif file_ext=='.csv': 
         ctyp = 'text/csv'
     elif file_ext=='.json':
         ctyp = 'application/json'
-        if 'platepars_all' in dir_file: 
-            desf = f'{keys["MATCHDIR"]}/{camid}/{daydir}/{dir_file}'
-    elif dir_file == f'FTPdetectinfo_{daydir}.txt': 
-        ctyp = 'text/plain'
-        desf = f'{keys["MATCHDIR"]}/{camid}/{daydir}/{dir_file}'
-
-    if force_matchdir is True:
-        desf = f'{keys["MATCHDIR"]}/{camid}/{daydir}/{dir_file}'
 
     srcf = os.path.join(arch_dir, dir_file)
     try:
@@ -103,9 +94,96 @@ def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log=None, force
             log.info(desf)
     except Exception:
         if log is None:
-            print('upload failed: {}'.format(dir_file))
+            print('upload failed: {}'.format(desf))
         else:
-            log.info('upload failed: {}'.format(dir_file))
+            log.info('upload failed: {}'.format(desf))
+    return 
+
+
+def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys, log=None):
+    # upload a single file to ukmon, setting the mime type accordingly
+    
+    target = keys['ARCHBUCKET']
+    target2 = None
+    daydir = os.path.split(arch_dir)[1]
+    spls = daydir.split('_')
+    camid = spls[0]
+    ymd = spls[1]
+    desf= f'{targf}/{camid}/{ymd[:4]}/{ymd[:6]}/{ymd}/{dir_file}'
+    desf2 = None
+    ctyp='text/plain'
+    if file_ext=='.jpg': 
+        ctyp = 'image/jpeg'
+        if 'FF_' in dir_file:
+            target=keys['WEBBUCKET']
+            desf = f'img/single/{ymd[:4]}/{ymd[:6]}/{dir_file}'
+        elif '_stack_' in dir_file:
+            target=keys['WEBBUCKET']
+            desf = f'latest/{camid}.jpg'
+        elif '_calib_report_astrometry.jpg' in dir_file:
+            target=keys['WEBBUCKET']
+            desf = f'latest/{camid}_cal.jpg'
+    elif file_ext=='.fits': 
+        ctyp = 'image/fits'
+    elif file_ext=='.png': 
+        ctyp = 'image/png'
+        if '_radiants.png' in dir_file:
+            target=keys['WEBBUCKET']
+            desf = f'latest/{camid}.png'
+    elif file_ext=='.bmp': 
+        ctyp = 'image/bmp'
+    elif file_ext=='.mp4': 
+        ctyp = 'video/mp4'
+        if 'FF_' in dir_file:
+            target=keys['WEBBUCKET']
+            desf = f'img/mp4/{ymd[:4]}/{ymd[:6]}/{dir_file}'
+    elif file_ext=='.csv': 
+        ctyp = 'text/csv'
+        desf=f'consolidated/temp/{dir_file}'
+    elif file_ext=='.cal': 
+        ctyp = 'text/plain'
+        desf=f'consolidated/platepars/{camid}.json'
+    elif file_ext=='.json':
+        ctyp = 'application/json'
+        if 'platepars_all' in dir_file: 
+            desf = f'{keys["MATCHDIR"]}/{camid}/{daydir}/{dir_file}'
+    elif dir_file == f'FTPdetectinfo_{daydir}.txt': 
+        ctyp = 'text/plain'
+        desf = f'{keys["MATCHDIR"]}/{camid}/{daydir}/{dir_file}'
+    elif file_ext == '.kml': 
+        ctyp = 'text/plain'
+        desf = f'kmls/{dir_file}'
+        target2 = keys['WEBBUCKET']
+        desf2 = f'img/kmls/{dir_file}'
+    if dir_file == '.config':
+        ctyp = 'text/plain'
+        target2 = target
+        desf2 = f'{keys["MATCHDIR"]}/{camid}/{daydir}/{dir_file}'
+
+    srcf = os.path.join(arch_dir, dir_file)
+    try:
+        s3.meta.client.upload_file(srcf, target, desf, ExtraArgs={'ContentType': ctyp})
+        if log is None:
+            print(desf)
+        else:
+            log.info(desf)
+    except Exception:
+        if log is None:
+            print('upload failed: {}'.format(desf))
+        else:
+            log.info('upload failed: {}'.format(desf))
+    if desf2 is not None:
+        try:
+            s3.meta.client.upload_file(srcf, target2, desf2, ExtraArgs={'ContentType': ctyp})
+            if log is None:
+                print(desf2)
+            else:
+                log.info(desf2)
+        except Exception:
+            if log is None:
+                print('upload failed: {}'.format(desf2))
+            else:
+                log.info('upload failed: {}'.format(desf2))
     return
 
 
@@ -152,7 +230,6 @@ def uploadToArchive(arch_dir, log=None):
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log)
         elif dir_file == '.config':
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log)
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log, True)
     
     # upload two FITs files chosen at random from the recalibrated ones
     # to be used for platepar creation if needed
