@@ -23,6 +23,8 @@ from RMS.Logger import initLogging
 
 import uploadToArchive 
 
+log = logging.getLogger("logger")
+
 
 def installUkmonFeed(rmscfg='~/source/RMS/.config'):
     """ This function installs the UKMon postprocessing script into the RMS config file.
@@ -126,7 +128,7 @@ def rmsExternal(cap_dir, arch_dir, config):
         log.info('timelapse creation not enabled')
 
     log.info('uploading to archive')
-    uploadToArchive.uploadToArchive(arch_dir, log)
+    uploadToArchive.uploadToArchive(arch_dir)
 
     # do not remote reboot lock file if running another script
     # os.remove(rebootlockfile)

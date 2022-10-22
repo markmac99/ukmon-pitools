@@ -58,15 +58,15 @@ def readKeyFile(filename):
     return vals
 
 
-def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log=None):
+def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys):
     if 'ukmon' in keys['ARCHBUCKET']:
-        uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys, log=None)
+        uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys)
     else:
-        uploadOneFileOther(arch_dir, dir_file, s3, targf, file_ext, keys, log=None)
+        uploadOneFileOther(arch_dir, dir_file, s3, targf, file_ext, keys)
     return 
 
 
-def uploadOneFileOther(arch_dir, dir_file, s3, targf, file_ext, keys, log=None):
+def uploadOneFileOther(arch_dir, dir_file, s3, targf, file_ext, keys):
     target = keys['ARCHBUCKET']
     daydir = os.path.split(arch_dir)[1]
     spls = daydir.split('_')
@@ -103,7 +103,7 @@ def uploadOneFileOther(arch_dir, dir_file, s3, targf, file_ext, keys, log=None):
     return 
 
 
-def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys, log=None):
+def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
     # upload a single file to ukmon, setting the mime type accordingly
     
     target = keys['ARCHBUCKET']
@@ -190,7 +190,7 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys, log=None):
     return
 
 
-def uploadToArchive(arch_dir, log=None):
+def uploadToArchive(arch_dir):
     # Upload all relevant files from *arch_dir* to ukmon's S3 Archive
 
     myloc = os.path.split(os.path.abspath(__file__))[0]
@@ -251,7 +251,7 @@ def uploadToArchive(arch_dir, log=None):
     return
 
 
-def fireballUpload(ffname, log=None):
+def fireballUpload(ffname):
     # get camera location from ini file
     myloc = os.path.split(os.path.abspath(__file__))[0]
     inifvals = readKeyFile(os.path.join(myloc, 'ukmon.ini'))
