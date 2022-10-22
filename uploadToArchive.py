@@ -16,6 +16,9 @@ import json
 import random
 import glob
 import configparser
+import logging
+
+log = logging.getLogger("logger")
 
 
 def readKeyFile(filename):
