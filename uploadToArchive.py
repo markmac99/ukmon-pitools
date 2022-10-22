@@ -215,24 +215,24 @@ def uploadToArchive(arch_dir):
         # platepar must be uploaded before FTPdetect file
         if (f'FTPdetectinfo_{daydir}.txt' == dir_file):
             if os.path.isfile(os.path.join(arch_dir, 'platepars_all_recalibrated.json')):
-                uploadOneFile(arch_dir, 'platepars_all_recalibrated.json', s3, targf, '.json', keys, log)
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log)
+                uploadOneFile(arch_dir, 'platepars_all_recalibrated.json', s3, targf, '.json', keys)
+            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys)
         # mp4 must be uploaded before corresponding jpg
         elif (file_ext == '.jpg') and ('FF_' in file_name):
             mp4f = dir_file.replace('.jpg', '.mp4')
             if os.path.isfile(os.path.join(arch_dir, mp4f)):
-                uploadOneFile(arch_dir, mp4f, s3, targf, '.mp4', keys, log)
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log)
+                uploadOneFile(arch_dir, mp4f, s3, targf, '.mp4', keys)
+            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys)
         elif (file_ext == '.jpg') and ('stack_' in file_name) and ('track' not in file_name):
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log)
+            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys)
         elif (file_ext == '.jpg') and ('calib' in file_name):
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log)
+            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys)
         elif file_ext in ('.png', '.kml', '.cal', '.json', '.csv'): 
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log)
+            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys)
         elif dir_file == 'mask.bmp' or dir_file == 'flat.bmp':
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log)
+            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys)
         elif dir_file == '.config':
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys, log)
+            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys)
     
     # upload two FITs files chosen at random from the recalibrated ones
     # to be used for platepar creation if needed
@@ -246,7 +246,7 @@ def uploadToArchive(arch_dir):
         cap_dir = arch_dir.replace('ArchivedFiles','CapturedFiles')
         uploadffs = random.sample(ffs, min(2, len(ffs)))
         for ff in uploadffs:
-            uploadOneFile(cap_dir, ff, s3, targf, '.fits', keys, log)    
+            uploadOneFile(cap_dir, ff, s3, targf, '.fits', keys)    
 
     return
 
@@ -285,8 +285,8 @@ def fireballUpload(ffname):
 #        arch_dir = os.path.join(basarc, fldr)
         cap_dir = os.path.join(rmsdatadir, 'CapturedFiles', fldr)
         fbname = 'FR' + ffname[2:-5] + '.bin'
-        uploadOneFile(cap_dir, fbname, s3, targf, '.fits', keys, log)        
-        uploadOneFile(cap_dir, ffname, s3, targf, '.fits', keys, log)        
+        uploadOneFile(cap_dir, fbname, s3, targf, '.fits', keys)        
+        uploadOneFile(cap_dir, ffname, s3, targf, '.fits', keys)        
     else:
         print('unable to find source folder')
     return
