@@ -178,4 +178,7 @@ if __name__ == '__main__':
         print('eg python ukmonPostProc.py UK0006_20210312_183741_206154')
         print('\n nb: script must be run from RMS source folder')
     else:
-        manualRerun(sys.argv[1])
+        arch_dir = sys.argv[1]
+        if 'ConfirmedFiles' in arch_dir or 'ArchivedFiles' in arch_dir or 'CapturedFiles' in arch_dir:
+            _, arch_dir = os.path.split(arch_dir)
+        manualRerun(arch_dir)
