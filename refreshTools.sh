@@ -67,7 +67,7 @@ EOF
     source $here/ukmon.ini
     cd $(dirname $RMSCFG)
     export PYTHONPATH=$here
-    python -c "import ukmonPostProc as pp ; pp.installUkmonFeed('${RMSCFG}');"
+    python -c "import ukmonInstaller as pp ; pp.installUkmonFeed('${RMSCFG}');"
 
     echo "testing connections"
     source $here/ukmon.ini
