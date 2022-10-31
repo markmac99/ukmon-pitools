@@ -113,10 +113,10 @@ def addDesktopIcons(myloc, statid):
     if not os.path.isfile(cfglnk):
         os.makedirs(os.path.expanduser('~/Desktop'), exist_ok=True)
         os.symlink(os.path.join(myloc, 'ukmon.ini'), cfglnk)
-    cfglnk = os.path.expanduser(f'~/Desktop/refreshTools_{statid}.sh')
-    if not os.path.isfile(cfglnk):
+    reflnk = os.path.expanduser(f'~/Desktop/refreshTools_{statid}.sh')
+    if not os.path.isfile(reflnk):
         os.makedirs(os.path.expanduser('~/Desktop'), exist_ok=True)
-        os.symlink(os.path.join(myloc, 'refreshTools.sh'), cfglnk)
+        os.symlink(os.path.join(myloc, 'refreshTools.sh'), reflnk)
     return
 
 
