@@ -32,13 +32,13 @@ pip list | grep boto3 || pip install boto3
 pip list | grep python-crontab || pip install python-crontab
 
 # creating an ssh key if not already present
-if [ ! -f  ~/.ssh/ukmon ] ; then 
+if [ ! -f  ${UKMONKEY} ] ; then 
     echo "creating ukmon ssh key"
     ssh-keygen -t rsa -f ~/.ssh/ukmon -q -N ''
     echo "Copy this public key and email it to the ukmon team, then "
     echo "wait for confirmation its been installed and rerun this script"
     echo ""
-    cat ~/.ssh/ukmon.pub
+    cat ${UKMONKEY}.pub
     echo ""
     read -p "Press any key to continue"
 fi
@@ -52,6 +52,7 @@ if [[ "$LOCATION" != "NOTCONFIGURED"  && "$LOCATION" != "" ]] ; then
         # dos2unix not installed on the pi
         tr -d '\r' < $here/tmp.ini > $here/ukmon.ini
         rm -f $here/tmp.ini
+        source $here/ukmon.ini
     fi 
 
     sftp -i $UKMONKEY -q $LOCATION@$UKMONHELPER << EOF
@@ -59,14 +60,17 @@ get ukmon.ini
 get live.key
 exit
 EOF
+    chmod 0600 live.key
+    if [ -f archive.key ] ; then \rm archive.key ; fi 
+
     echo "get platepar_cmn2010.cal /tmp/platepar_cmn2010.cal" | sftp -b - -i $UKMONKEY -q $LOCATION@$UKMONHELPER > /dev/null 2>&1
     if [ -f /tmp/platepar_cmn2010.cal ] ; then 
+        echo "fetching new platepar from server"
         cfgfldr=$(dirname $RMSCFG)
         \cp -f $cfgfldr/platepar_cmn2010.cal $cfgfldr/platepar_cmn2010.cal.$(date +%Y%m%d-%H%M%S)
         \mv -f /tmp/platepar_cmn2010.cal $cfgfldr/
     fi 
-    chmod 0600 live.key
-    if [ -f archive.key ] ; then \rm archive.key ; fi
+
     echo "testing connections"
     source $here/ukmon.ini
     source ~/vRMS/bin/activate
