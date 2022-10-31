@@ -127,6 +127,7 @@ def checkPlatepar(statid, rmsloc):
             targpp = os.path.join(rmsloc, 'platepar_cmn2010.cal')
             shutil.copyfile('/tmp/platepar_cmn2010.cal', targpp)
             ftp_client.remove('platepar/platepar_cmn2010.cal')
-            os.remove('/tmp/platepar_cmn2010.cal')
+    if os.path.isfile('/tmp/platepar_cmn2010.cal'):
+        os.remove('/tmp/platepar_cmn2010.cal')
     ftp_client.close()
     return 
