@@ -54,17 +54,16 @@ if [[ "$LOCATION" != "NOTCONFIGURED"  && "$LOCATION" != "" ]] ; then
         rm -f $here/tmp.ini
     fi 
 
-    sftp -i ~/.ssh/ukmon -q $LOCATION@$UKMONHELPER << EOF
+    sftp -i $UKMONKEY -q $LOCATION@$UKMONHELPER << EOF
 get ukmon.ini
 get live.key
 exit
 EOF
-    echo "get platepar_cmn2010.cal /dev/null" > /dev/null 2>&1 | sftp -b - -i ~/.ssh/ukmon -q $LOCATION@$UKMONHELPER
-    if [ $? -eq 0 ] ; then 
-        echo "get platepar_cmn2010.cal /tmp/platepar_cmn2010.cal" | sftp -b - -i ~/.ssh/ukmon -q $LOCATION@$UKMONHELPER
+    echo "get platepar_cmn2010.cal /tmp/platepar_cmn2010.cal" | sftp -b - -i $UKMONKEY -q $LOCATION@$UKMONHELPER > /dev/null 2>&1
+    if [ -f /tmp/platepar_cmn2010.cal ] ; then 
         cfgfldr=$(dirname $RMSCFG)
-        \cp $cfgfldr/platepar_cmn2010.cal $$cfgfldr/platepar_cmn2010.cal.$(date +%Y%m%d-%H%M%S)
-        \cp /tmp/platepar_cmn2010.cal $cfgfldr/
+        \cp -f $cfgfldr/platepar_cmn2010.cal $cfgfldr/platepar_cmn2010.cal.$(date +%Y%m%d-%H%M%S)
+        \mv -f /tmp/platepar_cmn2010.cal $cfgfldr/
     fi 
     chmod 0600 live.key
     if [ -f archive.key ] ; then \rm archive.key ; fi
