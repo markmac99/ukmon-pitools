@@ -63,14 +63,6 @@ EOF
     chmod 0600 live.key
     if [ -f archive.key ] ; then \rm archive.key ; fi 
 
-    echo "get platepar_cmn2010.cal /tmp/platepar_cmn2010.cal" | sftp -b - -i $UKMONKEY -q $LOCATION@$UKMONHELPER > /dev/null 2>&1
-    if [ -f /tmp/platepar_cmn2010.cal ] ; then 
-        echo "fetching new platepar from server"
-        cfgfldr=$(dirname $RMSCFG)
-        \cp -f $cfgfldr/platepar_cmn2010.cal $cfgfldr/platepar_cmn2010.cal.$(date +%Y%m%d-%H%M%S)
-        \mv -f /tmp/platepar_cmn2010.cal $cfgfldr/
-    fi 
-
     echo "checking the RMS config file, crontab and icons"
     source $here/ukmon.ini
     cd $(dirname $RMSCFG)

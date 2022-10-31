@@ -13,6 +13,8 @@ import sys
 import shutil
 from crontab import CronTab
 import time
+import paramiko
+import json
 
 import Utils.StackFFs as sff
 import Utils.BatchFFtoImage as bff2i
@@ -78,6 +80,7 @@ def installUkmonFeed(rmscfg='~/source/RMS/.config'):
     
     checkCrontab(myloc, datadir)
     addDesktopIcons(myloc, statid)
+    checkPlatepar(statid, os.path.dirname(cfgname))
     return 
 
 
@@ -123,6 +126,33 @@ def addDesktopIcons(myloc, statid):
         os.makedirs(os.path.expanduser('~/Desktop'), exist_ok=True)
         os.symlink(os.path.join(myloc, 'refreshTools.sh'), reflnk)
     return
+
+
+def checkPlatepar(statid, rmsloc):
+    idfile = os.getenv('UKMONKEY')
+    svr = os.getenv('UKMONHELPER')
+    usr = os.getenv('LOCATION')
+    ssh_client = paramiko.SSHClient()
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh_client.connect(svr, username=usr, key_filename=idfile)
+    ftp_client = ssh_client.open_sftp()
+    fetchpp = True
+    try:
+        ftp_client.get('platepar/platepar_cmn2010.cal','/tmp/platepar_cmn2010.cal')
+    except:
+        fetchpp = False
+    if fetchpp:
+        print('Fetching new platepar...')
+        js = json.load(open('/tmp/platepar_cmn2010.cal'))
+        if js['station_code'] != statid:
+            print('Station ID mismatch, not using new platepar')
+        else:
+            targpp = os.path.join(rmsloc, 'platepar_cmn2010.cal')
+            shutil.copyfile('/tmp/platepar_cmn2010.cal', targpp)
+            ftp_client.remove('platepar/platepar_cmn2010.cal')
+            os.remove('/tmp/platepar_cmn2010.cal')
+    ftp_client.close()
+    return 
 
 
 def rmsExternal(cap_dir, arch_dir, config):
