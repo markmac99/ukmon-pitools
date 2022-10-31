@@ -11,6 +11,8 @@
 import os
 import sys
 import shutil
+from crontab import CronTab
+import time
 
 import Utils.StackFFs as sff
 import Utils.BatchFFtoImage as bff2i
@@ -38,36 +40,84 @@ def installUkmonFeed(rmscfg='~/source/RMS/.config'):
     cfgname = os.path.expanduser(rmscfg)
     config = cr.parse(cfgname)
     esr = config.external_script_run
-    extl = config.external_script_path
+    extl = os.path.expanduser(config.external_script_path)
+    datadir = os.path.expanduser(config.data_dir)
+    statid = config.stationID
+    while statid == 'XX0001':
+        print('RMS is refreshing, waiting 30s...')
+        time.sleep(30)
+        config = cr.parse(cfgname)
+        statid = config.stationID
 
     print('checking parameters')
-    if esr is True:
-        if extl != newpath:
-            print('saving current external script details')
-            with open(os.path.join(myloc, 'extrascript'), 'w') as outf:
-                outf.write(extl)
-
-    print('updating RMS config file')
-    with open(cfgname, 'r') as inf:
-        lines = inf.readlines()
-        with open('/tmp/new.config', 'w') as outf:
-            for li in range(len(lines)):
-                if 'auto_reprocess_external_script_run: ' in lines[li]:
-                    lines[li] = 'auto_reprocess_external_script_run: true  \n'
-                if 'external_script_path: ' in lines[li]:
-                    lines[li] = 'external_script_path: {}  \n'.format(newpath)
-                if 'external_script_run: ' in lines[li] and 'auto_reprocess_' not in lines[li]:
-                    lines[li] = 'external_script_run: true  \n'
-                if 'auto_reprocess: ' in lines[li]:
-                    lines[li] = 'auto_reprocess: true  \n'
-            outf.writelines(lines)
-    _, cfgbase = os.path.split(cfgname)
-    bkpcnf = os.path.join(myloc, cfgbase + '.backup')
-    print('backing up RMS config to {}'.format(bkpcnf))
-    shutil.copyfile(cfgname, bkpcnf)
-    shutil.copyfile('/tmp/new.config', cfgname)
-
+    if 'ukmonPostProc' not in extl:
+        if esr is True:
+            if extl != newpath:
+                print('saving current external script details')
+                with open(os.path.join(myloc, 'extrascript'), 'w') as outf:
+                    outf.write(extl)
+        print('updating RMS config file')
+        with open(cfgname, 'r') as inf:
+            lines = inf.readlines()
+            with open('/tmp/new.config', 'w') as outf:
+                for li in range(len(lines)):
+                    if 'auto_reprocess_external_script_run: ' in lines[li]:
+                        lines[li] = 'auto_reprocess_external_script_run: true  \n'
+                    if 'external_script_path: ' in lines[li]:
+                        lines[li] = 'external_script_path: {}  \n'.format(newpath)
+                    if 'external_script_run: ' in lines[li] and 'auto_reprocess_' not in lines[li]:
+                        lines[li] = 'external_script_run: true  \n'
+                    if 'auto_reprocess: ' in lines[li]:
+                        lines[li] = 'auto_reprocess: true  \n'
+                outf.writelines(lines)
+        _, cfgbase = os.path.split(cfgname)
+        bkpcnf = os.path.join(myloc, cfgbase + '.backup')
+        print('backing up RMS config to {}'.format(bkpcnf))
+        shutil.copyfile(cfgname, bkpcnf)
+        shutil.copyfile('/tmp/new.config', cfgname)
+    
+    checkCrontab(myloc, datadir)
+    addDesktopIcons(myloc, statid)
     return 
+
+
+def checkCrontab(myloc, datadir):
+    print('checking crontab')
+    cron = CronTab(user=True)
+    iter=cron.find_command('refreshTools.sh')
+    found = False
+    for i in iter:
+        if i.is_enabled():
+            found = True
+    if found is False:
+        print('adding refreshTools job')
+        job = cron.new(f'sleep 60 && {myloc}/refreshTools.sh > {datadir}/logs/refreshTools.log 2>&1')
+        job.every_reboot()
+        cron.write()
+    iter=cron.find_command('liveMonitor.sh')
+    found = False
+    for i in iter:
+        if i.is_enabled():
+            found = True
+    if found is False:
+        print('adding livestream job')
+        job = cron.new(f'sleep 3600 && {myloc}/liveMonitor.sh >> {datadir}/logs/ukmon-live.log 2>&1')
+        job.every_reboot()
+        cron.write()
+    return 
+
+
+def addDesktopIcons(myloc, statid):
+    print('checking/adding desktop icons')
+    cfglnk = os.path.expanduser(f'~/Desktop/UKMON_config_{statid}.txt')
+    if not os.path.isfile(cfglnk):
+        os.makedirs(os.path.expanduser('~/Desktop'), exist_ok=True)
+        os.symlink(os.path.join(myloc, 'ukmon.ini'), cfglnk)
+    cfglnk = os.path.expanduser(f'~/Desktop/refreshTools_{statid}.sh')
+    if not os.path.isfile(cfglnk):
+        os.makedirs(os.path.expanduser('~/Desktop'), exist_ok=True)
+        os.symlink(os.path.join(myloc, 'refreshTools.sh'), cfglnk)
+    return
 
 
 def rmsExternal(cap_dir, arch_dir, config):

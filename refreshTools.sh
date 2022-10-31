@@ -26,20 +26,10 @@ git stash
 git pull
 git stash apply
 
-echo "checking boto3 is installed for AWS connections"
+echo "checking required python libs are installed"
 source ~/vRMS/bin/activate
-pip list | grep boto3
-if [ $? -eq 1 ] ; then 
-    pip install boto3
-fi 
-
-# adding desktop icons if not already present
-if [ ! -f ~/Desktop/UKMON_config.txt ] ; then 
-    ln -s $here/ukmon.ini ~/Desktop/UKMON_config.txt
-fi 
-if [ ! -f ~/Desktop/refresh_UKMON_Tools.sh ] ; then 
-    ln -s $here/refreshTools.sh ~/Desktop/refresh_UKMON_Tools.sh
-fi 
+pip list | grep boto3 || pip install boto3 
+pip list | grep python-crontab || pip install python-crontab
 
 # creating an ssh key if not already present
 if [ ! -f  ~/.ssh/ukmon ] ; then 
@@ -63,11 +53,19 @@ if [[ "$LOCATION" != "NOTCONFIGURED"  && "$LOCATION" != "" ]] ; then
         tr -d '\r' < $here/tmp.ini > $here/ukmon.ini
         rm -f $here/tmp.ini
     fi 
+
     sftp -i ~/.ssh/ukmon -q $LOCATION@$UKMONHELPER << EOF
 get ukmon.ini
 get live.key
 exit
 EOF
+    echo "get platepar_cmn2010.cal /dev/null" > /dev/null 2>&1 | sftp -b - -i ~/.ssh/ukmon -q $LOCATION@$UKMONHELPER
+    if [ $? -eq 0 ] ; then 
+        echo "get platepar_cmn2010.cal /tmp/platepar_cmn2010.cal" | sftp -b - -i ~/.ssh/ukmon -q $LOCATION@$UKMONHELPER
+        cfgfldr=$(dirname $RMSCFG)
+        \cp $cfgfldr/platepar_cmn2010.cal $$cfgfldr/platepar_cmn2010.cal.$(date +%Y%m%d-%H%M%S)
+        \cp /tmp/platepar_cmn2010.cal $cfgfldr/
+    fi 
     chmod 0600 live.key
     if [ -f archive.key ] ; then \rm archive.key ; fi
     echo "testing connections"
@@ -75,7 +73,7 @@ EOF
     source ~/vRMS/bin/activate
     python $here/sendToLive.py test test
     python $here/uploadToArchive.py test
-    echo "if you didnt see two success messages contact us for advice" 
+    echo "if you did not see two success messages contact us for advice" 
     read -p "Press any key to continue"
 else
     echo "Location missing - please update UKMON Config File using the desktop icon"
@@ -84,32 +82,10 @@ else
     exit 1
 fi
 
-# pause to make sure RMS isn't simultaneously refreshing
-while [ $(grep XX0001 ~/source/RMS/.config | wc -l) -eq 1 ] ; do 
-    sleep 30
-done
-# update the external script settings 
-if [ $(grep ukmonPost $RMSCFG | wc -l) -eq 0 ] ; then
-    source $here/ukmon.ini
-    python -c "import ukmonPostProc as pp ; pp.installUkmonFeed('${RMSCFG}');"
-fi 
+# check and update the external script settings and crontab 
+source $here/ukmon.ini
+cd $(dirname $RMSCFG)
+export PYTHONPATH=$here
+python -c "import ukmonPostProc as pp ; pp.installUkmonFeed('${RMSCFG}');"
 
-# add the required crontab entries
-crontab -l | egrep "refreshTools.sh" > /dev/null
-if [ $? == 1 ] ; then 
-    echo "enabling daily toolset refresh"
-    crontab -l > /tmp/crontab.tmp 
-    echo "@reboot sleep 60 && $here/refreshTools.sh > /home/$LOGNAME/RMS_data/logs/refreshTools.log 2>&1" >> /tmp/crontab.tmp
-    crontab /tmp/crontab.tmp
-    rm /tmp/crontab.tmp
-fi 
-
-crontab -l | egrep "liveMonitor.sh" > /dev/null
-if [ $? == 1 ] ; then 
-    echo "enabling live monitoring"
-    crontab -l > /tmp/crontab.tmp 
-    echo "@reboot sleep 3600 && $here/liveMonitor.sh >> /home/$LOGNAME/RMS_data/logs/ukmon-live.log 2>&1" >> /tmp/crontab.tmp
-    crontab /tmp/crontab.tmp
-    rm /tmp/crontab.tmp
-fi 
 echo "done"
