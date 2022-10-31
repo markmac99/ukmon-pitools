@@ -82,6 +82,8 @@ def installUkmonFeed(rmscfg='~/source/RMS/.config'):
 
 
 def checkCrontab(myloc, datadir):
+    """ This function adds the crontab entries
+    """
     print('checking crontab')
     cron = CronTab(user=True)
     iter=cron.find_command('refreshTools.sh')
@@ -108,6 +110,9 @@ def checkCrontab(myloc, datadir):
 
 
 def addDesktopIcons(myloc, statid):
+    """
+    This function adds the desktop icons which are links to the ini file and refresh scripts
+    """
     print('checking/adding desktop icons')
     cfglnk = os.path.expanduser(f'~/Desktop/UKMON_config_{statid}.txt')
     if not os.path.isfile(cfglnk):

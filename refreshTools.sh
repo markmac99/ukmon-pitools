@@ -71,6 +71,12 @@ EOF
         \mv -f /tmp/platepar_cmn2010.cal $cfgfldr/
     fi 
 
+    echo "checking the RMS config file, crontab and icons"
+    source $here/ukmon.ini
+    cd $(dirname $RMSCFG)
+    export PYTHONPATH=$here
+    python -c "import ukmonPostProc as pp ; pp.installUkmonFeed('${RMSCFG}');"
+
     echo "testing connections"
     source $here/ukmon.ini
     source ~/vRMS/bin/activate
@@ -78,6 +84,7 @@ EOF
     python $here/uploadToArchive.py test
     echo "if you did not see two success messages contact us for advice" 
     read -p "Press any key to continue"
+    echo "done"
 else
     echo "Location missing - please update UKMON Config File using the desktop icon"
     sleep 5
@@ -85,10 +92,3 @@ else
     exit 1
 fi
 
-# check and update the external script settings and crontab 
-source $here/ukmon.ini
-cd $(dirname $RMSCFG)
-export PYTHONPATH=$here
-python -c "import ukmonPostProc as pp ; pp.installUkmonFeed('${RMSCFG}');"
-
-echo "done"
