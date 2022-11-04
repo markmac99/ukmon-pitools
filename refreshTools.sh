@@ -64,14 +64,13 @@ EOF
     if [ -f archive.key ] ; then \rm archive.key ; fi 
 
     echo "checking the RMS config file, crontab and icons"
+    source ~/vRMS/bin/activate
     source $here/ukmon.ini
     cd $(dirname $RMSCFG)
     export PYTHONPATH=$here
     python -c "import ukmonInstaller as pp ; pp.installUkmonFeed('${RMSCFG}');"
 
     echo "testing connections"
-    source $here/ukmon.ini
-    source ~/vRMS/bin/activate
     python $here/sendToLive.py test test
     python $here/uploadToArchive.py test
     echo "if you did not see two success messages contact us for advice" 
