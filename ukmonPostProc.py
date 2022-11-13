@@ -23,49 +23,7 @@ from RMS.Logger import initLogging
 
 import uploadToArchive 
 
-
-def installUkmonFeed(rmscfg='~/source/RMS/.config'):
-    """ This function installs the UKMon postprocessing script into the RMS config file.
-    It is called from the refreshTools script during initial installation and should never
-    be called outside of that unless you're *certain* you know what you're doing. The script 
-    alters the rms .config file. 
-
-    """
-    myloc = os.path.split(os.path.abspath(__file__))[0]
-    newpath = os.path.join(myloc, 'ukmonPostProc.py')
-    cfgname = os.path.expanduser(rmscfg)
-    config = cr.parse(cfgname)
-    esr = config.external_script_run
-    extl = config.external_script_path
-
-    print('checking parameters')
-    if esr is True:
-        if extl != newpath:
-            print('saving current external script details')
-            with open(os.path.join(myloc, 'extrascript'), 'w') as outf:
-                outf.write(extl)
-
-    print('updating RMS config file')
-    with open(cfgname, 'r') as inf:
-        lines = inf.readlines()
-        with open('/tmp/new.config', 'w') as outf:
-            for li in range(len(lines)):
-                if 'auto_reprocess_external_script_run: ' in lines[li]:
-                    lines[li] = 'auto_reprocess_external_script_run: true  \n'
-                if 'external_script_path: ' in lines[li]:
-                    lines[li] = 'external_script_path: {}  \n'.format(newpath)
-                if 'external_script_run: ' in lines[li] and 'auto_reprocess_' not in lines[li]:
-                    lines[li] = 'external_script_run: true  \n'
-                if 'auto_reprocess: ' in lines[li]:
-                    lines[li] = 'auto_reprocess: true  \n'
-            outf.writelines(lines)
-    _, cfgbase = os.path.split(cfgname)
-    bkpcnf = os.path.join(myloc, cfgbase + '.backup')
-    print('backing up RMS config to {}'.format(bkpcnf))
-    shutil.copyfile(cfgname, bkpcnf)
-    shutil.copyfile('/tmp/new.config', cfgname)
-
-    return 
+log = logging.getLogger("logger")
 
 
 def rmsExternal(cap_dir, arch_dir, config):
@@ -126,7 +84,7 @@ def rmsExternal(cap_dir, arch_dir, config):
         log.info('timelapse creation not enabled')
 
     log.info('uploading to archive')
-    uploadToArchive.uploadToArchive(arch_dir, log)
+    uploadToArchive.uploadToArchive(arch_dir)
 
     # do not remote reboot lock file if running another script
     # os.remove(rebootlockfile)
@@ -176,4 +134,7 @@ if __name__ == '__main__':
         print('eg python ukmonPostProc.py UK0006_20210312_183741_206154')
         print('\n nb: script must be run from RMS source folder')
     else:
-        manualRerun(sys.argv[1])
+        arch_dir = sys.argv[1]
+        if 'ConfirmedFiles' in arch_dir or 'ArchivedFiles' in arch_dir or 'CapturedFiles' in arch_dir:
+            _, arch_dir = os.path.split(arch_dir)
+        manualRerun(arch_dir)
