@@ -29,7 +29,8 @@ git stash apply
 echo "checking required python libs are installed"
 source ~/vRMS/bin/activate
 pip list | grep boto3 || pip install boto3 
-pip list | grep python-crontab || pip install python-crontab
+# python-crontab v2.5.1 for python 2.7 backwards compatability. Sigh. 
+pip list | grep python-crontab | grep 2.5.1 || pip install python-crontab==2.5.1
 
 # creating an ssh key if not already present
 if [ ! -f  ${UKMONKEY} ] ; then 
