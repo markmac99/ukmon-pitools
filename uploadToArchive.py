@@ -39,7 +39,7 @@ def readKeyFile(filename):
                 val = val[1:len(val)-1]
             vals[data[0]] = val
     if 'S3FOLDER' not in vals and 'CAMLOC' in vals:
-        vals['S3FOLDER'] = f'archive/{vals["CAMLOC"]}'
+        vals['S3FOLDER'] = 'archive/{}'.format(vals["CAMLOC"])
     if 'S3FOLDER' in vals and vals['S3FOLDER'][-1] == '/':
         vals['S3FOLDER'] = vals['S3FOLDER'][:-1]
     if 'ARCHBUCKET' not in vals:
@@ -71,7 +71,7 @@ def uploadOneFileOther(arch_dir, dir_file, s3, targf, file_ext, keys):
     daydir = os.path.split(arch_dir)[1]
     spls = daydir.split('_')
     camid = spls[0]
-    desf= f'{targf}/{camid}/{daydir}/{dir_file}'
+    desf= '{}/{}/{}/{}'.format(targf, camid, daydir, dir_file)
     ctyp='text/plain'
     if file_ext=='.jpg': 
         ctyp = 'image/jpeg'
@@ -112,56 +112,56 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
     spls = daydir.split('_')
     camid = spls[0]
     ymd = spls[1]
-    desf= f'{targf}/{camid}/{ymd[:4]}/{ymd[:6]}/{ymd}/{dir_file}'
+    desf= '{}/{}/{}/{}/{}/{}'.format(targf, camid, ymd[:4], ymd[:6], ymd, dir_file)
     desf2 = None
     ctyp='text/plain'
     if file_ext=='.jpg': 
         ctyp = 'image/jpeg'
         if 'FF_' in dir_file:
             target=keys['WEBBUCKET']
-            desf = f'img/single/{ymd[:4]}/{ymd[:6]}/{dir_file}'
+            desf = 'img/single/{}/{}/{}'.format(ymd[:4], ymd[:6], dir_file)
         elif '_stack_' in dir_file:
             target=keys['WEBBUCKET']
-            desf = f'latest/{camid}.jpg'
+            desf = 'latest/{}.jpg'.format(camid)
         elif '_calib_report_astrometry.jpg' in dir_file:
             target=keys['WEBBUCKET']
-            desf = f'latest/{camid}_cal.jpg'
+            desf = 'latest/{}_cal.jpg'.format(camid)
     elif file_ext=='.fits': 
         ctyp = 'image/fits'
     elif file_ext=='.png': 
         ctyp = 'image/png'
         if '_radiants.png' in dir_file:
             target=keys['WEBBUCKET']
-            desf = f'latest/{camid}.png'
+            desf = 'latest/{}.png'.format(camid)
     elif file_ext=='.bmp': 
         ctyp = 'image/bmp'
     elif file_ext=='.mp4': 
         ctyp = 'video/mp4'
         if 'FF_' in dir_file:
             target=keys['WEBBUCKET']
-            desf = f'img/mp4/{ymd[:4]}/{ymd[:6]}/{dir_file}'
+            desf = 'img/mp4/{}/{}/{}'.format(ymd[:4], ymd[:6], dir_file)
     elif file_ext=='.csv': 
         ctyp = 'text/csv'
-        desf=f'consolidated/temp/{dir_file}'
+        desf='consolidated/temp/{}'.format(dir_file)
     elif file_ext=='.cal': 
         ctyp = 'text/plain'
-        desf=f'consolidated/platepars/{camid}.json'
+        desf='consolidated/platepars/{}.json'.format(camid)
     elif file_ext=='.json':
         ctyp = 'application/json'
         if 'platepars_all' in dir_file: 
-            desf = f'{keys["MATCHDIR"]}/{camid}/{daydir}/{dir_file}'
-    elif dir_file == f'FTPdetectinfo_{daydir}.txt': 
+            desf = '{}/{}/{}/{}'.format(keys["MATCHDIR"], camid, daydir, dir_file)
+    elif dir_file == 'FTPdetectinfo_{}.txt'.format(daydir): 
         ctyp = 'text/plain'
-        desf = f'{keys["MATCHDIR"]}/{camid}/{daydir}/{dir_file}'
+        desf = '{}/{}/{}/{}'.format(keys["MATCHDIR"], camid, daydir, dir_file)
     elif file_ext == '.kml': 
         ctyp = 'text/plain'
-        desf = f'kmls/{dir_file}'
+        desf = 'kmls/{}'.format(dir_file)
         target2 = keys['WEBBUCKET']
-        desf2 = f'img/kmls/{dir_file}'
+        desf2 = 'img/kmls/{}'.format(dir_file)
     if dir_file == '.config':
         ctyp = 'text/plain'
         target2 = target
-        desf2 = f'{keys["MATCHDIR"]}/{camid}/{daydir}/{dir_file}'
+        desf2 = '{}/{}/{}/{}'.format(keys["MATCHDIR"], camid, daydir, dir_file)
 
     srcf = os.path.join(arch_dir, dir_file)
     try:
@@ -213,7 +213,7 @@ def uploadToArchive(arch_dir):
         file_name, file_ext = os.path.splitext(dir_file)
         file_ext = file_ext.lower()
         # platepar must be uploaded before FTPdetect file
-        if (f'FTPdetectinfo_{daydir}.txt' == dir_file):
+        if ('FTPdetectinfo_{}.txt'.format(daydir) == dir_file):
             if os.path.isfile(os.path.join(arch_dir, 'platepars_all_recalibrated.json')):
                 uploadOneFile(arch_dir, 'platepars_all_recalibrated.json', s3, targf, '.json', keys)
             uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys)
