@@ -128,7 +128,7 @@ def singleUpload(cap_dir, dir_file):
             s3.meta.client.delete_objects(Bucket=target, Delete=key)
             print('test successful')
         except Exception:
-            print(f'unable to upload to {target} - check key information')
+            print('unable to upload to {} - check key information'.format(target))
         os.remove('/tmp/test.txt')
     else:
         uploadOneEvent(cap_dir, dir_file, loc, s3)

@@ -74,7 +74,7 @@ def checkCrontab(myloc, datadir):
             found = True
     if found is False:
         print('adding refreshTools job')
-        job = cron.new(f'sleep 60 && {myloc}/refreshTools.sh > {datadir}/logs/refreshTools.log 2>&1')
+        job = cron.new('sleep 60 && {}/refreshTools.sh > {}/logs/refreshTools.log 2>&1'.format(myloc, datadir))
         job.every_reboot()
         cron.write()
     iter=cron.find_command('liveMonitor.sh')
@@ -84,7 +84,7 @@ def checkCrontab(myloc, datadir):
             found = True
     if found is False:
         print('adding livestream job')
-        job = cron.new(f'sleep 3600 && {myloc}/liveMonitor.sh >> {datadir}/logs/ukmon-live.log 2>&1')
+        job = cron.new('sleep 3600 && {}/liveMonitor.sh >> {}/logs/ukmon-live.log 2>&1'.format(myloc, datadir))
         job.every_reboot()
         cron.write()
     return 
@@ -95,11 +95,11 @@ def addDesktopIcons(myloc, statid):
     This function adds the desktop icons which are links to the ini file and refresh scripts
     """
     print('checking/adding desktop icons')
-    cfglnk = os.path.expanduser(f'~/Desktop/UKMON_config_{statid}.txt')
+    cfglnk = os.path.expanduser('~/Desktop/UKMON_config_{}.txt'.format(statid))
     if not os.path.isfile(cfglnk):
         os.makedirs(os.path.expanduser('~/Desktop'), exist_ok=True)
         os.symlink(os.path.join(myloc, 'ukmon.ini'), cfglnk)
-    reflnk = os.path.expanduser(f'~/Desktop/refresh_UKMON_tools_{statid}.sh')
+    reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sh'.format(statid))
     if not os.path.isfile(reflnk):
         os.makedirs(os.path.expanduser('~/Desktop'), exist_ok=True)
         os.symlink(os.path.join(myloc, 'refreshTools.sh'), reflnk)
