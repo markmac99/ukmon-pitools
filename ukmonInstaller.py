@@ -95,13 +95,13 @@ def addDesktopIcons(myloc, statid):
     This function adds the desktop icons which are links to the ini file and refresh scripts
     """
     print('checking/adding desktop icons')
+    if not os.path.isdir(os.path.expanduser('~/Desktop')):
+        os.makedirs(os.path.expanduser('~/Desktop'))
     cfglnk = os.path.expanduser('~/Desktop/UKMON_config_{}.txt'.format(statid))
     if not os.path.isfile(cfglnk):
-        os.makedirs(os.path.expanduser('~/Desktop'), exist_ok=True)
         os.symlink(os.path.join(myloc, 'ukmon.ini'), cfglnk)
     reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sh'.format(statid))
     if not os.path.isfile(reflnk):
-        os.makedirs(os.path.expanduser('~/Desktop'), exist_ok=True)
         os.symlink(os.path.join(myloc, 'refreshTools.sh'), reflnk)
     return
 
