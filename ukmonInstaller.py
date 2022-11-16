@@ -112,23 +112,26 @@ def checkPlatepar(statid, rmsloc):
     usr = os.getenv('LOCATION')
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh_client.connect(svr, username=usr, key_filename=idfile)
-    ftp_client = ssh_client.open_sftp()
-    fetchpp = True
-    try:
-        ftp_client.get('platepar/platepar_cmn2010.cal','/tmp/platepar_cmn2010.cal')
+    try: 
+        ssh_client.connect(svr, username=usr, key_filename=idfile)
+        ftp_client = ssh_client.open_sftp()
+        fetchpp = True
+        try:
+            ftp_client.get('platepar/platepar_cmn2010.cal','/tmp/platepar_cmn2010.cal')
+        except:
+            fetchpp = False
+        if fetchpp:
+            print('Fetching new platepar...')
+            js = json.load(open('/tmp/platepar_cmn2010.cal'))
+            if js['station_code'] != statid:
+                print('Station ID mismatch, not using new platepar')
+            else:
+                targpp = os.path.join(rmsloc, 'platepar_cmn2010.cal')
+                shutil.copyfile('/tmp/platepar_cmn2010.cal', targpp)
+                ftp_client.remove('platepar/platepar_cmn2010.cal')
+        if os.path.isfile('/tmp/platepar_cmn2010.cal'):
+            os.remove('/tmp/platepar_cmn2010.cal')
+        ftp_client.close()
     except:
-        fetchpp = False
-    if fetchpp:
-        print('Fetching new platepar...')
-        js = json.load(open('/tmp/platepar_cmn2010.cal'))
-        if js['station_code'] != statid:
-            print('Station ID mismatch, not using new platepar')
-        else:
-            targpp = os.path.join(rmsloc, 'platepar_cmn2010.cal')
-            shutil.copyfile('/tmp/platepar_cmn2010.cal', targpp)
-            ftp_client.remove('platepar/platepar_cmn2010.cal')
-    if os.path.isfile('/tmp/platepar_cmn2010.cal'):
-        os.remove('/tmp/platepar_cmn2010.cal')
-    ftp_client.close()
+        print('unable to check platepar, will try next time')
     return 
