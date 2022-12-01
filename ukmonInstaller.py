@@ -5,6 +5,7 @@ from crontab import CronTab
 import time
 import paramiko
 import json
+import tempfile
 import RMS.ConfigReader as cr
 
 
@@ -16,11 +17,8 @@ def installUkmonFeed(rmscfg='~/source/RMS/.config'):
 
     """
     myloc = os.path.split(os.path.abspath(__file__))[0]
-    newpath = os.path.join(myloc, 'ukmonPostProc.py')
     cfgname = os.path.expanduser(rmscfg)
     config = cr.parse(cfgname)
-    esr = config.external_script_run
-    extl = os.path.expanduser(config.external_script_path)
     datadir = os.path.expanduser(config.data_dir)
     statid = config.stationID
     while statid == 'XX0001':
@@ -29,37 +27,52 @@ def installUkmonFeed(rmscfg='~/source/RMS/.config'):
         config = cr.parse(cfgname)
         statid = config.stationID
 
-    print('checking parameters')
+    checkPostProcSettings(myloc, cfgname)
+    checkCrontab(myloc, datadir)
+    addDesktopIcons(myloc, statid)
+    checkPlatepar(statid, os.path.dirname(cfgname))
+    return 
+
+
+def checkPostProcSettings(myloc, cfgname):
+    print('checking postProcessing Settings')
+
+    config = cr.parse(cfgname)
+    scrname = os.path.join(myloc, 'ukmonPostProc.py')
+    esr = config.external_script_run
+    extl = os.path.expanduser(config.external_script_path)
+    print(extl)
     if 'ukmonPostProc' not in extl:
         if esr is True:
-            if extl != newpath:
+            if extl != scrname:
                 print('saving current external script details')
                 with open(os.path.join(myloc, 'extrascript'), 'w') as outf:
                     outf.write(extl)
         print('updating RMS config file')
         with open(cfgname, 'r') as inf:
             lines = inf.readlines()
-            with open('/tmp/new.config', 'w') as outf:
-                for li in range(len(lines)):
-                    if 'auto_reprocess_external_script_run: ' in lines[li]:
-                        lines[li] = 'auto_reprocess_external_script_run: true  \n'
-                    if 'external_script_path: ' in lines[li]:
-                        lines[li] = 'external_script_path: {}  \n'.format(newpath)
-                    if 'external_script_run: ' in lines[li] and 'auto_reprocess_' not in lines[li]:
-                        lines[li] = 'external_script_run: true  \n'
-                    if 'auto_reprocess: ' in lines[li]:
-                        lines[li] = 'auto_reprocess: true  \n'
-                outf.writelines(lines)
+        _, tmpname = tempfile.mkstemp()
+        with open(tmpname, 'w') as outf:
+            for li in lines:
+                if len(li) > 0 and li[0] != ';':
+                    if 'auto_reprocess_external_script_run: ' in li:
+                        li = 'auto_reprocess_external_script_run: true  \n'
+                    if 'external_script_path: ' in li:
+                        li = 'external_script_path: {}  \n'.format(scrname)
+                    if 'external_script_run: ' in li and 'auto_reprocess_' not in li:
+                        li = 'external_script_run: true  \n'
+                    if 'auto_reprocess: ' in li:
+                        li = 'auto_reprocess: true  \n'
+                outf.write(li)
         _, cfgbase = os.path.split(cfgname)
         bkpcnf = os.path.join(myloc, cfgbase + '.backup')
         print('backing up RMS config to {}'.format(bkpcnf))
         shutil.copyfile(cfgname, bkpcnf)
-        shutil.copyfile('/tmp/new.config', cfgname)
-    
-    checkCrontab(myloc, datadir)
-    addDesktopIcons(myloc, statid)
-    checkPlatepar(statid, os.path.dirname(cfgname))
-    return 
+        shutil.copyfile(tmpname, cfgname)
+        os.remove(tmpname)
+    else:
+        print('ukmonPostProc present')
+    return     
 
 
 def checkCrontab(myloc, datadir):
