@@ -112,6 +112,7 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
     spls = daydir.split('_')
     camid = spls[0]
     ymd = spls[1]
+    
     desf= '{}/{}/{}/{}/{}/{}'.format(targf, camid, ymd[:4], ymd[:6], ymd, dir_file)
     desf2 = None
     ctyp='text/plain'
@@ -119,7 +120,9 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
         ctyp = 'image/jpeg'
         if 'FF_' in dir_file:
             target=keys['WEBBUCKET']
-            desf = 'img/single/{}/{}/{}'.format(ymd[:4], ymd[:6], dir_file)
+            ispls = dir_file.split('_')
+            iymd = ispls[2]
+            desf = 'img/single/{}/{}/{}'.format(iymd[:4], iymd[:6], dir_file)
         elif '_stack_' in dir_file:
             target=keys['WEBBUCKET']
             desf = 'latest/{}.jpg'.format(camid)
@@ -139,7 +142,9 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
         ctyp = 'video/mp4'
         if 'FF_' in dir_file:
             target=keys['WEBBUCKET']
-            desf = 'img/mp4/{}/{}/{}'.format(ymd[:4], ymd[:6], dir_file)
+            vspls = dir_file.split('_')
+            vymd = vspls[2]
+            desf = 'img/mp4/{}/{}/{}'.format(vymd[:4], vymd[:6], dir_file)
     elif file_ext=='.csv': 
         ctyp = 'text/csv'
         desf='consolidated/temp/{}'.format(dir_file)
