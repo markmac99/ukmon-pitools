@@ -68,7 +68,7 @@ EOF
     source ~/vRMS/bin/activate
     source $here/ukmon.ini
     cd $(dirname $RMSCFG)
-    export PYTHONPATH=$here
+    export PYTHONPATH=$here:~/source/RMS
     python -c "import ukmonInstaller as pp ; pp.installUkmonFeed('${RMSCFG}');"
 
     echo "testing connections"
