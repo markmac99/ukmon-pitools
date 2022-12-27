@@ -42,9 +42,9 @@ def checkPostProcSettings(myloc, cfgname):
     esr = config.external_script_run
     extl = os.path.expanduser(config.external_script_path)
     print(extl)
-    if 'ukmonPostProc' not in extl:
+    if 'ukmonPostProc' not in extl or ('ukmonPostProc' in extl and myloc not in extl):
         if esr is True:
-            if extl != scrname:
+            if 'ukmonPostProc' not in extl:
                 print('saving current external script details')
                 with open(os.path.join(myloc, 'extrascript'), 'w') as outf:
                     outf.write(extl)
