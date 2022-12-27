@@ -80,7 +80,7 @@ def checkCrontab(myloc, datadir):
     """
     print('checking crontab')
     cron = CronTab(user=True)
-    iter=cron.find_command('refreshTools.sh')
+    iter=cron.find_command('{}/refreshTools.sh'.format(myloc))
     found = False
     for i in iter:
         if i.is_enabled():
@@ -90,7 +90,7 @@ def checkCrontab(myloc, datadir):
         job = cron.new('sleep 60 && {}/refreshTools.sh > {}/logs/refreshTools.log 2>&1'.format(myloc, datadir))
         job.every_reboot()
         cron.write()
-    iter=cron.find_command('liveMonitor.sh')
+    iter=cron.find_command('{}/liveMonitor.sh'.format(myloc))
     found = False
     for i in iter:
         if i.is_enabled():
