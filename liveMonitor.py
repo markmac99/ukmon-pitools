@@ -1,6 +1,7 @@
 import time
 import os
 import sys
+import glob
 import boto3
 import configparser
 import sendToLive as uoe
@@ -55,30 +56,39 @@ def monitorLogFile():
 
     conn = boto3.Session(aws_access_key_id=awskey, aws_secret_access_key=awssec, region_name=awsreg) 
     s3 = conn.resource('s3')
-    logfile = open(sys.argv[1],"r")
 
     # get cam location from ini file
     camloc = None
+    rmsloc = '~/source/RMS/.config'
     with open(os.path.join(myloc, 'ukmon.ini'), 'r') as inif:
         lines = inif.readlines()
         for li in lines:
             if 'LOCATION' in li:
                 camloc = li.split('=')[1].strip()
                 break
-    if camloc is None:
-        print('ini file malformed - LOCATION not found')
+            if 'RMSCFG' in li:
+                rmsloc = li.split('=')[1].strip()
+    if camloc is None or rmsloc is None:
+        print('ini file malformed - LOCATION or RMSCFG not found')
         exit(1)
 
 
     # read a few variables from the RMS config file
     cfg = configparser.ConfigParser()
-    cfg.read(os.path.expanduser('~/source/RMS/.config'))
+    cfg.read(os.path.expanduser(rmsloc))
     loc = []
     loc.append(float(cfg['System']['latitude'].split()[0]))
     loc.append(float(cfg['System']['longitude'].split()[0]))
     loc.append(float(cfg['System']['elevation'].split()[0]))
     loc.append(cfg['System']['stationID'].split()[0])
     loc.append(camloc)
+
+    datadir = cfg['Capture']['data_dir']
+    logdir = os.path.expanduser(os.path.join(datadir, cfg['Capture']['log_dir']))
+    logfs = glob.glob1(logdir, 'log*.log*')
+    logfs.sort()
+    logfile = os.path.join(logdir, logfs[-1])
+    print('monitoring {}'.format(logfile))
 
     # determine data directory
     while True:

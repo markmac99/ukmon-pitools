@@ -13,9 +13,6 @@ if [ "$LOCATION" == "NOTCONFIGURED" ]; then
     exit 1
 fi
 
-logf=`ls -1tr ~/RMS_data/logs/log*.log | tail -1 | head -1`
-logger "Monitoring $logf" -t $0
-
 cd ~/source/RMS
 
-python $here/liveMonitor.py $logf
+python $here/liveMonitor.py
