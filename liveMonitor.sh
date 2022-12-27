@@ -14,5 +14,5 @@ if [ "$LOCATION" == "NOTCONFIGURED" ]; then
 fi
 
 cd ~/source/RMS
-
+export PYTHONPATH=$here:~/source/RMS
 python $here/liveMonitor.py

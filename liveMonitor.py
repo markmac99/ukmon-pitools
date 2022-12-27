@@ -87,9 +87,10 @@ def monitorLogFile():
     logdir = os.path.expanduser(os.path.join(datadir, cfg['Capture']['log_dir']))
     logfs = glob.glob1(logdir, 'log*.log*')
     logfs.sort()
-    logfile = os.path.join(logdir, logfs[-1])
-    print('monitoring {}'.format(logfile))
+    logf = os.path.join(logdir, logfs[-1])
+    print('monitoring {}'.format(logf))
 
+    logfile = open(logf, 'r')
     # determine data directory
     while True:
         line = logfile.readline()
