@@ -29,24 +29,25 @@ NB: If you're setting up such a configuration you MUST let me know the affected 
 To explain the process, lets assume you have cameras US0001 and US0002
 * Login as the managing user and run the following to set up US0001
 > cd $HOME/source
-> git clone https://github.com/markmac99/ukmon-pitools.git  ukmon-pitools-US0001
-> cd ukmon-pitools-US0001
-> ./refreshTools.sh
+> git clone https://github.com/markmac99/ukmon-pitools.git  ukmon-pitools-US0001  
+> cd ukmon-pitools-US0001  
+> ./refreshTools.sh  
 
 * This will create a default ukmon.ini file. Edit this file and make the following changes:
-> export UKMONKEY=~/.ssh/ukmon-US0001
-> export RMSCFG=~/source/Stations/US0001/.config
+> export UKMONKEY=~/.ssh/ukmon-US0001  
+> export RMSCFG=~/source/Stations/US0001/.config  
 
 * Now rerun ./refreshTools.sh. This time it will create an SSH key called ~/.ssh/ukmon-US0001. 
  
 * If you're setting up from scratch then email the public key to markmcintyre99@googlemail.com. We'll email back instructions in how to complete the process. 
   
 * If you're migrating an existing installation from a pi, then you can copy over the existing keys as follows (replace 'yourpiname' with your Pi's network name or ip address):
-> scp yourpiname:.ssh/ukmon ~/.ssh/ukmon-US0001
-> scp yourpiname:.ssh/ukmon.pub ~/.ssh/ukmon-US0001.pub
+> scp yourpiname:.ssh/ukmon ~/.ssh/ukmon-US0001  
+> scp yourpiname:.ssh/ukmon.pub ~/.ssh/ukmon-US0001.pub  
 
 * Now edit the ini file again and set the LOCATION to the correct value. 
-* Then rerun ./refreshTools.sh. This time, it should complete successfully. 
+* Then rerun ./refreshTools.sh. 
+* This time, it should complete successfully. 
 
 * If you have more than one camera, repeat these instructions for each camera
 
