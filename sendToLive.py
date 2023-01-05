@@ -129,7 +129,10 @@ def singleUpload(cap_dir, dir_file):
             print('test successful')
         except Exception:
             print('unable to upload to {} - check key information'.format(target))
-        os.remove('/tmp/test.txt')
+        try:
+            os.remove('/tmp/test.txt')
+        except:
+            pass
     else:
         uploadOneEvent(cap_dir, dir_file, loc, s3)
 
