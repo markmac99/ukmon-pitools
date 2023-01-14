@@ -35,7 +35,9 @@ def checkFbUpload(stationid, capdir, log):
                 log.info('uploading {}'.format(srcfile))
                 s3a.upload_file(srcfile, archbuck, targfile)
         os.remove(locfile)
-        s3a.delete_objects(Bucket=archbuck, Delete=remfile)
+        key = {'Objects': []}
+        key['Objects'] = [{'Key': remfile}]
+        s3a.delete_objects(Bucket=archbuck, Delete=key)
 
 
 def uploadOneEvent(cap_dir, dir_file, loc, s3):
