@@ -97,7 +97,6 @@ def monitorLogFile(camloc, rmscfg):
     logfs.sort()
     logf = os.path.join(logdir, logfs[-1])
 
-
     keepon = True
     starttime = datetime.datetime.now()
     startday = starttime.day
