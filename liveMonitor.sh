@@ -16,6 +16,4 @@ fi
 rmsdir=$(dirname $RMSCFG)
 cd $rmsdir
 export PYTHONPATH=$here:~/source/RMS
-logger -s -t ukmonLiveMonitor "starting"
-logger -s -t ukmonLiveMonitor "=========="
 python $here/liveMonitor.py $LOCATION $RMSCFG 

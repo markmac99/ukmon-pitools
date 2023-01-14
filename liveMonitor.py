@@ -50,7 +50,9 @@ def monitorLogFile(camloc, rmscfg):
         log.removeHandler(log.handlers[0])
         
     initLogging(cfg, 'ukmonlive_')
-    log.info('ukmon-live feed started')
+    log.info('--------------------------------')
+    log.info('    ukmon-live feed started')
+    log.info('--------------------------------')
 
 
     log.info('Camera location is {}'.format(camloc))
