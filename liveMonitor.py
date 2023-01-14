@@ -12,7 +12,7 @@ import RMS.ConfigReader as cr
 log = logging.getLogger("logger")
 
 timetowait = 30 # seconds to wait for a new line before deciding the log is stale
-
+FBINTERVAL = 1800
 
 def follow(fname):
     now = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
@@ -98,7 +98,8 @@ def monitorLogFile(camloc, rmscfg):
     logf = os.path.join(logdir, logfs[-1])
 
     keepon = True
-    startday = datetime.datetime.now().day
+    starttime = datetime.datetime.now()
+    startday = starttime.day
     while keepon is True:
         try:
             loglines = follow(logf)
@@ -120,8 +121,8 @@ def monitorLogFile(camloc, rmscfg):
                         if capdir != '':
                             ffname = line.split(' ')[3]
                             uoe.uploadOneEvent(capdir, ffname, loc, s3)
-                now = datetime.datetime.now().day
-                if now != startday: 
+                nowtm = datetime.datetime.now()
+                if nowtm.day != startday: 
                     log.info('rolling the logfile after midnight')
                     while len(log.handlers) > 0:
                         log.removeHandler(log.handlers[0])
@@ -133,11 +134,13 @@ def monitorLogFile(camloc, rmscfg):
 
                     log.info('Camera location is {}'.format(camloc))
                     log.info('RMS config file is {}'.format(rmscfg))
-
+                    starttime = nowtm
+                if (nowtm - starttime).seconds > FBINTERVAL:
+                    log.info('would have checked for fb info')
+                    starttime = nowtm
         except:
             log.info('restarting to read {}'.format(logf))
             pass
-
 
 
 if __name__ == '__main__':
