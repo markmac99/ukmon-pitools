@@ -6,13 +6,17 @@ import boto3
 import configparser
 import sendToLive as uoe
 import datetime
+import logging
+from RMS.Logger import initLogging
+
+log = logging.getLogger("logger")
 
 timetowait = 30 # seconds to wait for a new line before deciding the log is stale
 
 
 def follow(fname):
     now = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
-    print('{}: monitoring {}'.format(now, fname))
+    log.info('{}: monitoring {}'.format(now, fname))
     thefile = open(fname, 'r')
     #thefile.seek(0, os.SEEK_START)
     
@@ -38,8 +42,19 @@ def monitorLogFile(camloc, rmscfg):
     to a jpg and upload it to ukmon-live. Requires the user to have been supplied
     with a ukmon-live security key and camera location identifier. 
     """
-    print('Camera location is {}'.format(camloc))
-    print('RMS config file is {}'.format(rmscfg))
+    cfg = configparser.ConfigParser()
+    cfg.read(os.path.expanduser(rmscfg))
+
+    log = logging.getLogger("logger")
+    while len(log.handlers) > 0:
+        log.removeHandler(log.handlers[0])
+        
+    initLogging(cfg, 'ukmonlive_')
+    log.info('ukmon-live feed started')
+
+
+    log.info('Camera location is {}'.format(camloc))
+    log.info('RMS config file is {}'.format(rmscfg))
     myloc = os.path.split(os.path.abspath(__file__))[0]
 
     awskey = None
@@ -48,7 +63,7 @@ def monitorLogFile(camloc, rmscfg):
 
     # get credentials
     if not os.path.isfile(os.path.join(myloc, 'live.key')):
-        print('AWS key not present, aborting')
+        log.info('AWS key not present, aborting')
         exit(1)
     with open(os.path.join(myloc, 'live.key'), 'r') as inif:
         lines = inif.readlines()
@@ -60,15 +75,13 @@ def monitorLogFile(camloc, rmscfg):
             if 'AWS_DEFAULT_REGION' in li:
                 awsreg = li.split('=')[1].strip()
     if awssec is None or awskey is None or awsreg is None:
-        print('unable to locate AWS credentials, aborting')
+        log.info('unable to locate AWS credentials, aborting')
         exit(1)
 
     conn = boto3.Session(aws_access_key_id=awskey, aws_secret_access_key=awssec, region_name=awsreg) 
     s3 = conn.resource('s3')
 
     # read a few variables from the RMS config file
-    cfg = configparser.ConfigParser()
-    cfg.read(os.path.expanduser(rmscfg))
     loc = []
     loc.append(float(cfg['System']['latitude'].split()[0]))
     loc.append(float(cfg['System']['longitude'].split()[0]))
@@ -90,7 +103,7 @@ def monitorLogFile(camloc, rmscfg):
             # iterate over the generator
             for line in loglines:
                 if li == 'log stale':
-                    print('file not being updated')
+                    log.info('file not being updated')
                     logfs = glob.glob1(logdir, 'log*.log*')
                     logfs.sort()
                     logf = os.path.join(logdir, logfs[-1])
@@ -98,14 +111,14 @@ def monitorLogFile(camloc, rmscfg):
                 else:
                     if "Data directory" in line: 
                         capdir = line.split(' ')[5].strip()
-                        print('Capdir is', capdir)
+                        log.info('Capdir is', capdir)
                         sys.stdout.flush()
                     if "detected meteors" in line and ": 0" not in line and "TOTAL" not in line:
                         if capdir != '':
                             ffname = line.split(' ')[3]
                             uoe.uploadOneEvent(capdir, ffname, loc, s3)
         except:
-            print('restarting to read {}'.format(logf))
+            log.info('restarting to read {}'.format(logf))
             pass
 
 
