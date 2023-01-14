@@ -89,8 +89,8 @@ def monitorLogFile(camloc, rmscfg):
     loc.append(cfg.stationID)
     loc.append(camloc)
 
-    datadir = cfg['Capture']['data_dir']
-    logdir = os.path.expanduser(os.path.join(datadir, cfg['Capture']['log_dir']))
+    datadir = cfg.data_dir
+    logdir = os.path.expanduser(os.path.join(datadir, cfg.log_dir))
     logfs = glob.glob1(logdir, 'log*.log*')
     logfs.sort()
     logf = os.path.join(logdir, logfs[-1])
