@@ -22,10 +22,10 @@ def follow(fname):
         if not line:
             time.sleep(0.1)
             t = t + 0.1
-            print(t)
             if t > timetowait:
                 t = 0
                 yield('log stale')
+                break
             else:
                 continue
         else:
