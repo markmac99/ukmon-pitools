@@ -27,7 +27,7 @@ def checkFbUpload(stationid, capdir, log):
         log.info('fireball upload requested')
         s3a.download_file(archbuck, remfile, locfile)
         for fname in open(locfile,'r').readlines():
-            srcpatt=os.path.join(capdir, '*' + fname + '*')
+            srcpatt=os.path.join(capdir, '*' + fname.strip() + '*')
             log.info('requested pattern {}'.format(srcpatt))
             srclist = glob.glob(srcpatt)
             for srcfile in srclist: 
