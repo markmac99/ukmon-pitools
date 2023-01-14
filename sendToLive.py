@@ -10,8 +10,32 @@ import Utils.BatchFFtoImage as bff
 import shutil
 import tempfile
 import boto3
+import glob
 import configparser
 from uploadToArchive import readKeyFile
+
+
+def checkFbUpload(stationid, capdir, log):
+    archbuck = os.getenv('ARCHBUCKET', default='ukmon-shared')
+    awsreg = os.getenv('ARCHREGION', default='eu-west-2')
+    listfile = stationid.tolower() + '.txt'
+    s3a = boto3.client(region_name=awsreg) 
+    locfile = os.path.join('tmp',listfile)
+    remfile = 'fireballs/interesting/' + listfile
+    objlist =s3a.list_objects_v2(Bucket=archbuck, Prefix=remfile)
+    if objlist['KeyCount'] > 0:
+        log.info('fireball upload requested')
+        s3a.download_file(archbuck, remfile, locfile)
+        for fname in open(locfile,'r').readlines():
+            srcpatt=os.path.join(capdir, fname)
+            srclist = glob.glob(srcpatt)
+            for srcfile in srclist: 
+                _, thisfname = os.path.split(srcfile)
+                targfile = 'fireballs/interesting/' + thisfname
+                log.info('uploading {}'.format(srcfile))
+                s3a.upload_file(srcfile, archbuck, targfile)
+        os.remove(locfile)
+        s3a.delete_objects(Bucket=archbuck, Delete=remfile)
 
 
 def uploadOneEvent(cap_dir, dir_file, loc, s3):
@@ -51,7 +75,7 @@ def uploadOneEvent(cap_dir, dir_file, loc, s3):
         ofl.write('trig="1" frames="68" lng="{:.4f}" lat="{:.4f}" alt="{:.1f}" '.format(loc[1], loc[0], loc[2]))
         ofl.write('tz="0" u2="224" cx="1280" cy="720" fps="25.000" head="30" ')
         ofl.write('tail="30" diff="2" sipos="6" sisize="15" dlev="40" dsize="4" ')
-        ofl.write('lid="{:s}" observer="" sid="{:s}" cam="{:s}" lens="" cap="" '.format(loc[4], camid, camid))
+        ofl.write('lid="{:s}" observer="" sid="{:s}" cam="{:s}" lens="" cap="{}" '.format(loc[4], camid, camid, dir_file))
         ofl.write('comment="" interlace="1" bbf="0" dropframe="0">\n')
         ofl.write('    <ufocapture_paths hit="3">\n')
         ofl.write('     <uc_path fno="30" ono="18" pixel="3" bmax="79" x="395.7" y="282.3"></uc_path>\n')

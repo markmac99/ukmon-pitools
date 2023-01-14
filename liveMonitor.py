@@ -97,11 +97,17 @@ def monitorLogFile(camloc, rmscfg):
     logfs.sort()
     logf = os.path.join(logdir, logfs[-1])
 
+
     keepon = True
     starttime = datetime.datetime.now()
     startday = starttime.day
     while keepon is True:
         try:
+            lis = open(logf,'r').readlines()
+            dd = [li for li in lis if 'Data directory' in li]
+            if len(dd) > 0:
+                capdir = dd[0].split(' ')[5].strip()
+                log.info('Capture dir is {}'.format(capdir))
             loglines = follow(logf)
 
             # iterate over the generator
@@ -116,7 +122,6 @@ def monitorLogFile(camloc, rmscfg):
                     if "Data directory" in line: 
                         capdir = line.split(' ')[5].strip()
                         log.info('Capdir is', capdir)
-                        sys.stdout.flush()
                     if "detected meteors" in line and ": 0" not in line and "TOTAL" not in line:
                         if capdir != '':
                             ffname = line.split(' ')[3]
@@ -136,7 +141,7 @@ def monitorLogFile(camloc, rmscfg):
                     log.info('RMS config file is {}'.format(rmscfg))
                     starttime = nowtm
                 if (nowtm - starttime).seconds > FBINTERVAL:
-                    log.info('would have checked for fb info')
+                    uoe.checkFbUpload(cfg.stationID, capdir, log)
                     starttime = nowtm
         except:
             log.info('restarting to read {}'.format(logf))
