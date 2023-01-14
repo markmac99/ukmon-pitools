@@ -13,6 +13,7 @@ if [ "$LOCATION" == "NOTCONFIGURED" ]; then
     exit 1
 fi
 
-cd ~/source/RMS
+rmsdir=$(dirname $RMSCFG)
+cd $rmsdir
 export PYTHONPATH=$here:~/source/RMS
-python $here/liveMonitor.py
+python $here/liveMonitor.py $LOCATION $RMSCFG 
