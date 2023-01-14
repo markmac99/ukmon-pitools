@@ -3,11 +3,11 @@ import os
 import sys
 import glob
 import boto3
-import configparser
 import sendToLive as uoe
 import datetime
 import logging
 from RMS.Logger import initLogging
+import RMS.ConfigReader as cr
 
 log = logging.getLogger("logger")
 
@@ -42,9 +42,9 @@ def monitorLogFile(camloc, rmscfg):
     to a jpg and upload it to ukmon-live. Requires the user to have been supplied
     with a ukmon-live security key and camera location identifier. 
     """
-    cfg = configparser.ConfigParser()
-    cfg.read(os.path.expanduser(rmscfg))
+    cfg = cr.parse(os.path.expanduser(rmscfg))
 
+    
     log = logging.getLogger("logger")
     while len(log.handlers) > 0:
         log.removeHandler(log.handlers[0])
@@ -83,10 +83,10 @@ def monitorLogFile(camloc, rmscfg):
 
     # read a few variables from the RMS config file
     loc = []
-    loc.append(float(cfg['System']['latitude'].split()[0]))
-    loc.append(float(cfg['System']['longitude'].split()[0]))
-    loc.append(float(cfg['System']['elevation'].split()[0]))
-    loc.append(cfg['System']['stationID'].split()[0])
+    loc.append(float(cfg.latitude))
+    loc.append(float(cfg.longitude))
+    loc.append(float(cfg.elevation))
+    loc.append(cfg.stationID)
     loc.append(camloc)
 
     datadir = cfg['Capture']['data_dir']
