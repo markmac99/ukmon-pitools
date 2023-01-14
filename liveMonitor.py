@@ -24,8 +24,10 @@ def follow(fname):
             t = t + 0.1
             print(t)
             if t > timetowait:
+                t = 0
                 yield('log stale')
-            continue
+            else:
+                continue
         else:
             t = 0
             yield(line.strip())
