@@ -19,7 +19,7 @@ def checkFbUpload(stationid, capdir, log):
     archbuck = os.getenv('ARCHBUCKET', default='ukmon-shared')
     awsreg = os.getenv('ARCHREGION', default='eu-west-2')
     listfile = stationid.lower() + '.txt'
-    s3a = boto3.client(region_name=awsreg) 
+    s3a = boto3.client('s3', region_name=awsreg) 
     locfile = os.path.join('tmp',listfile)
     remfile = 'fireballs/interesting/' + listfile
     objlist =s3a.list_objects_v2(Bucket=archbuck, Prefix=remfile)
