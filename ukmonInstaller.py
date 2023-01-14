@@ -97,9 +97,14 @@ def checkCrontab(myloc, datadir):
             found = True
     if found is False:
         print('adding livestream job')
-        job = cron.new('sleep 3600 && {}/liveMonitor.sh >> {}/logs/ukmon-live.log 2>&1'.format(myloc, datadir))
+        job = cron.new('sleep 3600 && {}/liveMonitor.sh >> /dev/null 2>&1'.format(myloc, datadir))
         job.every_reboot()
         cron.write()
+    for job in cron:
+        if 'ukmon-live.log' in job.command:
+            cron.remove(job)
+
+    cron.write
     return 
 
 
