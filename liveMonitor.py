@@ -54,9 +54,9 @@ def monitorLogFile(camloc, rmscfg):
     log.info('    ukmon-live feed started')
     log.info('--------------------------------')
 
-
     log.info('Camera location is {}'.format(camloc))
     log.info('RMS config file is {}'.format(rmscfg))
+
     myloc = os.path.split(os.path.abspath(__file__))[0]
 
     awskey = None
@@ -98,6 +98,7 @@ def monitorLogFile(camloc, rmscfg):
     logf = os.path.join(logdir, logfs[-1])
 
     keepon = True
+    startday = datetime.datetime.now().day
     while keepon is True:
         try:
             loglines = follow(logf)
@@ -119,6 +120,20 @@ def monitorLogFile(camloc, rmscfg):
                         if capdir != '':
                             ffname = line.split(' ')[3]
                             uoe.uploadOneEvent(capdir, ffname, loc, s3)
+                now = datetime.datetime.now().day
+                if now != startday: 
+                    log.info('rolling the logfile after midnight')
+                    while len(log.handlers) > 0:
+                        log.removeHandler(log.handlers[0])
+                        
+                    initLogging(cfg, 'ukmonlive_')
+                    log.info('--------------------------------')
+                    log.info('    ukmon-live feed started')
+                    log.info('--------------------------------')
+
+                    log.info('Camera location is {}'.format(camloc))
+                    log.info('RMS config file is {}'.format(rmscfg))
+
         except:
             log.info('restarting to read {}'.format(logf))
             pass
