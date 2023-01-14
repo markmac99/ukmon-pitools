@@ -124,6 +124,7 @@ def monitorLogFile(camloc, rmscfg):
                     if "detected meteors" in line and ": 0" not in line and "TOTAL" not in line:
                         if capdir != '':
                             ffname = line.split(' ')[3]
+                            log.info('uploading {}'.format(ffname))
                             uoe.uploadOneEvent(capdir, ffname, loc, s3)
                 nowtm = datetime.datetime.now()
                 if nowtm.day != startday: 
