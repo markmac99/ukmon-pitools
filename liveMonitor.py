@@ -16,7 +16,7 @@ FBINTERVAL = 1800
 
 def follow(fname):
     now = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
-    log.info('{}: monitoring {}'.format(now, fname))
+    log.info('monitoring {}'.format(fname))
     thefile = open(fname, 'r')
     #thefile.seek(0, os.SEEK_START)
     
