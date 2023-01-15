@@ -142,9 +142,12 @@ def monitorLogFile(camloc, rmscfg):
                     starttime = nowtm
                     startday = starttime.day
                 if (nowtm - starttime).seconds > FBINTERVAL:
-                    uoe.checkFbUpload(cfg.stationID, capdir, log)
+                    try:
+                        uoe.checkFbUpload(cfg.stationID, capdir, log)
+                    except: 
+                        print('problem checking fireball flags')
                     starttime = nowtm
-        except:
+        except StopIteration:
             log.info('restarting to read {}'.format(logf))
             pass
 
