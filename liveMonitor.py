@@ -140,10 +140,10 @@ def monitorLogFile(camloc, rmscfg):
                     log.info('Camera location is {}'.format(camloc))
                     log.info('RMS config file is {}'.format(rmscfg))
                     starttime = nowtm
+                    startday = starttime.day
                 if (nowtm - starttime).seconds > FBINTERVAL:
                     uoe.checkFbUpload(cfg.stationID, capdir, log)
-                    starttime = datetime.datetime.now()
-                    startday = starttime.day
+                    starttime = nowtm
         except:
             log.info('restarting to read {}'.format(logf))
             pass
