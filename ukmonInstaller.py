@@ -103,8 +103,7 @@ def checkCrontab(myloc, datadir):
     for job in cron:
         if 'ukmon-live.log' in job.command:
             cron.remove(job)
-
-    cron.write
+            cron.write()
     return 
 
 
