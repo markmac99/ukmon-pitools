@@ -142,7 +142,8 @@ def monitorLogFile(camloc, rmscfg):
                     starttime = nowtm
                 if (nowtm - starttime).seconds > FBINTERVAL:
                     uoe.checkFbUpload(cfg.stationID, capdir, log)
-                    starttime = nowtm
+                    starttime = datetime.datetime.now()
+                    startday = starttime.day
         except:
             log.info('restarting to read {}'.format(logf))
             pass
