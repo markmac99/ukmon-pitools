@@ -12,7 +12,7 @@ import RMS.ConfigReader as cr
 log = logging.getLogger("logger")
 
 timetowait = 30 # seconds to wait for a new line before deciding the log is stale
-FBINTERVAL = 1800
+FBINTERVAL = int(os.getenv('FBINTERVAL', default='1800'))
 
 def follow(fname):
     now = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
