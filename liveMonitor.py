@@ -96,6 +96,7 @@ def monitorLogFile(camloc, rmscfg):
     logfs = glob.glob1(logdir, 'log*.log*')
     logfs.sort()
     logf = os.path.join(logdir, logfs[-1])
+    prevlogf = logf
 
     keepon = True
     starttime = datetime.datetime.now()
@@ -116,7 +117,9 @@ def monitorLogFile(camloc, rmscfg):
                     logfs = glob.glob1(logdir, 'log*.log*')
                     logfs.sort()
                     logf = os.path.join(logdir, logfs[-1])
-                    loglines.close()
+                    if logf != prevlogf:
+                        prevlogf = logf
+                        loglines.close()
                 else:
                     if "Data directory" in line: 
                         capdir = line.split(' ')[5].strip()
