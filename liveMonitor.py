@@ -15,8 +15,6 @@ timetowait = 30 # seconds to wait for a new line before deciding the log is stal
 FBINTERVAL = int(os.getenv('FBINTERVAL', default='1800'))
 
 def follow(fname):
-    now = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
-    log.info('monitoring {}'.format(fname))
     thefile = open(fname, 'r')
     #thefile.seek(0, os.SEEK_START)
     
@@ -97,6 +95,7 @@ def monitorLogFile(camloc, rmscfg):
     logfs.sort()
     logf = os.path.join(logdir, logfs[-1])
     prevlogf = logf
+    log.info('monitoring {}'.format(logf))
 
     keepon = True
     starttime = datetime.datetime.now()
@@ -119,6 +118,7 @@ def monitorLogFile(camloc, rmscfg):
                     logf = os.path.join(logdir, logfs[-1])
                     if logf != prevlogf:
                         prevlogf = logf
+                        log.info('monitoring {}'.format(logf))
                         loglines.close()
                 else:
                     if "Data directory" in line: 
