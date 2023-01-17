@@ -16,8 +16,7 @@ FBINTERVAL = int(os.getenv('FBINTERVAL', default='1800'))
 
 def follow(fname):
     thefile = open(fname, 'r')
-    #thefile.seek(0, os.SEEK_START)
-    
+    #thefile.seek(0,os.SEEK_END)
     t = 0
     while True:
         line = thefile.readline()
@@ -95,7 +94,7 @@ def monitorLogFile(camloc, rmscfg):
     logfs.sort()
     logf = os.path.join(logdir, logfs[-1])
     prevlogf = logf
-    log.info('monitoring {}'.format(logf))
+    log.info('initial monitoring {}'.format(logf))
 
     keepon = True
     starttime = datetime.datetime.now()
@@ -117,13 +116,14 @@ def monitorLogFile(camloc, rmscfg):
                     logfs.sort()
                     logf = os.path.join(logdir, logfs[-1])
                     if logf != prevlogf:
+                        log.info('was monitoring {}'.format(prevlogf))
                         prevlogf = logf
-                        log.info('monitoring {}'.format(logf))
+                        log.info('now monitoring {}'.format(logf))
                         loglines.close()
                 else:
                     if "Data directory" in line: 
                         capdir = line.split(' ')[5].strip()
-                        log.info('Capdir is', capdir)
+                        log.info('Latest capture dir is', capdir)
                     if "detected meteors" in line and ": 0" not in line and "TOTAL" not in line:
                         if capdir != '':
                             ffname = line.split(' ')[3]
