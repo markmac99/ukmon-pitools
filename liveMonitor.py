@@ -99,6 +99,9 @@ def monitorLogFile(camloc, rmscfg):
     startday = starttime.day
     while keepon is True:
         try:
+            logfs = glob.glob1(logdir, 'log*.log*')
+            logfs.sort()
+            logf = os.path.join(logdir, logfs[-1])
             lis = open(logf,'r').readlines()
             dd = [li for li in lis if 'Data directory' in li]
             if len(dd) > 0:
