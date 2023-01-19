@@ -102,6 +102,7 @@ def monitorLogFile(camloc, rmscfg):
             logfs = glob.glob1(logdir, 'log*.log*')
             logfs.sort()
             logf = os.path.join(logdir, logfs[-1])
+            log.info('Now monitoring {}'.format(logf))
             lis = open(logf,'r').readlines()
             dd = [li for li in lis if 'Data directory' in li]
             if len(dd) > 0:
@@ -111,7 +112,7 @@ def monitorLogFile(camloc, rmscfg):
 
             # iterate over the generator
             for line in loglines:
-                if li == 'log stale':
+                if line == 'log stale':
                     log.info('file not being updated')
                     logfs = glob.glob1(logdir, 'log*.log*')
                     logfs.sort()
