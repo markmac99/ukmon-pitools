@@ -126,7 +126,7 @@ def monitorLogFile(camloc, rmscfg):
                         if capdir != '':
                             ffname = line.split(' ')[3]
                             log.info('uploading {}'.format(ffname))
-                            uoe.uploadOneEvent(capdir, ffname, loc, s3)
+                            uoe.uploadOneEvent(capdir, ffname, loc, s3, log)
                 nowtm = datetime.datetime.now()
                 if nowtm.day != startday: 
                     log.info('rolling the logfile after midnight')
@@ -146,7 +146,7 @@ def monitorLogFile(camloc, rmscfg):
                     try:
                         uoe.checkFbUpload(cfg.stationID, capdir, log)
                     except: 
-                        print('problem checking fireball flags')
+                        log.info('problem checking fireball flags')
                     starttime = nowtm
         except StopIteration:
             log.info('restarting to read {}'.format(logf))
