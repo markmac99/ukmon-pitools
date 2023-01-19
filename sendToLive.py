@@ -22,25 +22,28 @@ def checkFbUpload(stationid, capdir, log):
     s3a = boto3.client('s3', region_name=awsreg) 
     locfile = os.path.join('/tmp',listfile)
     remfile = 'fireballs/interesting/' + listfile
-    objlist =s3a.list_objects_v2(Bucket=archbuck, Prefix=remfile)
-    if objlist['KeyCount'] > 0:
-        log.info('fireball upload requested')
-        s3a.download_file(archbuck, remfile, locfile)
-        for fname in open(locfile,'r').readlines():
-            if len(fname) < 5: 
-                continue
-            srcpatt=os.path.join(capdir, '*' + fname.strip() + '*')
-            log.info('requested pattern {}'.format(srcpatt))
-            srclist = glob.glob(srcpatt)
-            for srcfile in srclist: 
-                _, thisfname = os.path.split(srcfile)
-                targfile = 'fireballs/interesting/' + thisfname
-                log.info('uploading {}'.format(srcfile))
-                s3a.upload_file(srcfile, archbuck, targfile)
-        os.remove(locfile)
-        key = {'Objects': []}
-        key['Objects'] = [{'Key': remfile}]
-        s3a.delete_objects(Bucket=archbuck, Delete=key)
+    try: 
+        objlist =s3a.list_objects_v2(Bucket=archbuck, Prefix=remfile)
+        if objlist['KeyCount'] > 0:
+            log.info('fireball upload requested')
+            s3a.download_file(archbuck, remfile, locfile)
+            for fname in open(locfile,'r').readlines():
+                if len(fname) < 5: 
+                    continue
+                srcpatt=os.path.join(capdir, '*' + fname.strip() + '*')
+                log.info('requested pattern {}'.format(srcpatt))
+                srclist = glob.glob(srcpatt)
+                for srcfile in srclist: 
+                    _, thisfname = os.path.split(srcfile)
+                    targfile = 'fireballs/interesting/' + thisfname
+                    log.info('uploading {}'.format(srcfile))
+                    s3a.upload_file(srcfile, archbuck, targfile)
+            os.remove(locfile)
+            key = {'Objects': []}
+            key['Objects'] = [{'Key': remfile}]
+            s3a.delete_objects(Bucket=archbuck, Delete=key)
+    except:
+        print('unable to scan S3 for trigger file')
 
 
 def uploadOneEvent(cap_dir, dir_file, loc, s3):
