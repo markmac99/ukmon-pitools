@@ -10,6 +10,7 @@ from RMS.Logger import initLogging
 import RMS.ConfigReader as cr
 
 log = logging.getLogger("logger")
+MAXAGE=7200 # Images created more than this many seconds ago won't be uploaded. Prevents reuploads. 
 
 timetowait = 30 # seconds to wait for a new line before deciding the log is stale
 FBINTERVAL = int(os.getenv('FBINTERVAL', default='1800'))
@@ -113,7 +114,7 @@ def monitorLogFile(camloc, rmscfg):
             # iterate over the generator
             for line in loglines:
                 if line == 'log stale':
-                    log.info('file not being updated')
+                    #log.info('file not being updated')
                     logfs = glob.glob1(logdir, 'log*.log*')
                     logfs.sort()
                     logf = os.path.join(logdir, logfs[-1])
@@ -122,30 +123,19 @@ def monitorLogFile(camloc, rmscfg):
                         prevlogf = logf
                         log.info('now monitoring {}'.format(logf))
                         loglines.close()
-                else:
-                    if "Data directory" in line: 
-                        capdir = line.split(' ')[5].strip()
-                        log.info('Latest capture dir is', capdir)
-                    if "detected meteors" in line and ": 0" not in line and "TOTAL" not in line:
-                        if capdir != '':
-                            ffname = line.split(' ')[3]
+                if "Data directory" in line: 
+                    capdir = line.split(' ')[5].strip()
+                    log.info('Latest capture dir is', capdir)
+                if "detected meteors" in line and ": 0" not in line and "TOTAL" not in line:
+                    if capdir != '':
+                        nowtm = datetime.datetime.now()
+                        ffname = line.split(' ')[3]
+                        ftime = datetime.datetime.strptime(ffname[10:25], '%Y%m%d_%H%M%S')
+                        if (nowtm - ftime).seconds < MAXAGE:
                             log.info('uploading {}'.format(ffname))
                             uoe.uploadOneEvent(capdir, ffname, loc, s3, log)
-                nowtm = datetime.datetime.now()
-                if nowtm.day != startday: 
-                    log.info('rolling the logfile after midnight')
-                    while len(log.handlers) > 0:
-                        log.removeHandler(log.handlers[0])
-                        
-                    initLogging(cfg, 'ukmonlive_')
-                    log.info('--------------------------------')
-                    log.info('    ukmon-live feed started')
-                    log.info('--------------------------------')
-
-                    log.info('Camera location is {}'.format(camloc))
-                    log.info('RMS config file is {}'.format(rmscfg))
-                    starttime = nowtm
-                    startday = starttime.day
+                        else:
+                            log.info('skipping {} as too old'.format(ffname))
                 if (nowtm - starttime).seconds > FBINTERVAL:
                     try:
                         uoe.checkFbUpload(cfg.stationID, capdir, log)

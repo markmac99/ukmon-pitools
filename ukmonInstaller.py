@@ -1,6 +1,7 @@
 import os
 import shutil
 from crontab import CronTab
+from subprocess import call
 
 import time
 import paramiko
@@ -81,7 +82,7 @@ def checkCrontab(myloc, datadir):
     print('checking crontab')
     cron = CronTab(user=True)
     for job in cron:
-        if 'ukmon-live.log' in job.command:
+        if 'ukmon-live.log' in job.command or ('reboot' in job.command and 'liveMonitor.sh' in job.command):
             cron.remove(job)
             cron.write()
     iter=cron.find_command('{}/refreshTools.sh'.format(myloc))
@@ -101,9 +102,23 @@ def checkCrontab(myloc, datadir):
             found = True
     if found is False:
         print('adding livestream job')
-        job = cron.new('sleep 3600 && {}/liveMonitor.sh >> /dev/null 2>&1'.format(myloc, datadir))
-        job.every_reboot()
+        job = cron.new('{}/liveMonitor.sh >> /dev/null 2>&1'.format(myloc))
+        job.setall(1, 12, '*', '*', '*')
         cron.write()
+    return 
+
+
+def createSystemdService(myloc, camid):
+    unitname = os.path.expanduser('~/.config/systemd/user/ukmonlive-{}.service'.format(camid))
+    if not os.path.isfile(unitname):
+        with open(unitname,'w') as outf:
+            outf.write('[Unit]\nDescription=UKMON Live stream service for {}\n'.format(camid))
+            outf.write('After=network.target auditd.service\n\n')
+            outf.write('[Service]\nExecStart={}/liveMonitor.sh\nRestart=always\n\n'.format(myloc))
+            outf.write('[Install]\nWantedBy=multi-user.target\n\n')
+            call(['systemctl','--user','daemon-reload'])
+            call(['systemctl','--user','enable','ukmonlive-{}'.format(camid)])
+            call(['systemctl','--user','start','ukmonlive-{}'.format(camid)])
     return 
 
 

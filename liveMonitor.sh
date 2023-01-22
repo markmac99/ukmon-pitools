@@ -5,6 +5,11 @@
 #
 source ~/vRMS/bin/activate
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+
+# kill any existing ukmon-live process
+pids=$(ps -ef | grep liveMonitor | egrep -v "grep|$$" | awk '{print $2}')
+kill -9 $pids
+
 source $here/ukmon.ini
 source $here/live.key
 
