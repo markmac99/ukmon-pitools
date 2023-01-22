@@ -89,9 +89,9 @@ def monitorLogFile(camloc, rmscfg):
 
     datadir = cfg.data_dir
     logdir = os.path.expanduser(os.path.join(datadir, cfg.log_dir))
-    logfs = glob.glob1(logdir, 'log*.log*')
+    logfs = glob.glob(os.path.join(logdir, 'log*.log*'))
     logfs.sort(key=lambda x: os.path.getmtime(x))
-    logf = os.path.join(logdir, logfs[-1])
+    logf = logfs[-1]
     prevlogf = logf
     log.info('initial monitoring {}'.format(logf))
 
@@ -100,9 +100,9 @@ def monitorLogFile(camloc, rmscfg):
     startday = starttime.day
     while keepon is True:
         try:
-            logfs = glob.glob1(logdir, 'log*.log*')
+            logfs = glob.glob(os.path.join(logdir, 'log*.log*'))
             logfs.sort(key=lambda x: os.path.getmtime(x))
-            logf = os.path.join(logdir, logfs[-1])
+            logf = logfs[-1]
             log.info('Now monitoring {}'.format(logf))
             lis = open(logf,'r').readlines()
             dd = [li for li in lis if 'Data directory' in li]
@@ -115,9 +115,9 @@ def monitorLogFile(camloc, rmscfg):
             for line in loglines:
                 if line == 'log stale':
                     #log.info('file not being updated')
-                    logfs = glob.glob1(logdir, 'log*.log*')
+                    logfs = glob.glob(os.path.join(logdir, 'log*.log*'))
                     logfs.sort(key=lambda x: os.path.getmtime(x))
-                    logf = os.path.join(logdir, logfs[-1])
+                    logf = logfs[-1]
                     if logf != prevlogf:
                         log.info('was monitoring {}'.format(prevlogf))
                         prevlogf = logf
