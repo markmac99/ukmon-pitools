@@ -82,7 +82,7 @@ def checkCrontab(myloc, datadir):
     print('checking crontab')
     cron = CronTab(user=True)
     for job in cron:
-        if 'ukmon-live.log' in job.command or ('reboot' in job.command and 'liveMonitor.sh' in job.command):
+        if 'ukmon-live.log' in job.command or ('sleep' in job.command and 'liveMonitor.sh' in job.command):
             cron.remove(job)
             cron.write()
     iter=cron.find_command('{}/refreshTools.sh'.format(myloc))
