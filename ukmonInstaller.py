@@ -82,29 +82,20 @@ def checkCrontab(myloc, datadir):
     print('checking crontab')
     cron = CronTab(user=True)
     for job in cron:
-        if 'ukmon-live.log' in job.command or ('sleep' in job.command and 'liveMonitor.sh' in job.command):
+        if '{}/liveMonitor.sh'.format(myloc) in job.command or '{}/refreshTools.sh'.format(myloc) in job.command:
             cron.remove(job)
             cron.write()
-    iter=cron.find_command('{}/refreshTools.sh'.format(myloc))
-    found = False
-    for i in iter:
-        if i.is_enabled():
-            found = True
-    if found is False:
-        print('adding refreshTools job')
-        job = cron.new('sleep 60 && {}/refreshTools.sh > {}/logs/refreshTools.log 2>&1'.format(myloc, datadir))
-        job.every_reboot()
-        cron.write()
-    iter=cron.find_command('{}/liveMonitor.sh'.format(myloc))
-    found = False
-    for i in iter:
-        if i.is_enabled():
-            found = True
-    if found is False:
-        print('adding livestream job')
-        job = cron.new('{}/liveMonitor.sh >> /dev/null 2>&1'.format(myloc))
-        job.setall(1, 12, '*', '*', '*')
-        cron.write()
+
+    job = cron.new('sleep 60 && {}/refreshTools.sh > {}/logs/refreshTools.log 2>&1'.format(myloc, datadir))
+    job.every_reboot()
+    cron.write()
+
+    job = cron.new('sleep 300 && {}/liveMonitor.sh >> /dev/null 2>&1'.format(myloc))
+    job.every_reboot()
+    cron.write()
+    job = cron.new('{}/liveMonitor.sh >> /dev/null 2>&1'.format(myloc))
+    job.setall(1, 12, '*', '*', '*')
+    cron.write()
     return 
 
 
