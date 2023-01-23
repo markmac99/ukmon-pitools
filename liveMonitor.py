@@ -126,7 +126,7 @@ def monitorLogFile(camloc, rmscfg):
                 else:
                     if "Data directory" in line: 
                         capdir = line.split(' ')[5].strip()
-                        log.info('Latest capture dir is', capdir)
+                        log.info('Latest capture dir is {}'.format(capdir))
                     nowtm = datetime.datetime.now()
                     if "detected meteors" in line and ": 0" not in line and "TOTAL" not in line:
                         if capdir != '':
