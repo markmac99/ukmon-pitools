@@ -123,27 +123,33 @@ def monitorLogFile(camloc, rmscfg):
                         prevlogf = logf
                         log.info('now monitoring {}'.format(logf))
                         loglines.close()
-                if "Data directory" in line: 
-                    capdir = line.split(' ')[5].strip()
-                    log.info('Latest capture dir is', capdir)
-                if "detected meteors" in line and ": 0" not in line and "TOTAL" not in line:
-                    if capdir != '':
-                        nowtm = datetime.datetime.now()
-                        ffname = line.split(' ')[3]
-                        ftime = datetime.datetime.strptime(ffname[10:25], '%Y%m%d_%H%M%S')
-                        if (nowtm - ftime).seconds < MAXAGE:
-                            log.info('uploading {}'.format(ffname))
-                            uoe.uploadOneEvent(capdir, ffname, loc, s3, log)
-                        else:
-                            log.info('skipping {} as too old'.format(ffname))
-                if (nowtm - starttime).seconds > FBINTERVAL:
-                    try:
-                        uoe.checkFbUpload(cfg.stationID, capdir, log)
-                    except: 
-                        log.info('problem checking fireball flags')
-                    starttime = nowtm
+                else:
+                    if "Data directory" in line: 
+                        capdir = line.split(' ')[5].strip()
+                        log.info('Latest capture dir is', capdir)
+                    nowtm = datetime.datetime.now()
+                    if "detected meteors" in line and ": 0" not in line and "TOTAL" not in line:
+                        if capdir != '':
+                            ffname = line.split(' ')[3]
+                            ftime = datetime.datetime.strptime(ffname[10:25], '%Y%m%d_%H%M%S')
+                            if (nowtm - ftime).seconds < MAXAGE:
+                                log.info('uploading {}'.format(ffname))
+                                uoe.uploadOneEvent(capdir, ffname, loc, s3, log)
+                            else:
+                                log.info('skipping {} as too old'.format(ffname))
+                    if (nowtm - starttime).seconds > FBINTERVAL:
+                        try:
+                            log.info('checking for fireball flags')
+                            uoe.checkFbUpload(cfg.stationID, capdir, log)
+                        except: 
+                            log.info('problem checking fireball flags')
+                        starttime = nowtm
         except StopIteration:
             log.info('restarting to read {}'.format(logf))
+            pass
+        except Exception as e:
+            log.info('restarting due to some crash')
+            log.info(e, exc_info=True)
             pass
 
 
