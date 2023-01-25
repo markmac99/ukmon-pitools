@@ -8,6 +8,7 @@ import datetime
 import logging
 from RMS.Logger import initLogging
 import RMS.ConfigReader as cr
+from stat import ST_DEV, ST_INO
 
 log = logging.getLogger("logger")
 MAXAGE=7200 # Images created more than this many seconds ago won't be uploaded. Prevents reuploads. 
@@ -15,19 +16,25 @@ MAXAGE=7200 # Images created more than this many seconds ago won't be uploaded. 
 timetowait = 30 # seconds to wait for a new line before deciding the log is stale
 FBINTERVAL = int(os.getenv('FBINTERVAL', default='1800'))
 
-def follow(fname):
+def follow(fname, logf_ino):
     thefile = open(fname, 'r')
-    #thefile.seek(0,os.SEEK_END)
     t = 0
     while True:
         line = thefile.readline()
+        if not os.path.isfile(fname):
+            time.sleep(1)
+        sres = os.stat(fname)
+        if logf_ino != sres[ST_INO]:
+            yield('log rolled')
+
         if not line:
             time.sleep(0.1)
             t = t + 0.1
             if t > timetowait:
                 t = 0
                 yield('log stale')
-            continue
+            else:
+                continue
         else:
             t = 0
             yield(line.strip())
@@ -89,15 +96,9 @@ def monitorLogFile(camloc, rmscfg):
 
     datadir = cfg.data_dir
     logdir = os.path.expanduser(os.path.join(datadir, cfg.log_dir))
-    logfs = glob.glob(os.path.join(logdir, 'log*.log*'))
-    logfs.sort(key=lambda x: os.path.getmtime(x))
-    logf = logfs[-1]
-    prevlogf = logf
-    log.info('initial monitoring {}'.format(logf))
 
     keepon = True
     starttime = datetime.datetime.now()
-    startday = starttime.day
     while keepon is True:
         try:
             logfs = glob.glob(os.path.join(logdir, 'log*.log*'))
@@ -109,20 +110,30 @@ def monitorLogFile(camloc, rmscfg):
             if len(dd) > 0:
                 capdir = dd[0].split(' ')[5].strip()
                 log.info('Capture dir is {}'.format(capdir))
-            loglines = follow(logf)
 
             # iterate over the generator
+            logf_ino = os.stat(logf)[ST_INO]
+            loglines = follow(logf, logf_ino)
+
             for line in loglines:
-                if line == 'log stale':
-                    #log.info('file not being updated')
+                nowtm = datetime.datetime.now()
+                if (nowtm - starttime).seconds > FBINTERVAL:
+                    try:
+                        log.info('checking for fireball flags')
+                        uoe.checkFbUpload(cfg.stationID, capdir, log)
+                    except: 
+                        log.info('problem checking fireball flags')
+                    starttime = nowtm
+                if line == 'log stale' or line == 'log rolled':
+                    log.info(line)
+
                     logfs = glob.glob(os.path.join(logdir, 'log*.log*'))
                     logfs.sort(key=lambda x: os.path.getmtime(x))
                     logf = logfs[-1]
-                    if logf != prevlogf:
-                        log.info('was monitoring {}'.format(prevlogf))
-                        prevlogf = logf
-                        log.info('now monitoring {}'.format(logf))
-                        loglines.close()
+                    log.info('was monitoring {}'.format(prevlogf))
+                    prevlogf = logf
+                    log.info('now monitoring {}'.format(logf))
+                    loglines.close()
                 else:
                     if "Data directory" in line: 
                         capdir = line.split(' ')[5].strip()
@@ -137,13 +148,6 @@ def monitorLogFile(camloc, rmscfg):
                                 uoe.uploadOneEvent(capdir, ffname, loc, s3, log)
                             else:
                                 log.info('skipping {} as too old'.format(ffname))
-                    if (nowtm - starttime).seconds > FBINTERVAL:
-                        try:
-                            log.info('checking for fireball flags')
-                            uoe.checkFbUpload(cfg.stationID, capdir, log)
-                        except: 
-                            log.info('problem checking fireball flags')
-                        starttime = nowtm
         except StopIteration:
             log.info('restarting to read {}'.format(logf))
             pass
@@ -151,6 +155,7 @@ def monitorLogFile(camloc, rmscfg):
             log.info('restarting due to some crash')
             log.info(e, exc_info=True)
             pass
+
 
 
 if __name__ == '__main__':
