@@ -37,7 +37,10 @@ def checkFbUpload(stationid, capdir, log):
                     _, thisfname = os.path.split(srcfile)
                     targfile = 'fireballs/interesting/' + thisfname
                     log.info('uploading {}'.format(srcfile))
-                    s3a.upload_file(srcfile, archbuck, targfile)
+                    try: 
+                        s3a.upload_file(srcfile, archbuck, targfile)
+                    except:
+                        log.info('file not found')
             os.remove(locfile)
             key = {'Objects': []}
             key['Objects'] = [{'Key': remfile}]
