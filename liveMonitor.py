@@ -104,6 +104,7 @@ def monitorLogFile(camloc, rmscfg):
             logfs = glob.glob(os.path.join(logdir, 'log*.log*'))
             logfs.sort(key=lambda x: os.path.getmtime(x))
             logf = logfs[-1]
+            prevlogf = logf
             log.info('Now monitoring {}'.format(logf))
             lis = open(logf,'r').readlines()
             dd = [li for li in lis if 'Data directory' in li]
@@ -148,6 +149,7 @@ def monitorLogFile(camloc, rmscfg):
                                 uoe.uploadOneEvent(capdir, ffname, loc, s3, log)
                             else:
                                 log.info('skipping {} as too old'.format(ffname))
+            log.info('no more lines, reading {}'.format(logf))
         except StopIteration:
             log.info('restarting to read {}'.format(logf))
             pass
