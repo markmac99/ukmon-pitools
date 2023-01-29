@@ -31,7 +31,7 @@ def checkFbUpload(stationid, capdir, log):
                 if len(fname) < 5: 
                     continue
                 srcpatt=os.path.join(capdir, '*' + fname.strip() + '*')
-                log.info('requested pattern {}'.format(srcpatt))
+                #log.info('requested pattern {}'.format(srcpatt))
                 srclist = glob.glob(srcpatt)
                 for srcfile in srclist: 
                     _, thisfname = os.path.split(srcfile)
@@ -46,7 +46,7 @@ def checkFbUpload(stationid, capdir, log):
             key['Objects'] = [{'Key': remfile}]
             s3a.delete_objects(Bucket=archbuck, Delete=key)
     except:
-        log.info('unable to scan S3 for trigger file')
+        log.warning('unable to scan S3 for trigger file')
 
 
 def uploadOneEvent(cap_dir, dir_file, loc, s3, log):
@@ -97,7 +97,7 @@ def uploadOneEvent(cap_dir, dir_file, loc, s3, log):
         s3.meta.client.upload_file(fulljpg, target, njpgname, ExtraArgs={'ContentType': 'image/jpeg'})
         s3.meta.client.upload_file(fullxml, target, xmlname, ExtraArgs={'ContentType': 'application/xml'})
     except:
-        log.info('unable to upload to livestream')
+        log.warning('unable to upload to livestream')
     sys.stdout.flush()
     shutil.rmtree(tmpdir)
     return

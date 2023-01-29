@@ -11,10 +11,14 @@ import RMS.ConfigReader as cr
 from stat import ST_DEV, ST_INO
 
 log = logging.getLogger("logger")
-MAXAGE=7200 # Images created more than this many seconds ago won't be uploaded. Prevents reuploads. 
 
 timetowait = 30 # seconds to wait for a new line before deciding the log is stale
-FBINTERVAL = int(os.getenv('FBINTERVAL', default='1800'))
+
+# Images created more than this many seconds ago won't be uploaded. Prevents reuploads. 
+MAXAGE=int(os.getenv('UKMMAXAGE', default='1800')) 
+
+# frequency at which to check for fireball requests. Zero means dont check
+FBINTERVAL = int(os.getenv('UKMFBINTERVAL', default='1800'))
 
 def follow(fname, logf_ino):
     thefile = open(fname, 'r')
@@ -68,7 +72,7 @@ def monitorLogFile(camloc, rmscfg):
 
     # get credentials
     if not os.path.isfile(os.path.join(myloc, 'live.key')):
-        log.info('AWS key not present, aborting')
+        log.error('AWS key not present, aborting')
         exit(1)
     with open(os.path.join(myloc, 'live.key'), 'r') as inif:
         lines = inif.readlines()
@@ -80,7 +84,7 @@ def monitorLogFile(camloc, rmscfg):
             if 'AWS_DEFAULT_REGION' in li:
                 awsreg = li.split('=')[1].strip()
     if awssec is None or awskey is None or awsreg is None:
-        log.info('unable to locate AWS credentials, aborting')
+        log.error('unable to locate AWS credentials, aborting')
         exit(1)
 
     conn = boto3.Session(aws_access_key_id=awskey, aws_secret_access_key=awssec, region_name=awsreg) 
@@ -110,7 +114,7 @@ def monitorLogFile(camloc, rmscfg):
             dd = [li for li in lis if 'Data directory' in li]
             if len(dd) > 0:
                 capdir = dd[0].split(' ')[5].strip()
-                log.info('Capture dir is {}'.format(capdir))
+                #log.info('Capture dir is {}'.format(capdir))
 
             # iterate over the generator
             logf_ino = os.stat(logf)[ST_INO]
@@ -118,22 +122,22 @@ def monitorLogFile(camloc, rmscfg):
 
             for line in loglines:
                 nowtm = datetime.datetime.now()
-                if (nowtm - starttime).seconds > FBINTERVAL:
+                if (FBINTERVAL > 0) and ((nowtm - starttime).seconds > FBINTERVAL):
                     try:
                         log.info('checking for fireball flags')
                         uoe.checkFbUpload(cfg.stationID, capdir, log)
                     except: 
-                        log.info('problem checking fireball flags')
+                        log.warning('problem checking fireball flags')
                     starttime = nowtm
                 if line == 'log stale' or line == 'log rolled':
-                    log.info(line)
+                    #log.info(line)
 
                     logfs = glob.glob(os.path.join(logdir, 'log*.log*'))
                     logfs.sort(key=lambda x: os.path.getmtime(x))
                     logf = logfs[-1]
-                    log.info('was monitoring {}'.format(prevlogf))
+                    #log.info('was monitoring {}'.format(prevlogf))
                     prevlogf = logf
-                    log.info('now monitoring {}'.format(logf))
+                    #log.info('now monitoring {}'.format(logf))
                     loglines.close()
                 else:
                     if "Data directory" in line: 
@@ -148,13 +152,14 @@ def monitorLogFile(camloc, rmscfg):
                                 log.info('uploading {}'.format(ffname))
                                 uoe.uploadOneEvent(capdir, ffname, loc, s3, log)
                             else:
-                                log.info('skipping {} as too old'.format(ffname))
-            log.info('no more lines, reading {}'.format(logf))
+                                #log.info('skipping {} as too old'.format(ffname))
+                                pass
+            #log.info('no more lines, rereading {}'.format(logf))
         except StopIteration:
             log.info('restarting to read {}'.format(logf))
             pass
         except Exception as e:
-            log.info('restarting due to some crash')
+            log.info('restarting due to crash:')
             log.info(e, exc_info=True)
             pass
 

@@ -18,6 +18,11 @@ if [ "$LOCATION" == "NOTCONFIGURED" ]; then
     exit 1
 fi
 
+# override this to change fireball check frequency. Zero means dont check at all
+# export UKMFBINTERVAL=1800
+# override this to allow reupload of older data. Files older than this many seconds will be ignored
+# export UKMMAXAGE=1800
+
 rmsdir=$(dirname $RMSCFG)
 cd $rmsdir
 export PYTHONPATH=$here:~/source/RMS
