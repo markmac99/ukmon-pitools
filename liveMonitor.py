@@ -100,17 +100,17 @@ def monitorLogFile(camloc, rmscfg):
 
     datadir = cfg.data_dir
     logdir = os.path.expanduser(os.path.join(datadir, cfg.log_dir))
-    prevlogf = 'none'
     keepon = True
+    logf = ''
     starttime = datetime.datetime.now()
     while keepon is True:
         try:
             logfs = glob.glob(os.path.join(logdir, 'log*.log*'))
             logfs.sort(key=lambda x: os.path.getmtime(x))
-            logf = logfs[-1]
-            if prevlogf != logf:
+            newlogf = logfs[-1]
+            if newlogf != logf:
+                logf = newlogf
                 log.info('Now monitoring {}'.format(logf))
-                prevlogf = logf
             lis = open(logf,'r').readlines()
             dd = [li for li in lis if 'Data directory' in li]
             if len(dd) > 0:
@@ -140,8 +140,11 @@ def monitorLogFile(camloc, rmscfg):
                     loglines.close()
                 else:
                     if "Data directory" in line: 
-                        capdir = line.split(' ')[5].strip()
-                        log.info('Latest capture dir is {}'.format(capdir))
+                        newcapdir = line.split(' ')[5].strip()
+                        if capdir != newcapdir:
+                            capdir = newcapdir
+                            log.info('Latest capture dir is {}'.format(capdir))
+
                     nowtm = datetime.datetime.now()
                     if "detected meteors" in line and ": 0" not in line and "TOTAL" not in line:
                         if capdir != '':
