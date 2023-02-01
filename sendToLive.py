@@ -30,17 +30,24 @@ def checkFbUpload(stationid, capdir, log):
             for fname in open(locfile,'r').readlines():
                 if len(fname) < 5: 
                     continue
-                srcpatt=os.path.join(capdir, '*' + fname.strip() + '*')
-                #log.info('requested pattern {}'.format(srcpatt))
-                srclist = glob.glob(srcpatt)
-                for srcfile in srclist: 
-                    _, thisfname = os.path.split(srcfile)
-                    targfile = 'fireballs/interesting/' + thisfname
-                    log.info('uploading {}'.format(srcfile))
-                    try: 
-                        s3a.upload_file(srcfile, archbuck, targfile)
-                    except:
-                        log.info('file not found')
+                capdirs = os.listdir(capdir)
+                got = 0
+                for thisdir in capdirs:
+                    srcpatt=os.path.join(thisdir, '*' + fname.strip() + '*')
+                    #log.info('requested pattern {}'.format(srcpatt))
+                    srclist = glob.glob(srcpatt)
+                    for srcfile in srclist: 
+                        _, thisfname = os.path.split(srcfile)
+                        targfile = 'fireballs/interesting/' + thisfname
+                        try: 
+                            s3a.upload_file(srcfile, archbuck, targfile)
+                            log.info('uploaded {}'.format(srcfile))
+                            got = 1
+                        except:
+                            pass
+                if got == 0:
+                    log.info(f'file {fname.strip()} not found')
+                        
             os.remove(locfile)
             key = {'Objects': []}
             key['Objects'] = [{'Key': remfile}]

@@ -100,7 +100,7 @@ def monitorLogFile(camloc, rmscfg):
 
     datadir = cfg.data_dir
     logdir = os.path.expanduser(os.path.join(datadir, cfg.log_dir))
-
+    prevlogf = 'none'
     keepon = True
     starttime = datetime.datetime.now()
     while keepon is True:
@@ -108,8 +108,9 @@ def monitorLogFile(camloc, rmscfg):
             logfs = glob.glob(os.path.join(logdir, 'log*.log*'))
             logfs.sort(key=lambda x: os.path.getmtime(x))
             logf = logfs[-1]
-            prevlogf = logf
-            log.info('Now monitoring {}'.format(logf))
+            if prevlogf != logf:
+                log.info('Now monitoring {}'.format(logf))
+                prevlogf = logf
             lis = open(logf,'r').readlines()
             dd = [li for li in lis if 'Data directory' in li]
             if len(dd) > 0:
@@ -135,9 +136,6 @@ def monitorLogFile(camloc, rmscfg):
                     logfs = glob.glob(os.path.join(logdir, 'log*.log*'))
                     logfs.sort(key=lambda x: os.path.getmtime(x))
                     logf = logfs[-1]
-                    #log.info('was monitoring {}'.format(prevlogf))
-                    prevlogf = logf
-                    #log.info('now monitoring {}'.format(logf))
                     loglines.close()
                 else:
                     if "Data directory" in line: 
@@ -162,7 +160,6 @@ def monitorLogFile(camloc, rmscfg):
             log.info('restarting due to crash:')
             log.info(e, exc_info=True)
             pass
-
 
 
 if __name__ == '__main__':
