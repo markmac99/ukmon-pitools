@@ -126,9 +126,10 @@ def monitorLogFile(camloc, rmscfg):
                 if (FBINTERVAL > 0) and ((nowtm - starttime).seconds > FBINTERVAL):
                     try:
                         log.info('checking for fireball flags')
-                        uoe.checkFbUpload(cfg.stationID, capdir, log)
-                    except: 
+                        uoe.checkFbUpload(cfg.stationID, datadir, log)
+                    except Exception as e: 
                         log.warning('problem checking fireball flags')
+                        log.info(e, exc_info=True)
                     starttime = nowtm
                 if line == 'log stale' or line == 'log rolled':
                     #log.info(line)

@@ -15,13 +15,14 @@ import configparser
 from uploadToArchive import readKeyFile
 
 
-def checkFbUpload(stationid, capdir, log):
+def checkFbUpload(stationid, datadir, log):
     archbuck = os.getenv('ARCHBUCKET', default='ukmon-shared')
     awsreg = os.getenv('ARCHREGION', default='eu-west-2')
     listfile = stationid.lower() + '.txt'
     s3a = boto3.client('s3', region_name=awsreg) 
     locfile = os.path.join('/tmp',listfile)
     remfile = 'fireballs/interesting/' + listfile
+    capdir = os.path.join(datadir, 'CapturedFiles')
     try: 
         objlist =s3a.list_objects_v2(Bucket=archbuck, Prefix=remfile)
         if objlist['KeyCount'] > 0:
@@ -33,7 +34,7 @@ def checkFbUpload(stationid, capdir, log):
                 capdirs = os.listdir(capdir)
                 got = 0
                 for thisdir in capdirs:
-                    srcpatt=os.path.join(thisdir, '*' + fname.strip() + '*')
+                    srcpatt=os.path.join(capdir, thisdir, '*' + fname.strip() + '*')
                     #log.info('requested pattern {}'.format(srcpatt))
                     srclist = glob.glob(srcpatt)
                     for srcfile in srclist: 
@@ -52,8 +53,9 @@ def checkFbUpload(stationid, capdir, log):
             key = {'Objects': []}
             key['Objects'] = [{'Key': remfile}]
             s3a.delete_objects(Bucket=archbuck, Delete=key)
-    except:
+    except Exception as e:
         log.warning('unable to scan S3 for trigger file')
+        log.info(e, exc_info=True)
 
 
 def uploadOneEvent(cap_dir, dir_file, loc, s3, log):
