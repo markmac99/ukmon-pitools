@@ -100,6 +100,7 @@ def monitorLogFile(camloc, rmscfg):
     logdir = os.path.expanduser(os.path.join(datadir, cfg.log_dir))
     keepon = True
     logf = ''
+    capdir = ''
     starttime = datetime.datetime.now()
     while keepon is True:
         try:
@@ -123,7 +124,7 @@ def monitorLogFile(camloc, rmscfg):
                 nowtm = datetime.datetime.now()
                 if (FBINTERVAL > 0) and ((nowtm - starttime).seconds > FBINTERVAL):
                     try:
-                        log.info('checking for fireball flags')
+                        #log.info('checking for fireball flags')
                         uoe.checkFbUpload(cfg.stationID, datadir, s3, log)
                     except Exception as e: 
                         log.warning('problem checking fireball flags')
