@@ -74,15 +74,13 @@ def monitorLogFile(camloc, rmscfg):
     if not os.path.isfile(os.path.join(myloc, 'live.key')):
         log.error('AWS key not present, aborting')
         exit(1)
-    with open(os.path.join(myloc, 'live.key'), 'r') as inif:
-        lines = inif.readlines()
-        for li in lines:
-            if 'AWS_ACCESS_KEY_ID' in li:
-                awskey = li.split('=')[1].strip()
-            if 'AWS_SECRET_ACCESS_KEY' in li:
-                awssec = li.split('=')[1].strip()
-            if 'AWS_DEFAULT_REGION' in li:
-                awsreg = li.split('=')[1].strip()
+    for li in open(os.path.join(myloc, 'live.key'), 'r').readlines():
+        if 'AWS_ACCESS_KEY_ID' in li:
+            awskey = li.split('=')[1].strip()
+        if 'AWS_SECRET_ACCESS_KEY' in li:
+            awssec = li.split('=')[1].strip()
+        if 'AWS_DEFAULT_REGION' in li:
+            awsreg = li.split('=')[1].strip()
     if awssec is None or awskey is None or awsreg is None:
         log.error('unable to locate AWS credentials, aborting')
         exit(1)
@@ -126,7 +124,7 @@ def monitorLogFile(camloc, rmscfg):
                 if (FBINTERVAL > 0) and ((nowtm - starttime).seconds > FBINTERVAL):
                     try:
                         log.info('checking for fireball flags')
-                        uoe.checkFbUpload(cfg.stationID, datadir, log)
+                        uoe.checkFbUpload(cfg.stationID, datadir, s3, log)
                     except Exception as e: 
                         log.warning('problem checking fireball flags')
                         log.info(e, exc_info=True)

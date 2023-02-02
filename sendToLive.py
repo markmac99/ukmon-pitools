@@ -15,23 +15,21 @@ import configparser
 from uploadToArchive import readKeyFile
 
 
-def checkFbUpload(stationid, datadir, log):
+def checkFbUpload(stationid, datadir, s3, log):
     archbuck = os.getenv('ARCHBUCKET', default='ukmon-shared')
-    awsreg = os.getenv('ARCHREGION', default='eu-west-2')
     listfile = stationid.lower() + '.txt'
-    s3a = boto3.client('s3', region_name=awsreg) 
     locfile = os.path.join('/tmp',listfile)
     remfile = 'fireballs/interesting/' + listfile
     capdir = os.path.join(datadir, 'CapturedFiles')
+    capdirs = os.listdir(capdir)
     try: 
-        objlist =s3a.list_objects_v2(Bucket=archbuck, Prefix=remfile)
+        objlist =s3.meta.client.list_objects_v2(Bucket=archbuck, Prefix=remfile)
         if objlist['KeyCount'] > 0:
             log.info('fireball upload requested')
-            s3a.download_file(archbuck, remfile, locfile)
+            s3.meta.client.download_file(archbuck, remfile, locfile)
             for fname in open(locfile,'r').readlines():
                 if len(fname) < 5: 
                     continue
-                capdirs = os.listdir(capdir)
                 got = 0
                 for thisdir in capdirs:
                     srcpatt=os.path.join(capdir, thisdir, '*' + fname.strip() + '*')
@@ -41,18 +39,18 @@ def checkFbUpload(stationid, datadir, log):
                         _, thisfname = os.path.split(srcfile)
                         targfile = 'fireballs/interesting/' + thisfname
                         try: 
-                            s3a.upload_file(srcfile, archbuck, targfile)
+                            s3.meta.client.upload_file(srcfile, archbuck, targfile)
                             log.info('uploaded {}'.format(srcfile))
                             got = 1
-                        except:
-                            pass
+                        except Exception as e:
+                            log.info(e, exc_info=True)
                 if got == 0:
                     log.info(f'file {fname.strip()} not found')
                         
             os.remove(locfile)
             key = {'Objects': []}
             key['Objects'] = [{'Key': remfile}]
-            s3a.delete_objects(Bucket=archbuck, Delete=key)
+            s3.meta.client.delete_objects(Bucket=archbuck, Delete=key)
     except Exception as e:
         log.warning('unable to scan S3 for trigger file')
         log.info(e, exc_info=True)
