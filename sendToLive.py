@@ -26,31 +26,35 @@ def checkFbUpload(stationid, datadir, s3, log):
         objlist =s3.meta.client.list_objects_v2(Bucket=archbuck, Prefix=remfile)
         if objlist['KeyCount'] > 0:
             log.info('fireball upload requested')
-            s3.meta.client.download_file(archbuck, remfile, locfile)
-            for fname in open(locfile,'r').readlines():
-                if len(fname) < 5: 
-                    continue
-                got = 0
-                for thisdir in capdirs:
-                    srcpatt=os.path.join(capdir, thisdir, '*' + fname.strip() + '*')
-                    #log.info('requested pattern {}'.format(srcpatt))
-                    srclist = glob.glob(srcpatt)
-                    for srcfile in srclist: 
-                        _, thisfname = os.path.split(srcfile)
-                        targfile = 'fireballs/interesting/' + thisfname
-                        try: 
-                            s3.meta.client.upload_file(srcfile, archbuck, targfile)
-                            log.info('uploaded {}'.format(srcfile))
-                            got = 1
-                        except Exception as e:
-                            log.info(e, exc_info=True)
-                if got == 0:
-                    log.info(f'file {fname.strip()} not found')
-                        
-            os.remove(locfile)
-            key = {'Objects': []}
-            key['Objects'] = [{'Key': remfile}]
-            s3.meta.client.delete_objects(Bucket=archbuck, Delete=key)
+            try: 
+                s3.meta.client.download_file(archbuck, remfile, locfile)
+                for fname in open(locfile,'r').readlines():
+                    if len(fname) < 5: 
+                        continue
+                    got = 0
+                    for thisdir in capdirs:
+                        srcpatt=os.path.join(capdir, thisdir, '*' + fname.strip() + '*')
+                        #log.info('requested pattern {}'.format(srcpatt))
+                        srclist = glob.glob(srcpatt)
+                        for srcfile in srclist: 
+                            _, thisfname = os.path.split(srcfile)
+                            targfile = 'fireballs/interesting/' + thisfname
+                            try: 
+                                s3.meta.client.upload_file(srcfile, archbuck, targfile)
+                                log.info('uploaded {}'.format(srcfile))
+                                got = 1
+                            except Exception as e:
+                                log.info(e, exc_info=True)
+                    if got == 0:
+                        log.info(f'file {fname.strip()} not found')
+                            
+                os.remove(locfile)
+                key = {'Objects': []}
+                key['Objects'] = [{'Key': remfile}]
+                s3.meta.client.delete_objects(Bucket=archbuck, Delete=key)
+            except Exception as e:
+                log.warning('unable to download trigger file')
+                log.info(e, exc_info=True)
     except Exception as e:
         log.warning('unable to scan S3 for trigger file')
         log.info(e, exc_info=True)
@@ -103,8 +107,10 @@ def uploadOneEvent(cap_dir, dir_file, loc, s3, log):
     try: 
         s3.meta.client.upload_file(fulljpg, target, njpgname, ExtraArgs={'ContentType': 'image/jpeg'})
         s3.meta.client.upload_file(fullxml, target, xmlname, ExtraArgs={'ContentType': 'application/xml'})
-    except:
+    except Exception as e:
         log.warning('unable to upload to livestream')
+        log.info(e, exc_info=True)
+
     sys.stdout.flush()
     shutil.rmtree(tmpdir)
     return
