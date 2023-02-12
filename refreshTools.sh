@@ -2,7 +2,7 @@
 
 # refresh UKmeteornetwork tools
 
-here=/home/$LOGNAME/source/ukmon-pitools
+here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 cd $here
 
 # create a default config file if missing
@@ -35,7 +35,7 @@ pip list | grep python-crontab | grep 2.5.1 || pip install python-crontab==2.5.1
 # creating an ssh key if not already present
 if [ ! -f  ${UKMONKEY} ] ; then 
     echo "creating ukmon ssh key"
-    ssh-keygen -t rsa -f ~/.ssh/ukmon -q -N ''
+    ssh-keygen -t rsa -f ${UKMONKEY} -q -N ''
     echo "Copy this public key and email it to the ukmon team, then "
     echo "wait for confirmation its been installed and rerun this script"
     echo ""
@@ -68,7 +68,7 @@ EOF
     source ~/vRMS/bin/activate
     source $here/ukmon.ini
     cd $(dirname $RMSCFG)
-    export PYTHONPATH=$here
+    export PYTHONPATH=$here:~/source/RMS
     python -c "import ukmonInstaller as pp ; pp.installUkmonFeed('${RMSCFG}');"
 
     echo "testing connections"

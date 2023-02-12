@@ -4,7 +4,7 @@ here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 source $here/ukmon.ini
 
 cd ~/source/RMS
-export PYTHONPATH=~/source/ukmon-pitools
+export PYTHONPATH=$here
 if [ "$1" == "" ] ; then
     echo usage ./uploadFireball.sh FF_name.fits
     exit 0

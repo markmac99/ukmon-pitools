@@ -1,6 +1,7 @@
 import os
 import shutil
 from crontab import CronTab
+from subprocess import call
 
 import time
 import paramiko
@@ -42,9 +43,9 @@ def checkPostProcSettings(myloc, cfgname):
     esr = config.external_script_run
     extl = os.path.expanduser(config.external_script_path)
     print(extl)
-    if 'ukmonPostProc' not in extl:
+    if 'ukmonPostProc' not in extl or ('ukmonPostProc' in extl and myloc not in extl):
         if esr is True:
-            if extl != scrname:
+            if 'ukmonPostProc' not in extl:
                 print('saving current external script details')
                 with open(os.path.join(myloc, 'extrascript'), 'w') as outf:
                     outf.write(extl)
@@ -80,26 +81,35 @@ def checkCrontab(myloc, datadir):
     """
     print('checking crontab')
     cron = CronTab(user=True)
-    iter=cron.find_command('refreshTools.sh')
-    found = False
-    for i in iter:
-        if i.is_enabled():
-            found = True
-    if found is False:
-        print('adding refreshTools job')
-        job = cron.new('sleep 60 && {}/refreshTools.sh > {}/logs/refreshTools.log 2>&1'.format(myloc, datadir))
-        job.every_reboot()
-        cron.write()
-    iter=cron.find_command('liveMonitor.sh')
-    found = False
-    for i in iter:
-        if i.is_enabled():
-            found = True
-    if found is False:
-        print('adding livestream job')
-        job = cron.new('sleep 3600 && {}/liveMonitor.sh >> {}/logs/ukmon-live.log 2>&1'.format(myloc, datadir))
-        job.every_reboot()
-        cron.write()
+    for job in cron:
+        if '{}/liveMonitor.sh'.format(myloc) in job.command or '{}/refreshTools.sh'.format(myloc) in job.command:
+            cron.remove(job)
+            cron.write()
+
+    job = cron.new('sleep 60 && {}/refreshTools.sh > {}/logs/refreshTools.log 2>&1'.format(myloc, datadir))
+    job.every_reboot()
+    cron.write()
+
+    job = cron.new('sleep 300 && {}/liveMonitor.sh >> /dev/null 2>&1'.format(myloc))
+    job.every_reboot()
+    cron.write()
+    job = cron.new('{}/liveMonitor.sh >> /dev/null 2>&1'.format(myloc))
+    job.setall(1, 12, '*', '*', '*')
+    cron.write()
+    return 
+
+
+def createSystemdService(myloc, camid):
+    unitname = os.path.expanduser('~/.config/systemd/user/ukmonlive-{}.service'.format(camid))
+    if not os.path.isfile(unitname):
+        with open(unitname,'w') as outf:
+            outf.write('[Unit]\nDescription=UKMON Live stream service for {}\n'.format(camid))
+            outf.write('After=network.target auditd.service\n\n')
+            outf.write('[Service]\nExecStart={}/liveMonitor.sh\nRestart=always\n\n'.format(myloc))
+            outf.write('[Install]\nWantedBy=multi-user.target\n\n')
+            call(['systemctl','--user','daemon-reload'])
+            call(['systemctl','--user','enable','ukmonlive-{}'.format(camid)])
+            call(['systemctl','--user','start','ukmonlive-{}'.format(camid)])
     return 
 
 
@@ -111,10 +121,10 @@ def addDesktopIcons(myloc, statid):
     if not os.path.isdir(os.path.expanduser('~/Desktop')):
         os.makedirs(os.path.expanduser('~/Desktop'))
     cfglnk = os.path.expanduser('~/Desktop/UKMON_config_{}.txt'.format(statid))
-    if not os.path.isfile(cfglnk):
+    if not os.path.islink(cfglnk):
         os.symlink(os.path.join(myloc, 'ukmon.ini'), cfglnk)
     reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sh'.format(statid))
-    if not os.path.isfile(reflnk):
+    if not os.path.islink(reflnk):
         os.symlink(os.path.join(myloc, 'refreshTools.sh'), reflnk)
     return
 

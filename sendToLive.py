@@ -10,13 +10,57 @@ import Utils.BatchFFtoImage as bff
 import shutil
 import tempfile
 import boto3
+import glob
 import configparser
 from uploadToArchive import readKeyFile
 
 
-def uploadOneEvent(cap_dir, dir_file, loc, s3):
-    print('{:s} {:s} {:s} {:s}'.format(cap_dir, dir_file, loc[4], loc[3]))
-    sys.stdout.flush()
+def checkFbUpload(stationid, datadir, s3, log):
+    archbuck = os.getenv('ARCHBUCKET', default='ukmon-shared')
+    listfile = stationid.lower() + '.txt'
+    locfile = os.path.join('/tmp',listfile)
+    remfile = 'fireballs/interesting/' + listfile
+    capdir = os.path.join(datadir, 'CapturedFiles')
+    capdirs = os.listdir(capdir)
+    try: 
+        objlist =s3.meta.client.list_objects_v2(Bucket=archbuck, Prefix=remfile)
+        if objlist['KeyCount'] > 0:
+            log.info('fireball upload requested')
+            try: 
+                s3.meta.client.download_file(archbuck, remfile, locfile)
+                for fname in open(locfile,'r').readlines():
+                    if len(fname) < 5: 
+                        continue
+                    got = 0
+                    for thisdir in capdirs:
+                        srcpatt=os.path.join(capdir, thisdir, '*' + fname.strip() + '*')
+                        #log.info('requested pattern {}'.format(srcpatt))
+                        srclist = glob.glob(srcpatt)
+                        for srcfile in srclist: 
+                            _, thisfname = os.path.split(srcfile)
+                            targfile = 'fireballs/interesting/' + thisfname
+                            try: 
+                                s3.meta.client.upload_file(srcfile, archbuck, targfile)
+                                log.info('uploaded {}'.format(srcfile))
+                                got = 1
+                            except Exception as e:
+                                log.info(e, exc_info=True)
+                    if got == 0:
+                        log.info(f'file {fname.strip()} not found')
+                            
+                os.remove(locfile)
+                key = {'Objects': []}
+                key['Objects'] = [{'Key': remfile}]
+                s3.meta.client.delete_objects(Bucket=archbuck, Delete=key)
+            except Exception as e:
+                log.warning('unable to download trigger file')
+                log.info(e, exc_info=True)
+    except Exception as e:
+        log.warning('unable to scan S3 for trigger file')
+        log.info(e, exc_info=True)
+
+
+def uploadOneEvent(cap_dir, dir_file, loc, s3, log):
     target = os.getenv('LIVEBUCK', default='ukmon-live')
     spls = dir_file.split('_')
     camid = spls[1]
@@ -51,7 +95,7 @@ def uploadOneEvent(cap_dir, dir_file, loc, s3):
         ofl.write('trig="1" frames="68" lng="{:.4f}" lat="{:.4f}" alt="{:.1f}" '.format(loc[1], loc[0], loc[2]))
         ofl.write('tz="0" u2="224" cx="1280" cy="720" fps="25.000" head="30" ')
         ofl.write('tail="30" diff="2" sipos="6" sisize="15" dlev="40" dsize="4" ')
-        ofl.write('lid="{:s}" observer="" sid="{:s}" cam="{:s}" lens="" cap="" '.format(loc[4], camid, camid))
+        ofl.write('lid="{:s}" observer="" sid="{:s}" cam="{:s}" lens="" cap="{}" '.format(loc[4], camid, camid, dir_file))
         ofl.write('comment="" interlace="1" bbf="0" dropframe="0">\n')
         ofl.write('    <ufocapture_paths hit="3">\n')
         ofl.write('     <uc_path fno="30" ono="18" pixel="3" bmax="79" x="395.7" y="282.3"></uc_path>\n')
@@ -60,9 +104,13 @@ def uploadOneEvent(cap_dir, dir_file, loc, s3):
         ofl.write('    </ufocapture_paths>\n')
         ofl.write('</ufocapture_record>\n')
 
-    s3.meta.client.upload_file(fulljpg, target, njpgname, ExtraArgs={'ContentType': 'image/jpeg'})
-    s3.meta.client.upload_file(fullxml, target, xmlname, ExtraArgs={'ContentType': 'application/xml'})
-    print(njpgname)
+    try: 
+        s3.meta.client.upload_file(fulljpg, target, njpgname, ExtraArgs={'ContentType': 'image/jpeg'})
+        s3.meta.client.upload_file(fullxml, target, xmlname, ExtraArgs={'ContentType': 'application/xml'})
+    except Exception as e:
+        log.warning('unable to upload to livestream')
+        log.info(e, exc_info=True)
+
     sys.stdout.flush()
     shutil.rmtree(tmpdir)
     return
@@ -129,7 +177,10 @@ def singleUpload(cap_dir, dir_file):
             print('test successful')
         except Exception:
             print('unable to upload to {} - check key information'.format(target))
-        os.remove('/tmp/test.txt')
+        try:
+            os.remove('/tmp/test.txt')
+        except:
+            pass
     else:
         uploadOneEvent(cap_dir, dir_file, loc, s3)
 
