@@ -2,7 +2,8 @@
 
 # refresh UKmeteornetwork tools
 
-here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+myself=$(readlink -f $0)
+here="$( cd "$(dirname "$myself")" >/dev/null 2>&1 ; pwd -P )"
 cd $here
 
 # create a default config file if missing
