@@ -7,12 +7,10 @@ here="$( cd "$(dirname "$myself")" >/dev/null 2>&1 ; pwd -P )"
 cd $here
 
 # create a default config file if missing
+
 if [ ! -f $here/ukmon.ini ] ; then
-    echo  "# config data for this station" > $here/ukmon.ini
-    echo  "export LOCATION=NOTCONFIGURED" >> $here/ukmon.ini
-    echo  "export UKMONHELPER=3.8.65.98" >> $here/ukmon.ini
-    echo  "export UKMONKEY=~/.ssh/ukmon" >> $here/ukmon.ini
-    echo  "export RMSCFG=~/source/RMS/.config " >> $here/ukmon.ini
+    export PYTHONPATH=$here:~/source/RMS
+    python -c "import ukmonInstaller as pp ; pp.createDefaultIni('${here}', '3.8.65.98');"
     echo "location not configured yet"
 fi 
 # read in the config file
@@ -44,6 +42,10 @@ if [ ! -f  ${UKMONKEY} ] ; then
     echo ""
     read -p "Press any key to continue"
 fi
+# add Desktop icons
+export PYTHONPATH=$here:~/source/RMS
+statid=$(grep ID $RMSCFG | awk -F" " '{print $2}')
+python -c "import ukmonInstaller as pp ; pp.addDesktopIcons('${here}','${statid}');"
 
 # if the station is configured, retrieve the AWS keys
 # and test connectivity. Also checks the ukmon.ini file is in unix format
@@ -58,10 +60,18 @@ if [[ "$LOCATION" != "NOTCONFIGURED"  && "$LOCATION" != "" ]] ; then
     fi 
 
     sftp -i $UKMONKEY -q $LOCATION@$UKMONHELPER << EOF
-get ukmon.ini
+
+get ukmon.ini .ukmon.new
 get live.key
 exit
 EOF
+    orighelp=$UKMONHELPER
+    source .ukmon.new
+    if [ "$UKMONHELPER" != "$orighelp" ] ; then
+        export PYTHONPATH=$here:~/source/RMS
+        python -c "import ukmonInstaller as pp ; pp.updateHelperIp('${here}','${UKMONHELPER}');"
+    fi 
+    rm -f .ukmon.new
     chmod 0600 live.key
     if [ -f archive.key ] ; then \rm archive.key ; fi 
 
