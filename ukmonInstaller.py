@@ -10,6 +10,37 @@ import tempfile
 import RMS.ConfigReader as cr
 
 
+def createDefaultIni(homedir, helperip=None):
+    rmscfg = '~/source/RMS/.config'
+    keyfile = '~/.ssh/ukmon'
+    homedir = os.path.normpath(homedir)
+    camid = homedir[homedir.find('pitools')+8:]
+    if camid != '':
+        rmscfg = '~/source/Stations/{}/.config'.format(camid)
+        keyfile = '~/.ssh/ukmon-{}'.format(camid)
+    if helperip is None:
+        helperip = '3.8.65.98'
+    os.makedirs(homedir, exist_ok=True)
+    with open(os.path.join(homedir, 'ukmon.ini'), 'w') as outf:
+        outf.write("# config data for this station\n")
+        outf.write("export LOCATION=NOTCONFIGURED\n")
+        outf.write("export UKMONHELPER={}\n".format(helperip))
+        outf.write("export UKMONKEY={}\n".format(keyfile))
+        outf.write("export RMSCFG={}\n".format(rmscfg))
+    return 
+
+
+def updateHelperIp(homedir, helperip):
+    homedir = os.path.normpath(homedir)
+    lis = open(os.path.join(homedir, 'ukmon.ini'), 'r').readlines()
+    with open(os.path.join(homedir, 'ukmon.ini'), 'w') as outf:
+        for li in lis:
+            if 'UKMONHELPER' in li:
+                outf.write("export UKMONHELPER={}\n".format(helperip))
+            else:
+                outf.write('{}'.format(li))
+
+
 def installUkmonFeed(rmscfg='~/source/RMS/.config'):
     """ This function installs the UKMon postprocessing script into the RMS config file.
     It is called from the refreshTools script during initial installation and should never
