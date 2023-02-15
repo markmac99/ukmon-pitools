@@ -60,7 +60,7 @@ if [[ "$LOCATION" != "NOTCONFIGURED"  && "$LOCATION" != "" ]] ; then
     fi 
 
     sftp -i $UKMONKEY -q $LOCATION@$UKMONHELPER << EOF
-
+put ukmon.ini ukmon.ini.client
 get ukmon.ini .ukmon.new
 get live.key
 exit
@@ -70,6 +70,7 @@ EOF
     if [ "$UKMONHELPER" != "$orighelp" ] ; then
         export PYTHONPATH=$here:~/source/RMS
         python -c "import ukmonInstaller as pp ; pp.updateHelperIp('${here}','${UKMONHELPER}');"
+        echo "server address updated"
     fi 
     rm -f .ukmon.new
     chmod 0600 live.key
