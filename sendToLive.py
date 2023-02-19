@@ -141,7 +141,10 @@ def singleUpload(cap_dir, dir_file):
     # get camera location from ini file
     inifvals = readKeyFile(os.path.join(myloc, 'ukmon.ini'))
     camloc = inifvals['LOCATION']
-    rmscfg = inifvals['RMSCFG']
+    try:
+        rmscfg = inifvals['RMSCFG']
+    except:
+        rmscfg='~/source/RMS/.config'
     if camloc == 'NOTCONFIGURED':
         print('LOCATION not found in ini file, aborting')
         exit(1)
