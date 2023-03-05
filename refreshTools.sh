@@ -2,16 +2,15 @@
 
 # refresh UKmeteornetwork tools
 
-here=/home/$LOGNAME/source/ukmon-pitools
+myself=$(readlink -f $0)
+here="$( cd "$(dirname "$myself")" >/dev/null 2>&1 ; pwd -P )"
 cd $here
 
 # create a default config file if missing
+
 if [ ! -f $here/ukmon.ini ] ; then
-    echo  "# config data for this station" > $here/ukmon.ini
-    echo  "export LOCATION=NOTCONFIGURED" >> $here/ukmon.ini
-    echo  "export UKMONHELPER=3.8.65.98" >> $here/ukmon.ini
-    echo  "export UKMONKEY=~/.ssh/ukmon" >> $here/ukmon.ini
-    echo  "export RMSCFG=~/source/RMS/.config " >> $here/ukmon.ini
+    export PYTHONPATH=$here:~/source/RMS
+    python -c "import ukmonInstaller as pp ; pp.createDefaultIni('${here}', '3.8.65.98');"
     echo "location not configured yet"
 fi 
 # read in the config file
@@ -26,32 +25,27 @@ git stash
 git pull
 git stash apply
 
-echo "checking boto3 is installed for AWS connections"
+echo "checking required python libs are installed"
 source ~/vRMS/bin/activate
-pip list | grep boto3
-if [ $? -eq 1 ] ; then 
-    pip install boto3
-fi 
-
-# adding desktop icons if not already present
-if [ ! -f ~/Desktop/UKMON_config.txt ] ; then 
-    ln -s $here/ukmon.ini ~/Desktop/UKMON_config.txt
-fi 
-if [ ! -f ~/Desktop/refresh_UKMON_Tools.sh ] ; then 
-    ln -s $here/refreshTools.sh ~/Desktop/refresh_UKMON_Tools.sh
-fi 
+pip list | grep boto3 || pip install boto3 
+# python-crontab v2.5.1 for python 2.7 backwards compatability. Sigh. 
+pip list | grep python-crontab | grep 2.5.1 || pip install python-crontab==2.5.1
 
 # creating an ssh key if not already present
-if [ ! -f  ~/.ssh/ukmon ] ; then 
+if [ ! -f  ${UKMONKEY} ] ; then 
     echo "creating ukmon ssh key"
-    ssh-keygen -t rsa -f ~/.ssh/ukmon -q -N ''
+    ssh-keygen -t rsa -f ${UKMONKEY} -q -N ''
     echo "Copy this public key and email it to the ukmon team, then "
     echo "wait for confirmation its been installed and rerun this script"
     echo ""
-    cat ~/.ssh/ukmon.pub
+    cat ${UKMONKEY}.pub
     echo ""
     read -p "Press any key to continue"
 fi
+# add Desktop icons
+export PYTHONPATH=$here:~/source/RMS
+statid=$(grep ID $RMSCFG | awk -F" " '{print $2}')
+python -c "import ukmonInstaller as pp ; pp.addDesktopIcons('${here}','${statid}');"
 
 # if the station is configured, retrieve the AWS keys
 # and test connectivity. Also checks the ukmon.ini file is in unix format
@@ -62,20 +56,39 @@ if [[ "$LOCATION" != "NOTCONFIGURED"  && "$LOCATION" != "" ]] ; then
         # dos2unix not installed on the pi
         tr -d '\r' < $here/tmp.ini > $here/ukmon.ini
         rm -f $here/tmp.ini
+        source $here/ukmon.ini
     fi 
-    sftp -i ~/.ssh/ukmon -q $LOCATION@$UKMONHELPER << EOF
-get ukmon.ini
+
+    sftp -i $UKMONKEY -q $LOCATION@$UKMONHELPER << EOF
+put ukmon.ini ukmon.ini.client
+get ukmon.ini .ukmon.new
 get live.key
-get archive.key
 exit
 EOF
-    chmod 0600 live.key archive.key
-    echo "testing connections"
+    orighelp=$UKMONHELPER
+    source .ukmon.new
+    if [ "$UKMONHELPER" != "$orighelp" ] ; then
+        export PYTHONPATH=$here:~/source/RMS
+        python -c "import ukmonInstaller as pp ; pp.updateHelperIp('${here}','${UKMONHELPER}');"
+        echo "server address updated"
+    fi 
+    rm -f .ukmon.new
+    chmod 0600 live.key
+    if [ -f archive.key ] ; then \rm archive.key ; fi 
+
+    echo "checking the RMS config file, crontab and icons"
     source ~/vRMS/bin/activate
+    source $here/ukmon.ini
+    cd $(dirname $RMSCFG)
+    export PYTHONPATH=$here:~/source/RMS
+    python -c "import ukmonInstaller as pp ; pp.installUkmonFeed('${RMSCFG}');"
+
+    echo "testing connections"
     python $here/sendToLive.py test test
     python $here/uploadToArchive.py test
-    echo "if you didnt see two success messages contact us for advice" 
+    echo "if you did not see two success messages contact us for advice" 
     read -p "Press any key to continue"
+    echo "done"
 else
     echo "Location missing - please update UKMON Config File using the desktop icon"
     sleep 5
@@ -83,31 +96,3 @@ else
     exit 1
 fi
 
-# pause to make sure RMS isn't simultaneously refreshing
-while [ $(grep XX0001 ~/source/RMS/.config | wc -l) -eq 1 ] ; do 
-    sleep 30
-done
-# update the external script settings 
-if [ $(grep ukmonPost $RMSCFG | wc -l) -eq 0 ] ; then
-    python -c "import ukmonPostProc as pp ; pp.installUkmonFeed('${RMSCFG}');"
-fi 
-
-# add the required crontab entries
-crontab -l | egrep "refreshTools.sh" > /dev/null
-if [ $? == 1 ] ; then 
-    echo "enabling daily toolset refresh"
-    crontab -l > /tmp/crontab.tmp 
-    echo "@reboot sleep 60 && $here/refreshTools.sh > /home/$LOGNAME/RMS_data/logs/refreshTools.log 2>&1" >> /tmp/crontab.tmp
-    crontab /tmp/crontab.tmp
-    rm /tmp/crontab.tmp
-fi 
-
-crontab -l | egrep "liveMonitor.sh" > /dev/null
-if [ $? == 1 ] ; then 
-    echo "enabling live monitoring"
-    crontab -l > /tmp/crontab.tmp 
-    echo "@reboot sleep 3600 && $here/liveMonitor.sh >> /home/$LOGNAME/RMS_data/logs/ukmon-live.log 2>&1" >> /tmp/crontab.tmp
-    crontab /tmp/crontab.tmp
-    rm /tmp/crontab.tmp
-fi 
-echo "done"

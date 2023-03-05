@@ -1,5 +1,5 @@
 #
-# python script to upload one event to ukmon-live
+# python script to upload one event to a target bucket for live feeds
 #
 # to use this file to manually upload a file do
 #   python sendToLive.py cap_dir ff_name
@@ -10,13 +10,58 @@ import Utils.BatchFFtoImage as bff
 import shutil
 import tempfile
 import boto3
+import glob
 import configparser
+from uploadToArchive import readKeyFile
 
 
-def uploadOneEvent(cap_dir, dir_file, loc, s3):
-    print('{:s} {:s} {:s} {:s}'.format(cap_dir, dir_file, loc[4], loc[3]))
-    sys.stdout.flush()
-    target = 'ukmon-live'
+def checkFbUpload(stationid, datadir, s3, log):
+    archbuck = os.getenv('ARCHBUCKET', default='ukmon-shared')
+    listfile = stationid.lower() + '.txt'
+    locfile = os.path.join('/tmp',listfile)
+    remfile = 'fireballs/interesting/' + listfile
+    capdir = os.path.join(datadir, 'CapturedFiles')
+    capdirs = os.listdir(capdir)
+    try: 
+        objlist =s3.meta.client.list_objects_v2(Bucket=archbuck, Prefix=remfile)
+        if objlist['KeyCount'] > 0:
+            log.info('fireball upload requested')
+            try: 
+                s3.meta.client.download_file(archbuck, remfile, locfile)
+                for fname in open(locfile,'r').readlines():
+                    if len(fname) < 5: 
+                        continue
+                    got = 0
+                    for thisdir in capdirs:
+                        srcpatt=os.path.join(capdir, thisdir, '*' + fname.strip() + '*')
+                        #log.info('requested pattern {}'.format(srcpatt))
+                        srclist = glob.glob(srcpatt)
+                        for srcfile in srclist: 
+                            _, thisfname = os.path.split(srcfile)
+                            targfile = 'fireballs/interesting/' + thisfname
+                            try: 
+                                s3.meta.client.upload_file(srcfile, archbuck, targfile)
+                                log.info('uploaded {}'.format(srcfile))
+                                got = 1
+                            except Exception as e:
+                                log.info(e, exc_info=True)
+                    if got == 0:
+                        log.info(f'file {fname.strip()} not found')
+                            
+                os.remove(locfile)
+                key = {'Objects': []}
+                key['Objects'] = [{'Key': remfile}]
+                s3.meta.client.delete_objects(Bucket=archbuck, Delete=key)
+            except Exception as e:
+                log.warning('unable to download trigger file')
+                log.info(e, exc_info=True)
+    except Exception as e:
+        log.warning('unable to scan S3 for trigger file')
+        log.info(e, exc_info=True)
+
+
+def uploadOneEvent(cap_dir, dir_file, loc, s3, log):
+    target = os.getenv('LIVEBUCK', default='ukmon-live')
     spls = dir_file.split('_')
     camid = spls[1]
     ymd = spls[2]
@@ -50,7 +95,7 @@ def uploadOneEvent(cap_dir, dir_file, loc, s3):
         ofl.write('trig="1" frames="68" lng="{:.4f}" lat="{:.4f}" alt="{:.1f}" '.format(loc[1], loc[0], loc[2]))
         ofl.write('tz="0" u2="224" cx="1280" cy="720" fps="25.000" head="30" ')
         ofl.write('tail="30" diff="2" sipos="6" sisize="15" dlev="40" dsize="4" ')
-        ofl.write('lid="{:s}" observer="" sid="{:s}" cam="{:s}" lens="" cap="" '.format(loc[4], camid, camid))
+        ofl.write('lid="{:s}" observer="" sid="{:s}" cam="{:s}" lens="" cap="{}" '.format(loc[4], camid, camid, dir_file))
         ofl.write('comment="" interlace="1" bbf="0" dropframe="0">\n')
         ofl.write('    <ufocapture_paths hit="3">\n')
         ofl.write('     <uc_path fno="30" ono="18" pixel="3" bmax="79" x="395.7" y="282.3"></uc_path>\n')
@@ -59,9 +104,13 @@ def uploadOneEvent(cap_dir, dir_file, loc, s3):
         ofl.write('    </ufocapture_paths>\n')
         ofl.write('</ufocapture_record>\n')
 
-    s3.meta.client.upload_file(fulljpg, target, njpgname, ExtraArgs={'ContentType': 'image/jpeg'})
-    s3.meta.client.upload_file(fullxml, target, xmlname, ExtraArgs={'ContentType': 'application/xml'})
-    print(njpgname)
+    try: 
+        s3.meta.client.upload_file(fulljpg, target, njpgname, ExtraArgs={'ContentType': 'image/jpeg'})
+        s3.meta.client.upload_file(fullxml, target, xmlname, ExtraArgs={'ContentType': 'application/xml'})
+    except Exception as e:
+        log.warning('unable to upload to livestream')
+        log.info(e, exc_info=True)
+
     sys.stdout.flush()
     shutil.rmtree(tmpdir)
     return
@@ -90,58 +139,51 @@ def singleUpload(cap_dir, dir_file):
     awsreg = None
     myloc = os.path.split(os.path.abspath(__file__))[0]
     # get camera location from ini file
-    with open(os.path.join(myloc, 'ukmon.ini'), 'r') as inif:
-        lines = inif.readlines()
-        for li in lines:
-            if 'LOCATION' in li:
-                camloc = li.split('=')[1].strip()
-                break
-    if camloc is None:
+    inifvals = readKeyFile(os.path.join(myloc, 'ukmon.ini'))
+    camloc = inifvals['LOCATION']
+    try:
+        rmscfg = inifvals['RMSCFG']
+    except:
+        rmscfg='~/source/RMS/.config'
+    if camloc == 'NOTCONFIGURED':
         print('LOCATION not found in ini file, aborting')
         exit(1)
 
     # get credentials
-    try: 
-        with open(os.path.join(myloc, 'live.key'), 'r') as inif:
-            lines = inif.readlines()
-            for li in lines:
-                if 'AWS_ACCESS_KEY_ID' in li:
-                    awskey = li.split('=')[1].strip()
-                if 'AWS_SECRET_ACCESS_KEY' in li:
-                    awssec = li.split('=')[1].strip()
-                if 'AWS_DEFAULT_REGION' in li:
-                    awsreg = li.split('=')[1].strip()
-    except Exception:
-        print('unable to locate AWS credentials, aborting')
-        exit(1)
-    if awssec is None or awskey is None or awsreg is None:
-        print('credentials file malformed, aborting')
-        exit(1)
+    keys = readKeyFile(os.path.join(myloc, 'live.key'))
+    awskey = keys['AWS_ACCESS_KEY_ID']
+    awssec = keys['AWS_SECRET_ACCESS_KEY']
+    awsreg = keys['LIVEREGION']
+    target = keys['LIVEBUCKET']
 
     conn = boto3.Session(aws_access_key_id=awskey, aws_secret_access_key=awssec, region_name=awsreg) 
     s3 = conn.resource('s3')
     # read a few variables from the RMS config file
-    cfg = configparser.ConfigParser()
-    cfg.read(os.path.expanduser('~/source/RMS/.config'))
+    cfg = configparser.ConfigParser(inline_comment_prefixes=(';'))
+    cfg.read(os.path.expanduser(rmscfg))
+
     loc = []
-    loc.append(float(cfg['System']['latitude'].split()[0]))
-    loc.append(float(cfg['System']['longitude'].split()[0]))
-    loc.append(float(cfg['System']['elevation'].split()[0]))
-    loc.append(cfg['System']['stationID'].split()[0])
+    loc.append(float(cfg['System']['latitude']))
+    loc.append(float(cfg['System']['longitude']))
+    loc.append(float(cfg['System']['elevation']))
+    loc.append(cfg['System']['stationID'])
     loc.append(camloc)
     if sys.argv[1] == 'test' and sys.argv[2] == 'test':
         with open('/tmp/test.txt', 'w') as f:
             f.write('test')
         
         try:
-            s3.meta.client.upload_file('/tmp/test.txt', 'ukmon-live', 'test.txt')
+            s3.meta.client.upload_file('/tmp/test.txt', target, 'test.txt')
             key = {'Objects': []}
             key['Objects'] = [{'Key': 'test.txt'}]
-            s3.meta.client.delete_objects(Bucket='ukmon-live', Delete=key)
+            s3.meta.client.delete_objects(Bucket=target, Delete=key)
             print('test successful')
         except Exception:
-            print('unable to upload to ukmon-live - check key information')
-        os.remove('/tmp/test.txt')
+            print('unable to upload to {} - check key information'.format(target))
+        try:
+            os.remove('/tmp/test.txt')
+        except:
+            pass
     else:
         uploadOneEvent(cap_dir, dir_file, loc, s3)
 
