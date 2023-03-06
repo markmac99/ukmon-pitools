@@ -24,7 +24,7 @@ def createDefaultIni(homedir, helperip='0.0.0.0'):
     os.makedirs(homedir, exist_ok=True)
     with open(os.path.join(homedir, 'ukmon.ini'), 'w') as outf:
         outf.write("# config data for this station\n")
-        outf.write("export LOCATION={}}\n".format(loc))
+        outf.write("export LOCATION={}\n".format(loc))
         outf.write("export UKMONHELPER={}\n".format(helperip))
         outf.write("export UKMONKEY={}\n".format(keyfile))
         outf.write("export RMSCFG={}\n".format(rmscfg))
