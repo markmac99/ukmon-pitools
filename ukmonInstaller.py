@@ -159,9 +159,15 @@ def addDesktopIcons(myloc, statid):
     reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sh'.format(statid))
     if os.path.islink(reflnk):
         os.remove(reflnk)
-    
-    if not os.path.islink(reflnk):
-        os.symlink(os.path.join(myloc, 'refreshTools.sh'), reflnk)
+    reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sesktop'.format(statid))
+    with open(reflnk, 'w') as outf:
+        outf.write('[Desktop Entry]\n')
+        outf.write('Name=refresh_UKMON_Tools_{}\n'.format(statid))
+        outf.write('Comment=Runs ukmon tools refresh\n')
+        outf.write('Exec={}\n'.format(os.path.join(myloc, 'refreshTools.sh')))
+        outf.write('Icon=\n')
+        outf.write('Terminal=true\n')
+        outf.write('Type=Application\n')
     return
 
 
