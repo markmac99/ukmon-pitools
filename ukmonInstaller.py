@@ -10,20 +10,21 @@ import tempfile
 import RMS.ConfigReader as cr
 
 
-def createDefaultIni(homedir, helperip=None):
+def createDefaultIni(homedir, helperip='0.0.0.0'):
     rmscfg = '~/source/RMS/.config'
     keyfile = '~/.ssh/ukmon'
+    loc='NOTCONFIGURED'
     homedir = os.path.normpath(homedir)
     camid = homedir[homedir.find('pitools')+8:]
     if camid != '':
         rmscfg = '~/source/Stations/{}/.config'.format(camid)
         keyfile = '~/.ssh/ukmon-{}'.format(camid)
-    if helperip is None:
+    if helperip == '255.255.255.255':
         helperip = '3.8.65.98'
     os.makedirs(homedir, exist_ok=True)
     with open(os.path.join(homedir, 'ukmon.ini'), 'w') as outf:
         outf.write("# config data for this station\n")
-        outf.write("export LOCATION=NOTCONFIGURED\n")
+        outf.write("export LOCATION={}}\n".format(loc))
         outf.write("export UKMONHELPER={}\n".format(helperip))
         outf.write("export UKMONKEY={}\n".format(keyfile))
         outf.write("export RMSCFG={}\n".format(rmscfg))
@@ -41,7 +42,7 @@ def updateHelperIp(homedir, helperip):
                 outf.write('{}'.format(li))
 
 
-def installUkmonFeed(rmscfg='~/source/RMS/.config'):
+def installUkmonFeed(rmscfg='~/source/RMS/.config', doLive=True):
     """ This function installs the UKMon postprocessing script into the RMS config file.
     It is called from the refreshTools script during initial installation and should never
     be called outside of that unless you're *certain* you know what you're doing. The script 
@@ -60,7 +61,7 @@ def installUkmonFeed(rmscfg='~/source/RMS/.config'):
         statid = config.stationID
 
     checkPostProcSettings(myloc, cfgname)
-    checkCrontab(myloc, datadir)
+    checkCrontab(myloc, datadir, doLive)
     addDesktopIcons(myloc, statid)
     checkPlatepar(statid, os.path.dirname(cfgname))
     return 
@@ -107,7 +108,7 @@ def checkPostProcSettings(myloc, cfgname):
     return     
 
 
-def checkCrontab(myloc, datadir):
+def checkCrontab(myloc, datadir, doLive=True):
     """ This function adds the crontab entries
     """
     print('checking crontab')
@@ -121,12 +122,13 @@ def checkCrontab(myloc, datadir):
     job.every_reboot()
     cron.write()
 
-    job = cron.new('sleep 300 && {}/liveMonitor.sh >> /dev/null 2>&1'.format(myloc))
-    job.every_reboot()
-    cron.write()
-    job = cron.new('{}/liveMonitor.sh >> /dev/null 2>&1'.format(myloc))
-    job.setall(1, 12, '*', '*', '*')
-    cron.write()
+    if doLive is True:
+        job = cron.new('sleep 300 && {}/liveMonitor.sh >> /dev/null 2>&1'.format(myloc))
+        job.every_reboot()
+        cron.write()
+        job = cron.new('{}/liveMonitor.sh >> /dev/null 2>&1'.format(myloc))
+        job.setall(1, 12, '*', '*', '*')
+        cron.write()
     return 
 
 
@@ -155,6 +157,9 @@ def addDesktopIcons(myloc, statid):
     if not os.path.islink(cfglnk):
         os.symlink(os.path.join(myloc, 'ukmon.ini'), cfglnk)
     reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sh'.format(statid))
+    if os.path.islink(reflnk):
+        os.remove(reflnk)
+    
     if not os.path.islink(reflnk):
         os.symlink(os.path.join(myloc, 'refreshTools.sh'), reflnk)
     return

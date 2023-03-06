@@ -7,10 +7,15 @@ here="$( cd "$(dirname "$myself")" >/dev/null 2>&1 ; pwd -P )"
 cd $here
 
 # create a default config file if missing
+# use IP 0.0.0.0 to indicate not using the ukmon server, and 255.255.255.255 to indicate the default ukmon setup
+defaultip="255.255.255.255"
+if [ "$1" != "" ] ; then 
+    defaultip="0.0.0.0"
+fi 
 
 if [ ! -f $here/ukmon.ini ] ; then
     export PYTHONPATH=$here:~/source/RMS
-    python -c "import ukmonInstaller as pp ; pp.createDefaultIni('${here}', '3.8.65.98');"
+    python -c "import ukmonInstaller as pp ; pp.createDefaultIni('${here}', '${defaultip}');"
     echo "location not configured yet"
 fi 
 # read in the config file
@@ -32,7 +37,7 @@ pip list | grep boto3 || pip install boto3
 pip list | grep python-crontab | grep 2.5.1 || pip install python-crontab==2.5.1
 
 # creating an ssh key if not already present
-if [ ! -f  ${UKMONKEY} ] ; then 
+if [[ ! -f  ${UKMONKEY} && "$UKMONHELPER" != "0.0.0.0" ]] ; then 
     echo "creating ukmon ssh key"
     ssh-keygen -t rsa -f ${UKMONKEY} -q -N ''
     echo "Copy this public key and email it to the ukmon team, then "
@@ -42,14 +47,10 @@ if [ ! -f  ${UKMONKEY} ] ; then
     echo ""
     read -p "Press any key to continue"
 fi
-# add Desktop icons
-export PYTHONPATH=$here:~/source/RMS
-statid=$(grep ID $RMSCFG | awk -F" " '{print $2}')
-python -c "import ukmonInstaller as pp ; pp.addDesktopIcons('${here}','${statid}');"
 
 # if the station is configured, retrieve the AWS keys
 # and test connectivity. Also checks the ukmon.ini file is in unix format
-if [[ "$LOCATION" != "NOTCONFIGURED"  && "$LOCATION" != "" ]] ; then
+if [[ "$LOCATION" != "NOTCONFIGURED"  && "$LOCATION" != "" && "$UKMONHELPER" != "0.0.0.0" ]] ; then
     if [ $(file $here/ukmon.ini | grep CRLF | wc -l) -ne 0 ] ; then
         echo 'fixing ukmon.ini'
         cp $here/ukmon.ini $here/tmp.ini
@@ -89,8 +90,15 @@ EOF
     echo "if you did not see two success messages contact us for advice" 
     read -p "Press any key to continue"
     echo "done"
+elif [ "$UKMONHELPER" == "0.0.0.0" ] ; then 
+    echo "checking the RMS config file, crontab and icons"
+    source ~/vRMS/bin/activate
+    source $here/ukmon.ini
+    cd $(dirname $RMSCFG)
+    export PYTHONPATH=$here:~/source/RMS
+    python -c "import ukmonInstaller as pp ; pp.installUkmonFeed('${RMSCFG}', doLive=False);"
 else
-    echo "Location missing - please update UKMON Config File using the desktop icon"
+    echo "Location missing - please update the Config File using the desktop icon"
     sleep 5
     read -p "Press any key to continue"
     exit 1

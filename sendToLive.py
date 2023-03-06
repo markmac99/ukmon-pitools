@@ -13,9 +13,12 @@ import boto3
 import glob
 import configparser
 from uploadToArchive import readKeyFile
+import logging
+
+log = logging.getLogger("logger")
 
 
-def checkFbUpload(stationid, datadir, s3, log):
+def checkFbUpload(stationid, datadir, s3):
     archbuck = os.getenv('ARCHBUCKET', default='ukmon-shared')
     listfile = stationid.lower() + '.txt'
     locfile = os.path.join('/tmp',listfile)
@@ -60,7 +63,7 @@ def checkFbUpload(stationid, datadir, s3, log):
         log.info(e, exc_info=True)
 
 
-def uploadOneEvent(cap_dir, dir_file, loc, s3, log):
+def uploadOneEvent(cap_dir, dir_file, loc, s3):
     target = os.getenv('LIVEBUCK', default='ukmon-live')
     spls = dir_file.split('_')
     camid = spls[1]
@@ -150,7 +153,12 @@ def singleUpload(cap_dir, dir_file):
         exit(1)
 
     # get credentials
-    keys = readKeyFile(os.path.join(myloc, 'live.key'))
+    keyfile = os.path.join(myloc, 'live.key')
+    if os.path.isfile(keyfile) is False:
+        log.info('AWS keyfile not present')
+        return
+
+    keys = readKeyFile(keyfile)
     awskey = keys['AWS_ACCESS_KEY_ID']
     awssec = keys['AWS_SECRET_ACCESS_KEY']
     awsreg = keys['LIVEREGION']

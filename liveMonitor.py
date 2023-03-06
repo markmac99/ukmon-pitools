@@ -125,7 +125,7 @@ def monitorLogFile(camloc, rmscfg):
                 if (FBINTERVAL > 0) and ((nowtm - starttime).seconds > FBINTERVAL):
                     try:
                         #log.info('checking for fireball flags')
-                        uoe.checkFbUpload(cfg.stationID, datadir, s3, log)
+                        uoe.checkFbUpload(cfg.stationID, datadir, s3)
                     except Exception as e: 
                         log.warning('problem checking fireball flags')
                         log.info(e, exc_info=True)
@@ -151,7 +151,7 @@ def monitorLogFile(camloc, rmscfg):
                             ftime = datetime.datetime.strptime(ffname[10:25], '%Y%m%d_%H%M%S')
                             if (nowtm - ftime).seconds < MAXAGE:
                                 log.info('uploading {}'.format(ffname))
-                                uoe.uploadOneEvent(capdir, ffname, loc, s3, log)
+                                uoe.uploadOneEvent(capdir, ffname, loc, s3)
                             else:
                                 #log.info('skipping {} as too old'.format(ffname))
                                 pass

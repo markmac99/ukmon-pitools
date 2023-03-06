@@ -23,8 +23,8 @@ log = logging.getLogger("logger")
 
 def readKeyFile(filename):
     if not os.path.isfile(filename):
-        print('credentials file missing, cannot continue')
-        exit(1)
+        log.error('{} missing, cannot continue'.format(filename))
+        return None
     with open(filename, 'r') as fin:
         lis = fin.readlines()
     vals = {}
@@ -91,15 +91,9 @@ def uploadOneFileOther(arch_dir, dir_file, s3, targf, file_ext, keys):
     srcf = os.path.join(arch_dir, dir_file)
     try:
         s3.meta.client.upload_file(srcf, target, desf, ExtraArgs={'ContentType': ctyp})
-        if log is None:
-            print(desf)
-        else:
-            log.info(desf)
+        log.info(desf)
     except Exception:
-        if log is None:
-            print('upload failed: {}'.format(desf))
-        else:
-            log.info('upload failed: {}'.format(desf))
+        log.info('upload failed: {}'.format(desf))
     return 
 
 
@@ -171,27 +165,15 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
     srcf = os.path.join(arch_dir, dir_file)
     try:
         s3.meta.client.upload_file(srcf, target, desf, ExtraArgs={'ContentType': ctyp})
-        if log is None:
-            print(desf)
-        else:
-            log.info(desf)
+        log.info(desf)
     except Exception:
-        if log is None:
-            print('upload failed: {}'.format(desf))
-        else:
-            log.info('upload failed: {}'.format(desf))
+        log.info('upload failed: {}'.format(desf))
     if desf2 is not None:
         try:
             s3.meta.client.upload_file(srcf, target2, desf2, ExtraArgs={'ContentType': ctyp})
-            if log is None:
-                print(desf2)
-            else:
-                log.info(desf2)
+            log.info(desf2)
         except Exception:
-            if log is None:
-                print('upload failed: {}'.format(desf2))
-            else:
-                log.info('upload failed: {}'.format(desf2))
+            log.info('upload failed: {}'.format(desf2))
     return
 
 
@@ -263,16 +245,19 @@ def fireballUpload(ffname):
     camloc = inifvals['LOCATION']
     rmscfg = inifvals['RMSCFG']
     if camloc == 'NOTCONFIGURED':
-        print('LOCATION not found in ini file, aborting')
-        exit(1)
+        log.error('LOCATION not found in ini file, aborting')
+        return 
     cfg = configparser.ConfigParser(inline_comment_prefixes=(';'))
     cfg.read(os.path.expanduser(rmscfg))
 
     rmsdatadir = os.path.expanduser(cfg['Capture']['data_dir'])
 
-    myloc = os.path.split(os.path.abspath(__file__))[0]
-    filename = os.path.join(myloc, 'live.key')
-    keys = readKeyFile(filename)
+    keyfile = os.path.join(myloc, 'live.key')
+    if os.path.isfile(keyfile) is False:
+        log.info('AWS keyfile not present')
+        return
+
+    keys = readKeyFile(keyfile)
     targf = keys['S3FOLDER']
     reg = keys['ARCHREGION']
     conn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY']) 
@@ -293,7 +278,7 @@ def fireballUpload(ffname):
         uploadOneFile(cap_dir, fbname, s3, targf, '.fits', keys)        
         uploadOneFile(cap_dir, ffname, s3, targf, '.fits', keys)        
     else:
-        print('unable to find source folder')
+        log.info('unable to find source folder')
     return
 
 
