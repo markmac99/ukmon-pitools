@@ -176,6 +176,8 @@ def addDesktopIcons(myloc, statid):
 def checkPlatepar(statid, rmsloc):
     idfile = os.path.expanduser(os.getenv('UKMONKEY'))
     svr = os.getenv('UKMONHELPER')
+    if svr == '0.0.0.0':
+        return 
     usr = os.getenv('LOCATION')
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
