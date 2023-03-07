@@ -1,4 +1,5 @@
 import os
+import stat
 import shutil
 from crontab import CronTab
 from subprocess import call
@@ -159,7 +160,7 @@ def addDesktopIcons(myloc, statid):
     reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sh'.format(statid))
     if os.path.islink(reflnk):
         os.remove(reflnk)
-    reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sesktop'.format(statid))
+    reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.desktop'.format(statid))
     with open(reflnk, 'w') as outf:
         outf.write('[Desktop Entry]\n')
         outf.write('Name=refresh_UKMON_Tools_{}\n'.format(statid))
@@ -168,6 +169,7 @@ def addDesktopIcons(myloc, statid):
         outf.write('Icon=\n')
         outf.write('Terminal=true\n')
         outf.write('Type=Application\n')
+    os.chmod(reflnk, 0o744)
     return
 
 
