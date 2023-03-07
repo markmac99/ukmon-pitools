@@ -1,5 +1,5 @@
 import os
-import stat
+import subprocess
 import shutil
 from crontab import CronTab
 from subprocess import call
@@ -160,16 +160,22 @@ def addDesktopIcons(myloc, statid):
     reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sh'.format(statid))
     if os.path.islink(reflnk):
         os.remove(reflnk)
-    reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.desktop'.format(statid))
-    with open(reflnk, 'w') as outf:
-        outf.write('[Desktop Entry]\n')
-        outf.write('Name=refresh_UKMON_Tools_{}\n'.format(statid))
-        outf.write('Comment=Runs ukmon tools refresh\n')
-        outf.write('Exec={}\n'.format(os.path.join(myloc, 'refreshTools.sh')))
-        outf.write('Icon=\n')
-        outf.write('Terminal=true\n')
-        outf.write('Type=Application\n')
-    os.chmod(reflnk, 0o744)
+    if os.path.isfile('/etc/rpi-issue'): 
+        reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sh'.format(statid))
+        os.symlink(os.path.join(myloc, 'refreshTools.sh'), reflnk)
+    else:
+        reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.desktop'.format(statid))
+        with open(reflnk, 'w') as outf:
+            outf.write('[Desktop Entry]\n')
+            outf.write('Name=refresh_UKMON_Tools_{}\n'.format(statid))
+            outf.write('Comment=Runs ukmon tools refresh\n')
+            outf.write('Exec={}\n'.format(os.path.join(myloc, 'refreshTools.sh')))
+            outf.write('Icon=\n')
+            outf.write('Terminal=true\n')
+            outf.write('Type=Application\n')
+        cmdstr = 'gio set {} metadata::trusted true'.format(reflnk)
+        subprocess.call([cmdstr], shell=True)
+        os.chmod(reflnk, 0o744)
     return
 
 
