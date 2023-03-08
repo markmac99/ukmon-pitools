@@ -1,5 +1,6 @@
 # 
 # Upload to ukmon from Python
+# Copyright (C) 2018-2023 Mark McIntyre
 #
 # to use this to manually upload call it thus
 #

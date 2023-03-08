@@ -3,6 +3,7 @@
 #
 # to use this file to manually upload a file do
 #   python sendToLive.py cap_dir ff_name
+# Copyright (C) 2018-2023 Mark McIntyre
 #
 import os
 import sys

@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright (C) 2018-2023 Mark McIntyre
 
 # this script can be used to restart the ukmon livefeed
 # if it is killed. 

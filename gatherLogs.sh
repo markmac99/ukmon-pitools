@@ -5,6 +5,7 @@ cd logtmp
 
 #
 # Script to gather the logfiles and upload them for debugging & analysis
+# Copyright (C) 2018-2023 Mark McIntyre
 #
 source /home/${LOGNAME}/source/ukmon-pitools/ukmon.ini
 sudo cp /var/log/kern.log .

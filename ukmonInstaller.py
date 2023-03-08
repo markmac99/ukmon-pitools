@@ -9,6 +9,7 @@ import json
 import tempfile
 import RMS.ConfigReader as cr
 
+# Copyright (C) 2018-2023 Mark McIntyre
 
 def createDefaultIni(homedir, helperip=None):
     rmscfg = '~/source/RMS/.config'

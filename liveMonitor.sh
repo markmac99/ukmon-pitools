@@ -2,6 +2,7 @@
 
 #
 # monitors the latest RMS log for potential meteors
+# Copyright (C) 2018-2023 Mark McIntyre
 #
 source ~/vRMS/bin/activate
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
