@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # refresh UKmeteornetwork tools
+# Copyright (C) 2018-2023 Mark McIntyre
 
 myself=$(readlink -f $0)
 here="$( cd "$(dirname "$myself")" >/dev/null 2>&1 ; pwd -P )"

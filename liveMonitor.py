@@ -10,6 +10,8 @@ from RMS.Logger import initLogging
 import RMS.ConfigReader as cr
 from stat import ST_DEV, ST_INO
 
+# Copyright (C) 2018-2023 Mark McIntyre
+
 log = logging.getLogger("logger")
 
 timetowait = 30 # seconds to wait for a new line before deciding the log is stale

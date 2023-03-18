@@ -107,3 +107,7 @@ Any questions, concerns or suggestions:
 * Check the wiki here https://github.com/markmac99/ukmon-pitools/wiki
 * Join our group on Groups.io https://groups.io/g/ukmeteornetwork/topics
 * As a last resort, email me via markmcintyre99@googlemail.com  
+
+Copyright
+=========
+All code Copyright (C) 2018-2023 Mark McIntyre

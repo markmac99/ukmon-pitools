@@ -1,6 +1,7 @@
 # 
 # python script thats called when the nightly run completes to generate jpgs 
 # and upload data to the ukmeteornetwork
+# Copyright (C) 2018-2023 Mark McIntyre
 #
 # Notes: 
 # - to enable MP4 creation of each detection, create a file 'domp4s' in the same folder as this script
