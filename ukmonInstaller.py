@@ -148,8 +148,10 @@ def createSystemdService(myloc, camid):
 
 
 def createUbuntuIcon(myloc, statid):
+    reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sh'.format(statid))
+    if os.path.isfile(reflnk):
+        os.remove(reflnk)
     reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.desktop'.format(statid))
-    os.remove(reflnk)
     with open(reflnk, 'w') as outf:
         outf.write('[Desktop Entry]\n')
         outf.write('Name=refresh_UKMON_Tools_{}\n'.format(statid))
