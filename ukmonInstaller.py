@@ -8,6 +8,7 @@ import paramiko
 import json
 import tempfile
 import RMS.ConfigReader as cr
+from RMS.Misc import isRaspberryPi
 
 # Copyright (C) 2018-2023 Mark McIntyre
 
@@ -146,6 +147,10 @@ def createSystemdService(myloc, camid):
     return 
 
 
+def createUbuntuIcon(myloc, statid):
+    return 
+
+
 def addDesktopIcons(myloc, statid):
     """
     This function adds the desktop icons which are links to the ini file and refresh scripts
@@ -156,9 +161,12 @@ def addDesktopIcons(myloc, statid):
     cfglnk = os.path.expanduser('~/Desktop/UKMON_config_{}.txt'.format(statid))
     if not os.path.islink(cfglnk):
         os.symlink(os.path.join(myloc, 'ukmon.ini'), cfglnk)
-    reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sh'.format(statid))
-    if not os.path.islink(reflnk):
-        os.symlink(os.path.join(myloc, 'refreshTools.sh'), reflnk)
+    if isRaspberryPi is True:
+        reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sh'.format(statid))
+        if not os.path.islink(reflnk):
+            os.symlink(os.path.join(myloc, 'refreshTools.sh'), reflnk)
+    else:
+        createUbuntuIcon(myloc, statid)
     # remove bad links if present
     cfglnk = os.path.expanduser('~/Desktop/UKMON_config_XX0001.txt')
     if os.path.islink(cfglnk):
