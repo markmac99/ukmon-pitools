@@ -43,10 +43,6 @@ if [ ! -f  ${UKMONKEY} ] ; then
     echo ""
     read -p "Press any key to continue"
 fi
-# add Desktop icons
-export PYTHONPATH=$here:~/source/RMS
-statid=$(grep ID $RMSCFG | awk -F" " '{print $2}')
-python -c "import ukmonInstaller as pp ; pp.addDesktopIcons('${here}','${statid}');"
 
 # if the station is configured, retrieve the AWS keys
 # and test connectivity. Also checks the ukmon.ini file is in unix format

@@ -11,6 +11,7 @@ import RMS.ConfigReader as cr
 
 # Copyright (C) 2018-2023 Mark McIntyre
 
+
 def createDefaultIni(homedir, helperip=None):
     rmscfg = '~/source/RMS/.config'
     keyfile = '~/.ssh/ukmon'
@@ -158,6 +159,13 @@ def addDesktopIcons(myloc, statid):
     reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sh'.format(statid))
     if not os.path.islink(reflnk):
         os.symlink(os.path.join(myloc, 'refreshTools.sh'), reflnk)
+    # remove bad links if present
+    cfglnk = os.path.expanduser('~/Desktop/UKMON_config_XX0001.txt')
+    if os.path.islink(cfglnk):
+        os.unlink(cfglnk)
+    reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_XX0001.sh')
+    if os.path.islink(reflnk):
+        os.unlink(reflnk)
     return
 
 
