@@ -84,12 +84,12 @@ EOF
     python $here/sendToLive.py test test
     python $here/uploadToArchive.py test
     echo "if you did not see two success messages contact us for advice" 
-    read -p "Press any key to continue"
+    if [ "$DOCKER_RUNNING" != "true" ] ; then read -p "Press any key to continue" ; fi
     echo "done"
 else
     echo "Location missing - please update UKMON Config File using the desktop icon"
     sleep 5
-    read -p "Press any key to continue"
+    if [ "$DOCKER_RUNNING" != "true" ] ; then read -p "Press any key to continue" ; fi
     exit 1
 fi
 
