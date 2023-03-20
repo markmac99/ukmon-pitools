@@ -8,8 +8,10 @@ import paramiko
 import json
 import tempfile
 import RMS.ConfigReader as cr
+from RMS.Misc import isRaspberryPi
 
 # Copyright (C) 2018-2023 Mark McIntyre
+
 
 def createDefaultIni(homedir, helperip=None):
     rmscfg = '~/source/RMS/.config'
@@ -145,6 +147,25 @@ def createSystemdService(myloc, camid):
     return 
 
 
+def createUbuntuIcon(myloc, statid):
+    reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sh'.format(statid))
+    if os.path.isfile(reflnk):
+        os.remove(reflnk)
+    reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.desktop'.format(statid))
+    with open(reflnk, 'w') as outf:
+        outf.write('[Desktop Entry]\n')
+        outf.write('Name=refresh_UKMON_Tools_{}\n'.format(statid))
+        outf.write('Comment=Runs ukmon tools refresh\n')
+        outf.write('Exec={}\n'.format(os.path.join(myloc, 'refreshTools.sh')))
+        outf.write('Icon=\n')
+        outf.write('Terminal=true\n')
+        outf.write('Type=Application\n')
+    cmdstr = 'gio set {} metadata::trusted true'.format(reflnk)
+    call([cmdstr], shell=True)
+    os.chmod(reflnk, 0o744)
+    return 
+
+
 def addDesktopIcons(myloc, statid):
     """
     This function adds the desktop icons which are links to the ini file and refresh scripts
@@ -155,9 +176,19 @@ def addDesktopIcons(myloc, statid):
     cfglnk = os.path.expanduser('~/Desktop/UKMON_config_{}.txt'.format(statid))
     if not os.path.islink(cfglnk):
         os.symlink(os.path.join(myloc, 'ukmon.ini'), cfglnk)
-    reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sh'.format(statid))
-    if not os.path.islink(reflnk):
-        os.symlink(os.path.join(myloc, 'refreshTools.sh'), reflnk)
+    if isRaspberryPi is True:
+        reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sh'.format(statid))
+        if not os.path.islink(reflnk):
+            os.symlink(os.path.join(myloc, 'refreshTools.sh'), reflnk)
+    else:
+        createUbuntuIcon(myloc, statid)
+    # remove bad links if present
+    cfglnk = os.path.expanduser('~/Desktop/UKMON_config_XX0001.txt')
+    if os.path.islink(cfglnk):
+        os.unlink(cfglnk)
+    reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_XX0001.sh')
+    if os.path.islink(reflnk):
+        os.unlink(reflnk)
     return
 
 
