@@ -1,9 +1,9 @@
+# Copyright (C) Mark McIntyre
 #
 # python script to upload one event to a target bucket for live feeds
 #
 # to use this file to manually upload a file do
 #   python sendToLive.py cap_dir ff_name
-# Copyright (C) 2018-2023 Mark McIntyre
 #
 import os
 import sys
@@ -12,11 +12,17 @@ import shutil
 import tempfile
 import boto3
 import glob
-import configparser
 from uploadToArchive import readKeyFile
+import logging
+import RMS.ConfigReader as cr
+import numpy as np
+from RMS.Formats.FieldIntensities import readFieldIntensitiesBin
 
 
-def checkFbUpload(stationid, datadir, s3, log):
+log = logging.getLogger("logger")
+
+
+def checkFbUpload(stationid, datadir, s3):
     archbuck = os.getenv('ARCHBUCKET', default='ukmon-shared')
     listfile = stationid.lower() + '.txt'
     locfile = os.path.join('/tmp',listfile)
@@ -61,7 +67,19 @@ def checkFbUpload(stationid, datadir, s3, log):
         log.info(e, exc_info=True)
 
 
-def uploadOneEvent(cap_dir, dir_file, loc, s3, log):
+def getBlockBrightness(dirpath, filename):
+    filename = filename.replace('FF_', 'FS_')
+    filename = filename.replace('.fits', '_fieldsum.bin')
+    frnos, intens = readFieldIntensitiesBin(dirpath, filename)
+    maxInten = max(intens)
+    avgInten = int(np.average(intens))
+    stdInten = int(np.std(intens))
+    idx = np.argwhere(intens == maxInten)[0][0]
+    maxFr = int(frnos[idx])
+    return {'max':maxInten, 'avg':avgInten, 'stddev':stdInten, 'frNo':maxFr}
+
+
+def uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc):
     target = os.getenv('LIVEBUCK', default='ukmon-live')
     spls = dir_file.split('_')
     camid = spls[1]
@@ -83,25 +101,30 @@ def uploadOneEvent(cap_dir, dir_file, loc, s3, log):
         bff.batchFFtoImage(tmpdir, 'jpg')
     file_name, _ = os.path.splitext(dir_file)
     ojpgname = file_name + '.jpg'
-    njpgname = 'M' + ymd + '_' + hms + '_' + loc[4] + '_' + camid + 'P.jpg'
+    njpgname = 'M' + ymd + '_' + hms + '_' + camloc + '_' + camid + 'P.jpg'
     fulljpg = os.path.join(tmpdir, njpgname)
     os.rename(os.path.join(tmpdir, ojpgname), fulljpg)
 
-    xmlname = 'M' + ymd + '_' + hms + '_' + loc[4] + '_' + camid + '.xml'
+    camid = cfg.stationID
+
+    briInfo = getBlockBrightness(cap_dir, dir_file)
+
+    xmlname = 'M' + ymd + '_' + hms + '_' + camloc + '_' + camid + '.xml'
     fullxml = os.path.join(tmpdir, xmlname)
     with open(fullxml, 'w') as ofl:
         ofl.write('<?xml version="1.0" encoding="UTF-8" ?>\n')
         ofl.write('<ufocapture_record version="215" ')
         ofl.write('y="{:s}" mo="{:s}" d="{:s}" h="{:s}" m="{:s}" s="{:s}" '.format(yr, mth, dy, hr, mi, se))
-        ofl.write('trig="1" frames="68" lng="{:.4f}" lat="{:.4f}" alt="{:.1f}" '.format(loc[1], loc[0], loc[2]))
+        ofl.write('trig="1" frames="68" lng="{:.4f}" lat="{:.4f}" alt="{:.1f}" '.format(cfg.longitude, cfg.latitude, cfg.elevation))
         ofl.write('tz="0" u2="224" cx="1280" cy="720" fps="25.000" head="30" ')
         ofl.write('tail="30" diff="2" sipos="6" sisize="15" dlev="40" dsize="4" ')
-        ofl.write('lid="{:s}" observer="" sid="{:s}" cam="{:s}" lens="" cap="{}" '.format(loc[4], camid, camid, dir_file))
+        ofl.write('lid="{:s}" observer="" sid="{:s}" cam="{:s}" lens="" cap="{}" '.format(camloc, camid, camid, dir_file))
         ofl.write('comment="" interlace="1" bbf="0" dropframe="0">\n')
         ofl.write('    <ufocapture_paths hit="3">\n')
-        ofl.write('     <uc_path fno="30" ono="18" pixel="3" bmax="79" x="395.7" y="282.3"></uc_path>\n')
-        ofl.write('     <uc_path fno="30" ono="18" pixel="9" bmax="96" x="393.6" y="288.1"></uc_path>\n')
-        ofl.write('     <uc_path fno="31" ono="18" pixel="16" bmax="112" x="391.1" y="295.5"></uc_path>\n')
+        # the three lines are max, average and stdev of frame brightnesses  
+        ofl.write('     <uc_path fno="{}" ono="18" pixel="3" bmax="{}" x="395.7" y="282.3"></uc_path>\n'.format(briInfo['frNo'], briInfo['max']))
+        ofl.write('     <uc_path fno="{}" ono="18" pixel="9" bmax="{}" x="393.6" y="288.1"></uc_path>\n'.format(briInfo['frNo']+1, briInfo['avg']))
+        ofl.write('     <uc_path fno="{}" ono="18" pixel="16" bmax="{}" x="391.1" y="295.5"></uc_path>\n'.format(briInfo['frNo']+2, briInfo['std']))
         ofl.write('    </ufocapture_paths>\n')
         ofl.write('</ufocapture_record>\n')
 
@@ -160,15 +183,8 @@ def singleUpload(cap_dir, dir_file):
     conn = boto3.Session(aws_access_key_id=awskey, aws_secret_access_key=awssec, region_name=awsreg) 
     s3 = conn.resource('s3')
     # read a few variables from the RMS config file
-    cfg = configparser.ConfigParser(inline_comment_prefixes=(';'))
-    cfg.read(os.path.expanduser(rmscfg))
+    cfg = cr.parse(os.path.expanduser(rmscfg))
 
-    loc = []
-    loc.append(float(cfg['System']['latitude']))
-    loc.append(float(cfg['System']['longitude']))
-    loc.append(float(cfg['System']['elevation']))
-    loc.append(cfg['System']['stationID'])
-    loc.append(camloc)
     if sys.argv[1] == 'test' and sys.argv[2] == 'test':
         with open('/tmp/test.txt', 'w') as f:
             f.write('test')
@@ -186,7 +202,7 @@ def singleUpload(cap_dir, dir_file):
         except:
             pass
     else:
-        uploadOneEvent(cap_dir, dir_file, loc, s3)
+        uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc)
 
 
 if __name__ == '__main__':

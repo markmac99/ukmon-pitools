@@ -1,3 +1,4 @@
+# Copyright (C) Mark McIntyre
 import time
 import os
 import sys
@@ -8,9 +9,8 @@ import datetime
 import logging
 from RMS.Logger import initLogging
 import RMS.ConfigReader as cr
-from stat import ST_DEV, ST_INO
+from stat import ST_INO
 
-# Copyright (C) 2018-2023 Mark McIntyre
 
 log = logging.getLogger("logger")
 
@@ -22,6 +22,7 @@ MAXAGE=int(os.getenv('UKMMAXAGE', default='1800'))
 # frequency at which to check for fireball requests. Zero means dont check
 FBINTERVAL = int(os.getenv('UKMFBINTERVAL', default='1800'))
 
+
 def follow(fname, logf_ino):
     thefile = open(fname, 'r')
     t = 0
@@ -31,19 +32,19 @@ def follow(fname, logf_ino):
             time.sleep(1)
         sres = os.stat(fname)
         if logf_ino != sres[ST_INO]:
-            yield('log rolled')
+            yield 'log rolled'
 
         if not line:
             time.sleep(0.1)
             t = t + 0.1
             if t > timetowait:
                 t = 0
-                yield('log stale')
+                yield 'log stale'
             else:
                 continue
         else:
             t = 0
-            yield(line.strip())
+            yield line.strip()
 
 
 def monitorLogFile(camloc, rmscfg):
@@ -89,14 +90,6 @@ def monitorLogFile(camloc, rmscfg):
 
     conn = boto3.Session(aws_access_key_id=awskey, aws_secret_access_key=awssec, region_name=awsreg) 
     s3 = conn.resource('s3')
-
-    # read a few variables from the RMS config file
-    loc = []
-    loc.append(float(cfg.latitude))
-    loc.append(float(cfg.longitude))
-    loc.append(float(cfg.elevation))
-    loc.append(cfg.stationID)
-    loc.append(camloc)
 
     datadir = cfg.data_dir
     logdir = os.path.expanduser(os.path.join(datadir, cfg.log_dir))
@@ -153,7 +146,7 @@ def monitorLogFile(camloc, rmscfg):
                             ftime = datetime.datetime.strptime(ffname[10:25], '%Y%m%d_%H%M%S')
                             if (nowtm - ftime).seconds < MAXAGE:
                                 log.info('uploading {}'.format(ffname))
-                                uoe.uploadOneEvent(capdir, ffname, loc, s3, log)
+                                uoe.uploadOneEvent(capdir, ffname, cfg, s3, camloc)
                             else:
                                 #log.info('skipping {} as too old'.format(ffname))
                                 pass
