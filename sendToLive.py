@@ -91,8 +91,7 @@ def uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc):
     dy = ymd[6:8]
     hr = hms[:2]
     mi = hms[2:4]
-    se = hms[4:6]
-    se = se + '.{:.2f}'.format(float(millis)/1000)
+    se = '{}.{}'.format(hms[4:6], millis)
     tmpdir = tempfile.mkdtemp()
     shutil.copy2(os.path.join(cap_dir, dir_file), tmpdir)
     try:
