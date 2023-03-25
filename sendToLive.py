@@ -76,7 +76,7 @@ def getBlockBrightness(dirpath, filename):
     stdInten = int(np.std(intens))
     idx = np.argwhere(intens == maxInten)[0][0]
     maxFr = int(frnos[idx])
-    return {'max':maxInten, 'avg':avgInten, 'stddev':stdInten, 'frNo':maxFr}
+    return {'max':maxInten, 'avg':avgInten, 'std':stdInten, 'frNo':maxFr}
 
 
 def uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc):
