@@ -116,7 +116,7 @@ def uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc):
         ofl.write('<ufocapture_record version="215" ')
         ofl.write('y="{:s}" mo="{:s}" d="{:s}" h="{:s}" m="{:s}" s="{:s}" '.format(yr, mth, dy, hr, mi, se))
         ofl.write('trig="1" frames="68" lng="{:.4f}" lat="{:.4f}" alt="{:.1f}" '.format(cfg.longitude, cfg.latitude, cfg.elevation))
-        ofl.write('tz="0" u2="224" cx="1280" cy="720" fps="25.000" head="30" ')
+        ofl.write('tz="0" u2="224" cx="{}" cy="{}" fps="{:.3f}" head="30" '.format(cfg.width, cfg.height, cfg.fps))
         ofl.write('tail="30" diff="2" sipos="6" sisize="15" dlev="40" dsize="4" ')
         ofl.write('lid="{:s}" observer="" sid="{:s}" cam="{:s}" lens="" cap="{}" '.format(camloc, camid, camid, dir_file))
         ofl.write('comment="" interlace="1" bbf="0" dropframe="0">\n')
