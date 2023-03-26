@@ -70,6 +70,8 @@ def checkFbUpload(stationid, datadir, s3):
 def getBlockBrightness(dirpath, filename):
     filename = filename.replace('FF_', 'FS_')
     filename = filename.replace('.fits', '_fieldsum.bin')
+    if not os.path.isfile(os.path.join(dirpath, filename)):
+        return {'max':99, 'avg':99, 'std':99, 'frNo':99}
     frnos, intens = readFieldIntensitiesBin(dirpath, filename)
     maxInten = max(intens)
     avgInten = int(np.average(intens))
@@ -79,8 +81,9 @@ def getBlockBrightness(dirpath, filename):
     return {'max':maxInten, 'avg':avgInten, 'std':stdInten, 'frNo':maxFr}
 
 
-def uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc):
-    target = os.getenv('LIVEBUCK', default='ukmon-live')
+def createXMLfile(tmpdir, cap_dir, dir_file, camloc, cfg):
+    camid = cfg.stationID
+    briInfo = getBlockBrightness(cap_dir, dir_file)
     spls = dir_file.split('_')
     camid = spls[1]
     ymd = spls[2]
@@ -92,22 +95,6 @@ def uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc):
     hr = hms[:2]
     mi = hms[2:4]
     se = '{}.{}'.format(hms[4:6], millis)
-    tmpdir = tempfile.mkdtemp()
-    shutil.copy2(os.path.join(cap_dir, dir_file), tmpdir)
-    try:
-        bff.batchFFtoImage(tmpdir, 'jpg', True)
-    except:
-        bff.batchFFtoImage(tmpdir, 'jpg')
-    file_name, _ = os.path.splitext(dir_file)
-    ojpgname = file_name + '.jpg'
-    njpgname = 'M' + ymd + '_' + hms + '_' + camloc + '_' + camid + 'P.jpg'
-    fulljpg = os.path.join(tmpdir, njpgname)
-    os.rename(os.path.join(tmpdir, ojpgname), fulljpg)
-
-    camid = cfg.stationID
-
-    briInfo = getBlockBrightness(cap_dir, dir_file)
-
     xmlname = 'M' + ymd + '_' + hms + '_' + camloc + '_' + camid + '.xml'
     fullxml = os.path.join(tmpdir, xmlname)
     with open(fullxml, 'w') as ofl:
@@ -126,6 +113,35 @@ def uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc):
         ofl.write('     <uc_path fno="{}" ono="18" pixel="16" bmax="{}" x="391.1" y="295.5"></uc_path>\n'.format(briInfo['frNo']+2, briInfo['std']))
         ofl.write('    </ufocapture_paths>\n')
         ofl.write('</ufocapture_record>\n')
+    return fullxml, xmlname
+
+
+def createJpg(tmpdir, cap_dir, dir_file, camloc):
+    spls = dir_file.split('_')
+    camid = spls[1]
+    ymd = spls[2]
+    hms = spls[3]
+
+    shutil.copy2(os.path.join(cap_dir, dir_file), tmpdir)
+    try:
+        bff.batchFFtoImage(tmpdir, 'jpg', True)
+    except:
+        bff.batchFFtoImage(tmpdir, 'jpg')
+    file_name, _ = os.path.splitext(dir_file)
+    ojpgname = file_name + '.jpg'
+    njpgname = 'M' + ymd + '_' + hms + '_' + camloc + '_' + camid + 'P.jpg'
+    fulljpg = os.path.join(tmpdir, njpgname)
+    os.rename(os.path.join(tmpdir, ojpgname), fulljpg)
+    return fulljpg, njpgname
+
+
+def uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc):
+    target = os.getenv('LIVEBUCK', default='ukmon-live')
+
+    tmpdir = tempfile.mkdtemp()
+
+    fulljpg, njpgname = createJpg(tmpdir, cap_dir, dir_file, camloc) 
+    fullxml, xmlname = createXMLfile(tmpdir, cap_dir, dir_file, camloc, cfg)
 
     try: 
         s3.meta.client.upload_file(fulljpg, target, njpgname, ExtraArgs={'ContentType': 'image/jpeg'})

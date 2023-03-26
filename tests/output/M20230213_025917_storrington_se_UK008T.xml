@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ufocapture_record version="215" y="2023" mo="02" d="13" h="02" m="59" s="17.665" trig="1" frames="68" lng="-0.4538" lat="50.9152" alt="48.0" tz="0" u2="224" cx="1280" cy="720" fps="25.000" head="30" tail="30" diff="2" sipos="6" sisize="15" dlev="40" dsize="4" lid="storrington_se" observer="" sid="UK008T" cam="UK008T" lens="" cap="FF_UK008T_20230213_025917_665_0829184.fits" comment="" interlace="1" bbf="0" dropframe="0">
+    <ufocapture_paths hit="3">
+     <uc_path fno="73" ono="18" pixel="3" bmax="234177206" x="395.7" y="282.3"></uc_path>
+     <uc_path fno="74" ono="18" pixel="9" bmax="86712766" x="393.6" y="288.1"></uc_path>
+     <uc_path fno="75" ono="18" pixel="16" bmax="38858482" x="391.1" y="295.5"></uc_path>
+    </ufocapture_paths>
+</ufocapture_record>
