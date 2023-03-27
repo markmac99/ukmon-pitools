@@ -5,7 +5,8 @@
 import os
 import sendToLive
 from RMS.ConfigReader import loadConfigFromDirectory
-from fileformats.ReadUFOCapXML import UCXml
+import xmltodict
+#from fileformats.ReadUFOCapXML import UCXml
 
 basedir = os.path.realpath(os.path.dirname(__file__))
 
@@ -23,9 +24,11 @@ def test_xmlcreatorName(dir_file = 'FF_UK001L_20230319_031241_804_0598784.fits',
 
 def test_xmlData(xmlfile='M20230319_031241_tackley_ne_UK001L.xml', testval=47092310):
     fullxml = os.path.join(basedir, 'output', xmlfile)
-    dd = UCXml(fullxml)
-    pathx, pathy, bri, _ = dd.getPath()
-    assert bri[0]==testval
+    with open(fullxml) as fd:
+        dd = xmltodict.parse(fd.read())
+    uc = dd['ufocapture_record']['ufocapture_paths']        
+    bri = uc['uc_path'][0]['@bmax']
+    assert bri==testval
 
 
 def test_xmlUK008t():
