@@ -27,7 +27,7 @@ def test_xmlData(xmlfile='M20230319_031241_tackley_ne_UK001L.xml', testval=47092
     with open(fullxml) as fd:
         dd = xmltodict.parse(fd.read())
     uc = dd['ufocapture_record']['ufocapture_paths']        
-    bri = uc['uc_path'][0]['@bmax']
+    bri = int(uc['uc_path'][0]['@bmax'])
     assert bri==testval
 
 
