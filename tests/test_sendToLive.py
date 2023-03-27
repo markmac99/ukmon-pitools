@@ -1,12 +1,12 @@
 # Copyright (c) Mark McIntyre
 # pytest tests for ukmon-pitools
-# makes use of ukmon-shared's ukmon_pitools and RMS's ConfigReader
+# makes use of various RMS code
 
 import os
 import sendToLive
 from RMS.ConfigReader import loadConfigFromDirectory
 import xmltodict
-#from fileformats.ReadUFOCapXML import UCXml
+
 
 basedir = os.path.realpath(os.path.dirname(__file__))
 
