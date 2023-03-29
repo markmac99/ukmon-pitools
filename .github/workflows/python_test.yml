@@ -31,4 +31,6 @@ jobs:
       - name: Test with pytest
         run: |
           export PYTHONPATH=$PYTHONPATH:$(pwd)
-          pytest
+          cp ~/source/ukmon-shared/ukmon.ini .
+          cp ~/source/ukmon-shared/live.key .
+          pytest -W ignore::DeprecationWarning
