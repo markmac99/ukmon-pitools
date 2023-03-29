@@ -326,7 +326,7 @@ def manualUpload(targ_dir):
             print('unable to upload to archive - check key information')
         try:
             os.remove('/tmp/test.txt')
-        except:
+        except Exception:
             pass
     else:
         arch_dir = os.path.join(targ_dir)

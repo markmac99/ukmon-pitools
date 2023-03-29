@@ -125,7 +125,7 @@ def createJpg(tmpdir, cap_dir, dir_file, camloc):
     shutil.copy2(os.path.join(cap_dir, dir_file), tmpdir)
     try:
         bff.batchFFtoImage(tmpdir, 'jpg', True)
-    except:
+    except Exception:
         bff.batchFFtoImage(tmpdir, 'jpg')
     file_name, _ = os.path.splitext(dir_file)
     ojpgname = file_name + '.jpg'
@@ -186,7 +186,7 @@ def singleUpload(cap_dir, dir_file):
     camloc = inifvals['LOCATION']
     try:
         rmscfg = inifvals['RMSCFG']
-    except:
+    except Exception:
         rmscfg='~/source/RMS/.config'
     if camloc == 'NOTCONFIGURED':
         print('LOCATION not found in ini file, aborting')
@@ -220,7 +220,7 @@ def singleUpload(cap_dir, dir_file):
             retmsg = 'unable to upload to {} - check key information'.format(target)
         try:
             os.remove('/tmp/test.txt')
-        except:
+        except Exception:
             pass
         print(retmsg)
     else:
