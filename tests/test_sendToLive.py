@@ -65,3 +65,19 @@ def test_xmlUK0045():
 
 def test_uk0045Data():
     test_xmlData(xmlfile='M20230213_025919_redhill_e_UK0045.xml', testval=233153959)
+
+
+def test_createJpg():
+    tmpdir = os.path.join(basedir, 'output')
+    dir_file = 'FF_UK0045_20230213_025919_082_0831744.fits'
+    expname = 'M20230213_025919_redhill_e_UK0045P.jpg'
+    srcdir='pi/uk0045'
+    camloc='redhill_e'
+    cap_dir = os.path.join(basedir, srcdir)
+    _, njpgname = sendToLive.createJpg(tmpdir, cap_dir, dir_file, camloc)
+    assert njpgname == expname
+
+
+def test_upload():
+    retmsg = sendToLive.singleUpload('test','test')
+    assert 'successful' in retmsg

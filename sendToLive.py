@@ -64,7 +64,7 @@ def checkFbUpload(stationid, datadir, s3):
                 log.info(e, exc_info=True)
     except Exception as e:
         log.warning('unable to scan S3 for trigger file')
-        log.info(e, exc_info=True)
+        log.info(e)
 
 
 def getBlockBrightness(dirpath, filename):
@@ -131,6 +131,8 @@ def createJpg(tmpdir, cap_dir, dir_file, camloc):
     ojpgname = file_name + '.jpg'
     njpgname = 'M' + ymd + '_' + hms + '_' + camloc + '_' + camid + 'P.jpg'
     fulljpg = os.path.join(tmpdir, njpgname)
+    if os.path.isfile(fulljpg):
+        os.remove(fulljpg)
     os.rename(os.path.join(tmpdir, ojpgname), fulljpg)
     return fulljpg, njpgname
 
@@ -146,13 +148,15 @@ def uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc):
     try: 
         s3.meta.client.upload_file(fulljpg, target, njpgname, ExtraArgs={'ContentType': 'image/jpeg'})
         s3.meta.client.upload_file(fullxml, target, xmlname, ExtraArgs={'ContentType': 'application/xml'})
+        retmsg = 'upload successful'
     except Exception as e:
-        log.warning('unable to upload to livestream')
+        retmsg = 'unable to upload to livestream'
+        log.warning(retmsg)
         log.info(e, exc_info=True)
 
     sys.stdout.flush()
     shutil.rmtree(tmpdir)
-    return
+    return retmsg
 
 
 def singleUpload(cap_dir, dir_file):
@@ -186,7 +190,7 @@ def singleUpload(cap_dir, dir_file):
         rmscfg='~/source/RMS/.config'
     if camloc == 'NOTCONFIGURED':
         print('LOCATION not found in ini file, aborting')
-        exit(1)
+        return 'not configured'
 
     # get credentials
     keys = readKeyFile(os.path.join(myloc, 'live.key'))
@@ -199,8 +203,10 @@ def singleUpload(cap_dir, dir_file):
     s3 = conn.resource('s3')
     # read a few variables from the RMS config file
     cfg = cr.parse(os.path.expanduser(rmscfg))
+#    configpath, configname = os.path.split(os.path.expanduser(rmscfg))
+#    cfg = cr.loadConfigFromDirectory(configname, configpath)
 
-    if sys.argv[1] == 'test' and sys.argv[2] == 'test':
+    if cap_dir == 'test' and dir_file == 'test':
         with open('/tmp/test.txt', 'w') as f:
             f.write('test')
         
@@ -209,15 +215,17 @@ def singleUpload(cap_dir, dir_file):
             key = {'Objects': []}
             key['Objects'] = [{'Key': 'test.txt'}]
             s3.meta.client.delete_objects(Bucket=target, Delete=key)
-            print('test successful')
+            retmsg = 'test successful'
         except Exception:
-            print('unable to upload to {} - check key information'.format(target))
+            retmsg = 'unable to upload to {} - check key information'.format(target)
         try:
             os.remove('/tmp/test.txt')
         except:
             pass
+        print(retmsg)
     else:
-        uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc)
+        retmsg = uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc)
+    return retmsg
 
 
 if __name__ == '__main__':

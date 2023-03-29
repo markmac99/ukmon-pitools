@@ -48,14 +48,12 @@ def rmsExternal(cap_dir, arch_dir, config):
     log.info('creating JPGs')
     try:
         bff2i.batchFFtoImage(arch_dir, 'jpg', True)
-    except:
+    except Exception:
         bff2i.batchFFtoImage(arch_dir, 'jpg')
 
     myloc = os.path.split(os.path.abspath(__file__))[0]
     log.info('app home is {}'.format(myloc))
-    try:
-        f = open(os.path.join(myloc, 'domp4s'),'r') 
-        f.close()
+    if os.path.isfile(os.path.join(myloc, 'domp4s')):
         # generate MP4s of detections
         log.info('generating MP4s')
         ftpdate=''
@@ -65,23 +63,21 @@ def rmsExternal(cap_dir, arch_dir, config):
             ftpdate=os.path.split(arch_dir)[1]
         ftpfile_name="FTPdetectinfo_"+ftpdate+'.txt'
         gmp4.generateMP4s(arch_dir, ftpfile_name)
-    except Exception:
+    else:
         log.info('mp4 creation not enabled')
     # generate an all-night timelapse and move it to arch_dir
 
-    try:
-        f = open(os.path.join(myloc, 'dotimelapse'),'r') 
-        f.close()
+    if os.path.isfile(os.path.join(myloc, 'dotimelapse')):
         try: 
             log.info('generating a timelapse')
             gti.fps = 25
             gti.generateTimelapse(cap_dir, False)
             mp4name = os.path.basename(cap_dir) + '.mp4'
-            shutil.move(os.path.join(cap_dir, mp4name), os.path.join(arch_dir, mp4name))
-            
-        except:
-            log.info('unable to create timelapse - maybe capture folder removed already')
-    except Exception:
+            shutil.move(os.path.join(cap_dir, mp4name), os.path.join(arch_dir, mp4name))           
+        except Exception as e:
+            log.info('unable to create timelapse')
+            log.info(e)
+    else:
         log.info('timelapse creation not enabled')
 
     log.info('uploading to archive')
@@ -89,22 +85,20 @@ def rmsExternal(cap_dir, arch_dir, config):
 
     # do not remote reboot lock file if running another script
     # os.remove(rebootlockfile)
-    log.info('about to test for extra script')
-    try:
-        with open(os.path.join(myloc, 'extrascript'),'r') as extraf:
-            extrascript=extraf.readline().strip()
-
+    extrascrfn = os.path.join(myloc, 'extrascript')
+    if os.path.isfile(extrascrfn):
+        extrascript = open(extrascrfn,'r').readline().strip()
         log.info('running additional script {:s}'.format(extrascript))
         sloc, sname = os.path.split(extrascript)
         sys.path.append(sloc)
         scrname, _ = os.path.splitext(sname)
         nextscr=impmod(scrname)
         nextscr.rmsExternal(cap_dir, arch_dir, config)
-    except (IOError,OSError):
+    else:
         log.info('additional script not called')
         try:
             os.remove(rebootlockfile)
-        except:
+        except Exception:
             log.info('unable to remove reboot lock file, pi will not reboot')
             pass
 
