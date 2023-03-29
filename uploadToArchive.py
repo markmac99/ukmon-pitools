@@ -25,7 +25,7 @@ log = logging.getLogger("logger")
 def readKeyFile(filename):
     if not os.path.isfile(filename):
         print('credentials file missing, cannot continue')
-        exit(1)
+        return None
     with open(filename, 'r') as fin:
         lis = fin.readlines()
     vals = {}
@@ -206,6 +206,9 @@ def uploadToArchive(arch_dir):
         return
 
     keys = readKeyFile(keyfile)
+    if keys is None:
+        print('keyfile not found, aborting')
+        return
     reg = keys['ARCHREGION']
     conn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY']) 
     s3 = conn.resource('s3', region_name=reg)
@@ -261,11 +264,15 @@ def fireballUpload(ffname):
     # get camera location from ini file
     myloc = os.path.split(os.path.abspath(__file__))[0]
     inifvals = readKeyFile(os.path.join(myloc, 'ukmon.ini'))
+    if inifvals is None:
+        print('ini file not found, aborting')
+        return
+
     camloc = inifvals['LOCATION']
     rmscfg = inifvals['RMSCFG']
     if camloc == 'NOTCONFIGURED':
         print('LOCATION not found in ini file, aborting')
-        exit(1)
+        return
     cfg = configparser.ConfigParser(inline_comment_prefixes=(';'))
     cfg.read(os.path.expanduser(rmscfg))
 
@@ -274,6 +281,10 @@ def fireballUpload(ffname):
     myloc = os.path.split(os.path.abspath(__file__))[0]
     filename = os.path.join(myloc, 'live.key')
     keys = readKeyFile(filename)
+    if keys is None:
+        print('keyfile not found, aborting')
+        return
+
     targf = keys['S3FOLDER']
     reg = keys['ARCHREGION']
     conn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY']) 
@@ -313,6 +324,10 @@ def manualUpload(targ_dir):
             myloc = os.path.split(os.path.abspath(__file__))[0]
             filename = os.path.join(myloc, 'live.key')
             keys = readKeyFile(filename)
+            if keys is None:
+                print('keyfile not found, aborting')
+                return 
+
             target = keys['ARCHBUCKET']
             reg = keys['ARCHREGION']
             conn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY']) 

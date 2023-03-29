@@ -183,6 +183,9 @@ def singleUpload(cap_dir, dir_file):
     myloc = os.path.split(os.path.abspath(__file__))[0]
     # get camera location from ini file
     inifvals = readKeyFile(os.path.join(myloc, 'ukmon.ini'))
+    if inifvals is None:
+        log.warning('unable to open ini file')
+        return 'unable to open ini file'
     camloc = inifvals['LOCATION']
     try:
         rmscfg = inifvals['RMSCFG']
@@ -194,6 +197,9 @@ def singleUpload(cap_dir, dir_file):
 
     # get credentials
     keys = readKeyFile(os.path.join(myloc, 'live.key'))
+    if keys is None:
+        log.warning('unable to open keyfile')
+        return 'unable to open keyfile'
     awskey = keys['AWS_ACCESS_KEY_ID']
     awssec = keys['AWS_SECRET_ACCESS_KEY']
     awsreg = keys['LIVEREGION']
