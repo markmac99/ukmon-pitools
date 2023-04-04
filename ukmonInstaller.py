@@ -204,7 +204,8 @@ def checkPlatepar(statid, rmsloc):
         fetchpp = True
         try:
             ftp_client.get('platepar/platepar_cmn2010.cal','/tmp/platepar_cmn2010.cal')
-        except:
+        except Exception:
+            print('unable to fetch new platepar')
             fetchpp = False
         if fetchpp:
             print('Fetching new platepar...')
@@ -218,6 +219,6 @@ def checkPlatepar(statid, rmsloc):
         if os.path.isfile('/tmp/platepar_cmn2010.cal'):
             os.remove('/tmp/platepar_cmn2010.cal')
         ftp_client.close()
-    except:
+    except Exception:
         print('unable to check platepar, will try next time')
     return 
