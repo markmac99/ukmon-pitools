@@ -142,5 +142,5 @@ dmypy.json
 deploy.yml
 sample-crontab-entries.txt
 jsonToKeyFile.py
-tests/output/FF_UK0045_20230213_025919_082_0831744.fits
-tests/output/M20230213_025919_redhill_e_UK0045P.jpg
+tests/**
+
