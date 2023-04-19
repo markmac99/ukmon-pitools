@@ -9,7 +9,7 @@ cd logtmp
 #
 source /home/${LOGNAME}/source/ukmon-pitools/ukmon.ini
 sudo cp /var/log/kern.log .
-sudo chown $:{user}:${LOGNAME} kern.log
+sudo chown ${user}:${LOGNAME} kern.log
 cp /var/log/messages ./messages.log
 cp /home/${LOGNAME}/source/RMS/.config ./${LOCATION}.config
 cp /home/${LOGNAME}/source/RMS/platepar_cmn2010.cal ./${LOCATION}.cal
