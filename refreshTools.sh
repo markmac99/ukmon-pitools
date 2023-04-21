@@ -19,7 +19,7 @@ source $here/ukmon.ini
 # added 2022-05-04 to allow for non-standard config file locations
 if [ "$RMSCFG" == "" ] ; then
     export RMSCFG=~/source/RMS/.config
-    echo "RMSCFG=~/source/RMS/.config" >> $here/ukmon.ini
+    echo "export RMSCFG=~/source/RMS/.config" >> $here/ukmon.ini
 fi 
 
 echo "refreshing toolset"
