@@ -118,7 +118,7 @@ def checkPostProcSettings(myloc, cfgname):
         shutil.copyfile(tmpname, cfgname)
         try:
             os.remove(tmpname)
-        except:
+        except Exception:
             pass
     else:
         print('ukmonPostProc present')
