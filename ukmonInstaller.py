@@ -18,7 +18,7 @@ def createDefaultIni(homedir, helperip=None):
     keyfile = '~/.ssh/ukmon'
     homedir = os.path.normpath(homedir)
     camid = homedir[homedir.find('pitools')+8:]
-    if camid != '':
+    if camid != '' and 'tests' not in camid:
         rmscfg = '~/source/Stations/{}/.config'.format(camid)
         keyfile = '~/.ssh/ukmon-{}'.format(camid)
     if helperip is None:
@@ -42,6 +42,18 @@ def updateHelperIp(homedir, helperip):
                 outf.write("export UKMONHELPER={}\n".format(helperip))
             else:
                 outf.write('{}'.format(li))
+
+
+def updateLocation(homedir, newloc):
+    homedir = os.path.normpath(homedir)
+    lis = open(os.path.join(homedir, 'ukmon.ini'), 'r').readlines()
+    with open(os.path.join(homedir, 'ukmon.ini'), 'w') as outf:
+        for li in lis:
+            if 'LOCATION' in li:
+                outf.write("export LOCATION={}\n".format(newloc))
+            else:
+                outf.write('{}'.format(li))
+    return 
 
 
 def installUkmonFeed(rmscfg='~/source/RMS/.config'):
@@ -104,7 +116,10 @@ def checkPostProcSettings(myloc, cfgname):
         print('backing up RMS config to {}'.format(bkpcnf))
         shutil.copyfile(cfgname, bkpcnf)
         shutil.copyfile(tmpname, cfgname)
-        os.remove(tmpname)
+        try:
+            os.remove(tmpname)
+        except:
+            pass
     else:
         print('ukmonPostProc present')
     return     
@@ -176,7 +191,7 @@ def addDesktopIcons(myloc, statid):
     cfglnk = os.path.expanduser('~/Desktop/UKMON_config_{}.txt'.format(statid))
     if not os.path.islink(cfglnk):
         os.symlink(os.path.join(myloc, 'ukmon.ini'), cfglnk)
-    if isRaspberryPi is True:
+    if isRaspberryPi():
         reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sh'.format(statid))
         if not os.path.islink(reflnk):
             os.symlink(os.path.join(myloc, 'refreshTools.sh'), reflnk)
