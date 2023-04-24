@@ -76,7 +76,7 @@ EOF
     if [ "$LOCATION" != "$origloc" ] ; then 
         export PYTHONPATH=$here:~/source/RMS
         python -c "import ukmonInstaller as pp ; pp.updateLocation('${here}','${LOCATION}');"
-        echo "server address updated"
+        echo "camera location updated"
     fi
     rm -f .ukmon.new
 
