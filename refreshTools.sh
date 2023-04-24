@@ -19,6 +19,7 @@ source $here/ukmon.ini
 # added 2022-05-04 to allow for non-standard config file locations
 if [ "$RMSCFG" == "" ] ; then
     export RMSCFG=~/source/RMS/.config
+    echo "export RMSCFG=~/source/RMS/.config" >> $here/ukmon.ini
 fi 
 
 echo "refreshing toolset"
@@ -62,14 +63,23 @@ get ukmon.ini .ukmon.new
 get live.key
 exit
 EOF
+    # compare the new and old ini files and update if needed
+    # this allows remote updates to the location and server IP
     orighelp=$UKMONHELPER
+    origloc=$LOCATION
     source .ukmon.new
     if [ "$UKMONHELPER" != "$orighelp" ] ; then
         export PYTHONPATH=$here:~/source/RMS
         python -c "import ukmonInstaller as pp ; pp.updateHelperIp('${here}','${UKMONHELPER}');"
         echo "server address updated"
-    fi 
+    fi
+    if [ "$LOCATION" != "$origloc" ] ; then 
+        export PYTHONPATH=$here:~/source/RMS
+        python -c "import ukmonInstaller as pp ; pp.updateLocation('${here}','${LOCATION}');"
+        echo "camera location updated"
+    fi
     rm -f .ukmon.new
+
     chmod 0600 live.key
     if [ -f archive.key ] ; then \rm archive.key ; fi 
 
@@ -84,12 +94,18 @@ EOF
     python $here/sendToLive.py test test
     python $here/uploadToArchive.py test
     echo "if you did not see two success messages contact us for advice" 
-    if [ "$DOCKER_RUNNING" != "true" ] ; then read -p "Press any key to continue" ; fi
+    if [ "$DOCKER_RUNNING" != "true" ] ; then read -p "Press any key to finish" ; fi
     echo "done"
 else
-    echo "Location missing - please update UKMON Config File using the desktop icon"
+    statid=$(grep stationID $RMSCFG | awk -F" " '{print $2}')
+    if [ "$statid" == "XX0001" ] ; then
+        echo "You must configure RMS before setting up the ukmon tools"
+    fi 
+    python -c "import ukmonInstaller as pp ; pp.addDesktopIcons('${here}', '${statid}');"
+    echo "Location missing - unable to continue. Please obtain a location code from the UKMON team,"
+    echo "Update the UKMON Config File using the desktop icon then rerun this script."
     sleep 5
-    if [ "$DOCKER_RUNNING" != "true" ] ; then read -p "Press any key to continue" ; fi
+    if [ "$DOCKER_RUNNING" != "true" ] ; then read -p "Press any key to end" ; fi
     exit 1
 fi
 
