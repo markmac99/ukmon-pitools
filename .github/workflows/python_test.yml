@@ -35,3 +35,4 @@ jobs:
           cp ~/source/ukmon-pitools/live.key .
           unzip tests.zip
           pytest -v -W ignore::DeprecationWarning
+          rm ./live.key ./ukmon.ini

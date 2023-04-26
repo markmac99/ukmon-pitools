@@ -142,5 +142,4 @@ dmypy.json
 deploy.yml
 sample-crontab-entries.txt
 jsonToKeyFile.py
-tests/**
-
+tests/__pycache__
