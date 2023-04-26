@@ -33,5 +33,5 @@ jobs:
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           cp ~/source/ukmon-pitools/ukmon.ini .
           cp ~/source/ukmon-pitools/live.key .
-          unzip tests.zip
           pytest -v -W ignore::DeprecationWarning
+          rm ./live.key ./ukmon.ini
