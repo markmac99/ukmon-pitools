@@ -11,12 +11,10 @@
 
 import os
 import sys
-import shutil
 
 import Utils.StackFFs as sff
 import Utils.BatchFFtoImage as bff2i
 import Utils.GenerateMP4s as gmp4
-import Utils.GenerateTimelapse as gti
 import RMS.ConfigReader as cr
 from importlib import import_module as impmod
 import logging
@@ -65,22 +63,7 @@ def rmsExternal(cap_dir, arch_dir, config):
         gmp4.generateMP4s(arch_dir, ftpfile_name)
     else:
         log.info('mp4 creation not enabled')
-    # generate an all-night timelapse and move it to arch_dir
-    # no longer needed as RMS does it automatically
-
-    #if os.path.isfile(os.path.join(myloc, 'dotimelapse')):
-    #    try: 
-    #        log.info('generating a timelapse')
-    #        gti.fps = 25
-    #        gti.generateTimelapse(cap_dir, False)
-    #        mp4name = os.path.basename(cap_dir) + '.mp4'
-    #        shutil.move(os.path.join(cap_dir, mp4name), os.path.join(arch_dir, mp4name))           
-    #    except Exception as e:
-    #        log.info('unable to create timelapse')
-    #        log.info(e)
-    #else:
-    #    log.info('timelapse creation not enabled')
-
+    
     log.info('uploading to archive')
     uploadToArchive.uploadToArchive(arch_dir)
 
