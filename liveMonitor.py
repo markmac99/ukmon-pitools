@@ -96,7 +96,7 @@ def monitorLogFile(camloc, rmscfg):
     keepon = True
     logf = ''
     capdir = ''
-    starttime = datetime.datetime.now()
+    starttime = datetime.datetime.utcnow()
     while keepon is True:
         try:
             logfs = glob.glob(os.path.join(logdir, 'log*.log*'))
@@ -116,7 +116,7 @@ def monitorLogFile(camloc, rmscfg):
             loglines = follow(logf, logf_ino)
 
             for line in loglines:
-                nowtm = datetime.datetime.now()
+                nowtm = datetime.datetime.utcnow()
                 if (FBINTERVAL > 0) and ((nowtm - starttime).seconds > FBINTERVAL):
                     try:
                         #log.info('checking for fireball flags')
@@ -139,7 +139,7 @@ def monitorLogFile(camloc, rmscfg):
                             capdir = newcapdir
                             log.info('Latest capture dir is {}'.format(capdir))
 
-                    nowtm = datetime.datetime.now()
+                    nowtm = datetime.datetime.utcnow()
                     if "detected meteors" in line and ": 0" not in line and "TOTAL" not in line:
                         if capdir != '':
                             ffname = line.split(' ')[3]

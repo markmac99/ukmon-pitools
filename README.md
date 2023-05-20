@@ -1,6 +1,8 @@
 # ukmeteornetwork toolset for RMS pi meteor cameras
 
-These tools manage uploads of RMS data to the UK Meteor Network Archive and Live-stream.
+These tools manage uploads of RMS data to the UK Meteor Network Archive and Live-stream. There are two parts:  
+* The post-processing job that runs after RMS to send data to the UKMON archive.  
+* The realtime job that uploads detections and fireball data to ukmon-live.  
 
 There is more information about RMS and the toolset in the wiki [here](https://github.com/markmac99/ukmon-pitools/wiki "UKMON Wiki")
 
@@ -70,11 +72,11 @@ To enable these, create files named "domp4s" or "dotimelapse" in the same folder
 echo "1" > $HOME/source/ukmon-pitools/domp4s  
 echo "1" > $HOME/source/ukmon-pitools/dotimelapse  
 ```
-Running an Additional Script such as the Istrastream feed
----------------------------------------------------------
+Running an Additional Script of your own
+----------------------------------------
 If you want to run an additional Python script after this one finishes, create a file named "extrascript"  in the same folder, containing a single line with the full path to the script. For example to enable the feed to istrastream, you could open a Terminal window and type the following:  
 ``` bash
-echo "$HOME/source/RMS/iStream/iStream.py" > $HOME/source/ukmon-pitools/extrascript  
+echo "$HOME/source/mystuff/myscript.py" > $HOME/source/ukmon-pitools/extrascript  
 ```
 
 This script must contain a function rmsExternal with the following definition
@@ -88,7 +90,7 @@ Note that before enabling a feed to Istrastream you must email info@istrastream.
 
 uploadToArchive.py
 ==================
-This does the actual  uploading to the UK meteor network archive. Can be called standalone if you want to reupload data:
+This does the actual uploading to the UK meteor network archive. Can be called standalone if you want to reupload data:
 eg  
 ``` bash
 python uploadToArchive.py UK0006_20210312_183741_206154  
@@ -98,7 +100,18 @@ this will upload from $HOME/RMS_data/ArchivedFiles/UK0006_20210312_183741_206154
 liveMonitor.sh
 ==============
 This script monitors in realtime for detections, then uploads them to ukmon-live. The script calls a 
-python script liveMonitor.py. 
+python script liveMonitor.py.  
+
+There are two configuration parameters that you can set in ukmon.ini to control how this works: 
+* UKMFBINTERVAL: how frequently ukmon-live checks whether there's a request for fireball data. Default 1800 seconds. Set to zero to disable the fireball upload feature completely.  
+* UKMMAXAGE: How far back to look for events to upload. Default 1800 seconds. Each time the software is restarted, it will look for events in the log. This parameter avoids too much reuploading of old events.  
+
+You shouldn't really need to set these but if you do, then for example edit ukmon.ini and add  
+``` bash
+export UMFBINTERVAL=900
+``` 
+to set the check interval to 900 seconds. Note there must be no spaces around the equals sign, and that
+export must be in lowercase.  
 
 sendToLive.py
 -------------

@@ -142,6 +142,11 @@ def uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc):
 
     tmpdir = tempfile.mkdtemp()
 
+    if not os.path.isfile(os.path.join(cap_dir, dir_file)):
+        retmsg = f'{dir_file} not present in {cap_dir}'
+        log.warning(retmsg)
+        return retmsg
+    
     fulljpg, njpgname = createJpg(tmpdir, cap_dir, dir_file, camloc) 
     fullxml, xmlname = createXMLfile(tmpdir, cap_dir, dir_file, camloc, cfg)
 
