@@ -33,6 +33,6 @@ jobs:
           source ~/vRMS/bin/activate
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           cp ~/source/ukmon-pitools/ukmon.ini .
-          cp ~/source/ukmon-pitools/live.key .
+          cp ~/source/testing/live.key .
           pytest -v . --cov=. --cov-report=term-missing
           rm ./live.key ./ukmon.ini
