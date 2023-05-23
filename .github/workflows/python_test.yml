@@ -30,8 +30,9 @@ jobs:
           ruff --format=github --ignore=E501 --target-version=py37 .
       - name: Test with pytest
         run: |
+          source ~/vRMS/bin/activate
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           cp ~/source/ukmon-pitools/ukmon.ini .
           cp ~/source/ukmon-pitools/live.key .
-          pytest -v -W ignore::DeprecationWarning
+          pytest -v . --cov=. --cov-report=term-missing
           rm ./live.key ./ukmon.ini
