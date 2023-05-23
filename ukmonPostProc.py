@@ -12,7 +12,7 @@
 import os
 import sys
 
-import Utils.StackFFs as sff
+# import Utils.StackFFs as sff
 import Utils.BatchFFtoImage as bff2i
 import Utils.GenerateMP4s as gmp4
 import RMS.ConfigReader as cr
@@ -41,8 +41,9 @@ def rmsExternal(cap_dir, arch_dir, config):
         f.write('1')
 
     # stack and create jpgs from the potential detections
-    log.info('stacking the FF files')
-    sff.stackFFs(arch_dir, 'jpg', filter_bright=True, subavg=True)
+    # no need, RMS does it now
+    #log.info('stacking the FF files')
+    #sff.stackFFs(arch_dir, 'jpg', filter_bright=True, subavg=True)
     log.info('creating JPGs')
     try:
         bff2i.batchFFtoImage(arch_dir, 'jpg', True)
