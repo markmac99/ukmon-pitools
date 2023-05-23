@@ -1,2 +1,6 @@
 [run]
 omit = tests/*
+
+[report]
+skip_covered = True
+ignore_errors = True
