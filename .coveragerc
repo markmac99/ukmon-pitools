@@ -1,6 +1,9 @@
 [run]
-omit = tests/*
+omit =
+        tests/*
+        config.py
+        config-3.7.py
 
 [report]
-skip_covered = True
+show_missing = True
 ignore_errors = True
