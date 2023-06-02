@@ -10,7 +10,7 @@ basedir = os.path.realpath(os.path.dirname(__file__))
 
 def test_readKeyFile():
     vals = readKeyFile(os.path.join(basedir,'..','live.key'))
-    assert vals['ARCHBUCKET'] == 'ukmon-shared'
+    assert vals['S3FOLDER'] == 'archive/Tackley'
 
 
 def test_readKeyfileIni():
@@ -33,7 +33,8 @@ def test_uploadOneFile():
     uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys)
     os.makedirs(os.path.join(basedir, 'output'), exist_ok=True)
     outf = os.path.join(basedir, 'output', 'foobar.txt')
-    s3.meta.client.download_file(keys['ARCHBUCKET'], 'tmp/testpi4/2023/202304/20230401/test.json', outf)
+    testkey = f'{targf}/testpi4/2023/202304/20230401/test.json'
+    s3.meta.client.download_file(keys['ARCHBUCKET'], testkey, outf)
     lis = open(outf,'r').readlines()
-    assert lis[0] == 'foo\n'
+    assert lis[0] == '{ "foo": "bar" }\n'
     os.remove(outf)

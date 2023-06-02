@@ -20,7 +20,7 @@ jobs:
         run: |
           source ~/vRMS/bin/activate
           python -m pip install --upgrade pip
-          pip install ruff pytest xmltodict
+          pip install --upgrade ruff pytest xmltodict pytest-cov 
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Lint with ruff
         run: |
@@ -30,8 +30,9 @@ jobs:
           ruff --format=github --ignore=E501 --target-version=py37 .
       - name: Test with pytest
         run: |
+          source ~/vRMS/bin/activate
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           cp ~/source/ukmon-pitools/ukmon.ini .
-          cp ~/source/ukmon-pitools/live.key .
-          pytest -v -W ignore::DeprecationWarning
+          cp ~/source/testing/live.key .
+          pytest -v . --cov=. --cov-report=term-missing
           rm ./live.key ./ukmon.ini

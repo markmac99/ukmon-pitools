@@ -1,0 +1,9 @@
+[run]
+omit =
+        tests/*
+        config.py
+        config-3.7.py
+
+[report]
+show_missing = True
+ignore_errors = True
