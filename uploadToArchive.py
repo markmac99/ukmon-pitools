@@ -203,12 +203,12 @@ def uploadToArchive(arch_dir):
     keyfile = os.path.join(myloc, 'live.key')
     if os.path.isfile(keyfile) is False:
         log.info('AWS keyfile not present')
-        return
+        return False
 
     keys = readKeyFile(keyfile)
     if keys is None:
         print('keyfile not found, aborting')
-        return
+        return False
     reg = keys['ARCHREGION']
     conn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY']) 
     s3 = conn.resource('s3', region_name=reg)
@@ -248,7 +248,10 @@ def uploadToArchive(arch_dir):
     if os.path.isfile(os.path.join(arch_dir, 'platepars_all_recalibrated.json')):
         with open(os.path.join(arch_dir, 'platepars_all_recalibrated.json')) as ppf:
             js = json.load(ppf)
-        ffs=[k for k in js.keys() if js[k]['auto_recalibrated'] is True]
+        try:
+            ffs=[k for k in js.keys() if js[k]['auto_recalibrated'] is True]
+        except:
+            ffs = glob.glob1(arch_dir, 'FF*.fits')    
     else:
         ffs = glob.glob1(arch_dir, 'FF*.fits')
     if len(ffs) > 0:
@@ -257,7 +260,7 @@ def uploadToArchive(arch_dir):
         for ff in uploadffs:
             uploadOneFile(cap_dir, ff, s3, targf, '.fits', keys)    
 
-    return
+    return True
 
 
 def fireballUpload(ffname):
@@ -326,7 +329,7 @@ def manualUpload(targ_dir):
             keys = readKeyFile(filename)
             if keys is None:
                 print('keyfile not found, aborting')
-                return 
+                return False
 
             target = keys['ARCHBUCKET']
             reg = keys['ARCHREGION']
@@ -339,13 +342,15 @@ def manualUpload(targ_dir):
             print('test successful')
         except Exception:
             print('unable to upload to archive - check key information')
+            return False
         try:
             os.remove('/tmp/test.txt')
         except Exception:
             pass
+        return True
     else:
         arch_dir = os.path.join(targ_dir)
-        uploadToArchive(arch_dir)
+        return uploadToArchive(arch_dir)
 
 
 if __name__ == '__main__':

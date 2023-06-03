@@ -2,7 +2,7 @@
 
 import boto3
 import os
-from uploadToArchive import readKeyFile, uploadOneFile
+from uploadToArchive import readKeyFile, uploadOneFile, manualUpload
 from ukmonInstaller import createDefaultIni
 
 basedir = os.path.realpath(os.path.dirname(__file__))
@@ -38,3 +38,20 @@ def test_uploadOneFile():
     lis = open(outf,'r').readlines()
     assert lis[0] == '{ "foo": "bar" }\n'
     os.remove(outf)
+
+
+def test_manualUpload():
+    targ_dir = 'test'
+    assert manualUpload(targ_dir) is True
+    targ_dir = os.path.join(basedir, 'ukmarch','testpi4_20230401')
+    # create some dummy sample files
+    testfilelist = ['FF_test_20230401.fits','FF_test_20230401.jpg','FF_test_20230401.mp4','mask.bmp',
+                    'platepars_all_recalibrated.json',
+                    'FTPdetectinfo_testpi4_20230401.txt',
+                    'stack_.jpg','calib.jpg', '.config'
+                    ]
+    for fil in testfilelist:
+        open(os.path.join(targ_dir, fil), 'w').write('{"test":"potato"}')
+    assert manualUpload(targ_dir) is True
+    for fil in testfilelist:
+        os.remove(os.path.join(targ_dir, fil))
