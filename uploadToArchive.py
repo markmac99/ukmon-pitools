@@ -250,7 +250,7 @@ def uploadToArchive(arch_dir):
             js = json.load(ppf)
         try:
             ffs=[k for k in js.keys() if js[k]['auto_recalibrated'] is True]
-        except:
+        except Exception:
             ffs = glob.glob1(arch_dir, 'FF*.fits')    
     else:
         ffs = glob.glob1(arch_dir, 'FF*.fits')
