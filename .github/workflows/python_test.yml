@@ -9,7 +9,7 @@ jobs:
       matrix:
         python-version: ["2.7"]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
       - name: install dependencies
         run: 
           source ~/vRMS/bin/activate
