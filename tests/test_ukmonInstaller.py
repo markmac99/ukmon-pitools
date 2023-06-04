@@ -20,7 +20,6 @@ def test_createDefaultIni():
             assert li == 'export RMSCFG=~/source/RMS/.config\n'
             os.remove(os.path.join(tmpdir,'ukmon.ini'))
             return 
-    return 
 
 
 def test_updateHelperIp():
@@ -32,8 +31,7 @@ def test_updateHelperIp():
             assert li == 'export UKMONHELPER=1.1.1.1\n'
             os.remove(os.path.join(tmpdir,'ukmon.ini'))
             return 
-    return 
-
+    
 
 def test_updateLocation():
     createDefaultIni(tmpdir)
@@ -44,14 +42,11 @@ def test_updateLocation():
             assert li == 'export LOCATION=plinkshire_w\n'
             os.remove(os.path.join(tmpdir,'ukmon.ini'))
             return 
-    return 
 
 
 def test_checkPostProcSettings():
     origcfg = os.path.join(homedir, '.config.orig')
     rmscfg = os.path.join(homedir, '.config')
-    if os.path.isfile(rmscfg):
-        os.remove(rmscfg)
     shutil.copyfile(origcfg, rmscfg)
     checkPostProcSettings(homedir, rmscfg)
     scrname = os.path.join(homedir, 'ukmonPostProc.py')
