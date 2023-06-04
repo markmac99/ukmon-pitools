@@ -109,7 +109,6 @@ def manualRerun(dated_dir, rmscfg = '~/source/RMS/.config'):
     config = cr.parse(os.path.expanduser(rmscfg))
     cap_dir = os.path.join(config.data_dir, 'CapturedFiles', dated_dir)
     if not os.path.isdir(cap_dir):
-        print(cap_dir)
         return False
     arch_dir = os.path.join(config.data_dir, 'ArchivedFiles', dated_dir)
     if not os.path.isdir(arch_dir):
