@@ -3,18 +3,6 @@ name: Python package
 on: [push]
 
 jobs:
-  pi3test:
-    runs-on: [testpi3]
-    strategy:
-      matrix:
-        python-version: ["2.7"]
-    steps:
-      - uses: actions/checkout@v2
-      - name: install dependencies
-        run: 
-          source ~/vRMS/bin/activate
-          python -V
-        
   pi4test:
     runs-on: [testpi4]
     strategy:
