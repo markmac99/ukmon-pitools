@@ -64,13 +64,12 @@ ukmonPostProc.py
 This uses the RMS post-processing hook to creates JPGs and other data, then upload to the UK Meteor Network archive. The script has three optional capabilities: 
 
 
-MP4s and Timelapse
+MP4s
 ------------------
-The script can  create MP4s of each detection and a timelapse of the  whole night. 
-To enable these, create files named "domp4s" or "dotimelapse" in the same folder as the script:  
+The script can create MP4s of each detection.
+To enable these, create files named "domp4s"  in the same folder as the script:  
 ``` bash
 echo "1" > $HOME/source/ukmon-pitools/domp4s  
-echo "1" > $HOME/source/ukmon-pitools/dotimelapse  
 ```
 Running an Additional Script of your own
 ----------------------------------------

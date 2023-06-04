@@ -12,11 +12,9 @@
 import boto3
 import os
 import sys
-import datetime
 import json
 import random
 import glob
-import configparser
 import logging
 
 log = logging.getLogger("logger")
@@ -261,55 +259,6 @@ def uploadToArchive(arch_dir):
             uploadOneFile(cap_dir, ff, s3, targf, '.fits', keys)    
 
     return True
-
-
-def fireballUpload(ffname):
-    # get camera location from ini file
-    myloc = os.path.split(os.path.abspath(__file__))[0]
-    inifvals = readKeyFile(os.path.join(myloc, 'ukmon.ini'))
-    if inifvals is None:
-        print('ini file not found, aborting')
-        return
-
-    camloc = inifvals['LOCATION']
-    rmscfg = inifvals['RMSCFG']
-    if camloc == 'NOTCONFIGURED':
-        print('LOCATION not found in ini file, aborting')
-        return
-    cfg = configparser.ConfigParser(inline_comment_prefixes=(';'))
-    cfg.read(os.path.expanduser(rmscfg))
-
-    rmsdatadir = os.path.expanduser(cfg['Capture']['data_dir'])
-
-    myloc = os.path.split(os.path.abspath(__file__))[0]
-    filename = os.path.join(myloc, 'live.key')
-    keys = readKeyFile(filename)
-    if keys is None:
-        print('keyfile not found, aborting')
-        return
-
-    targf = keys['S3FOLDER']
-    reg = keys['ARCHREGION']
-    conn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY']) 
-    s3 = conn.resource('s3', region_name=reg)
-
-    dtstamp = ffname[10:25]
-    ts = datetime.datetime.strptime(dtstamp,'%Y%m%d_%H%M%S')
-    if ts.hour < 12:
-        ts = ts + datetime.timedelta(days=-1)
-    dirpat = ts.strftime('%Y%m%d')
-    basarc = os.path.join(rmsdatadir, 'CapturedFiles')
-    cap_dirs = [name for name in os.listdir(basarc) if (os.path.isdir(os.path.join(basarc, name)) and dirpat in name)]
-    if len(cap_dirs) > 0:
-        fldr = cap_dirs[0]
-#        arch_dir = os.path.join(basarc, fldr)
-        cap_dir = os.path.join(rmsdatadir, 'CapturedFiles', fldr)
-        fbname = 'FR' + ffname[2:-5] + '.bin'
-        uploadOneFile(cap_dir, fbname, s3, targf, '.fits', keys)        
-        uploadOneFile(cap_dir, ffname, s3, targf, '.fits', keys)        
-    else:
-        print('unable to find source folder')
-    return
 
 
 def manualUpload(targ_dir):
