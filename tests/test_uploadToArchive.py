@@ -33,7 +33,7 @@ def test_uploadOneFile():
     uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys)
     os.makedirs(os.path.join(basedir, 'output'), exist_ok=True)
     outf = os.path.join(basedir, 'output', 'foobar.txt')
-    testkey = f'{targf}/testpi4/2023/202304/20230401/test.json'
+    testkey = '{}/testpi4/2023/202304/20230401/test.json'.format(targf)
     s3.meta.client.download_file(keys['ARCHBUCKET'], testkey, outf)
     lis = open(outf,'r').readlines()
     assert lis[0] == '{ "foo": "bar" }\n'
