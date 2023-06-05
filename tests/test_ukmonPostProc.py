@@ -11,6 +11,10 @@ from ukmonPostProc import main
 myloc = os.path.split(os.path.abspath(__file__))[0]
 homedir = os.path.join(myloc, 'ukmpp')
 tmpdir = os.path.join(myloc, 'output')
+try:
+    os.makedirs(tmpdir) # , exist_ok=Truee) exist_ok keyword not supported  with python7.2
+except Exception:
+    pass
 
 
 def test_ukmonPostProcNoArgs():
