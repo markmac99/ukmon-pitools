@@ -34,5 +34,6 @@ jobs:
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           cp ~/source/ukmon-pitools/ukmon.ini .
           cp ~/source/testing/live.key .
+          touch ./domp4s
           pytest -v . --cov=. --cov-report=term-missing
-          rm ./live.key ./ukmon.ini
+          rm ./live.key ./ukmon.ini ./domp4s

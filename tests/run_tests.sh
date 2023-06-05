@@ -20,5 +20,5 @@ rm ./live.key ./ukmon.ini ./domp4s
 [ -f /tmp/ukmon.ini ] && mv /tmp/ukmon.ini .
 [ -f /tmp/live.key ] && mv /tmp/live.key .
 [ -f /tmp/domp4s ] && mv /tmp/live.key .
-rm ./ukmarch/sampledata/UK0006_20220914_185543_087124/FF*.jpg
-rm ./ukmarch/sampledata/UK0006_20220914_185543_087124/FF*.mp4
+rm ./tests/ukmarch/sampledata/UK0006_20220914_185543_087124/FF*.jpg
+rm ./tests/ukmarch/sampledata/UK0006_20220914_185543_087124/FF*.mp4
