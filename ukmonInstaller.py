@@ -23,7 +23,8 @@ def createDefaultIni(homedir, helperip=None):
         keyfile = '~/.ssh/ukmon-{}'.format(camid)
     if helperip is None:
         helperip = '3.8.65.98'
-    os.makedirs(homedir, exist_ok=True)
+    if not os.path.isdir(homedir):
+        os.makedirs(homedir)
     with open(os.path.join(homedir, 'ukmon.ini'), 'w') as outf:
         outf.write("# config data for this station\n")
         outf.write("export LOCATION=NOTCONFIGURED\n")
