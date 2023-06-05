@@ -15,12 +15,18 @@ These instructions are for single-station setups such as on a Raspberry Pi.
 ``` bash
 cd $HOME/source  
 git clone https://github.com/markmac99/ukmon-pitools.git  
+```
+
+#### Configuration 
+Open a terminal window and type the following
+``` bash
 cd ukmon-pitools  
 ./refreshTools.sh  
 ```
 * When prompted, copy the SSH public key. 
+* If you don't get prompted for the key, then find the hidden file /home/pi/.ssh/ukmon.pub.
 
-* Email the key to markmcintyre99@googlemail.com along with your location (eg the name of your town or village) and the rough direction your camera points in eg SW, S, NE. The location should be no more than 16 characters. We will also need your camera ID, latitude, longitude and elevation from the RMS config file so that your data can be included in the Orbit and Trajectory solving routines. 
+* Email the key to markmcintyre99@googlemail.com along with your location (eg the name of your town or village) and the rough direction your camera points in eg SW, S, NE. The location should be no more than 16 characters.  
 
 * We will add your key to our server and send you instructions for how to complete the setup.  
 
