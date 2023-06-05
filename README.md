@@ -15,12 +15,18 @@ These instructions are for single-station setups such as on a Raspberry Pi.
 ``` bash
 cd $HOME/source  
 git clone https://github.com/markmac99/ukmon-pitools.git  
+```
+
+#### Configuration 
+Open a terminal window and type the following
+``` bash
 cd ukmon-pitools  
 ./refreshTools.sh  
 ```
 * When prompted, copy the SSH public key. 
+* If you don't get prompted for the key, then find the hidden file /home/pi/.ssh/ukmon.pub.
 
-* Email the key to markmcintyre99@googlemail.com along with your location (eg the name of your town or village) and the rough direction your camera points in eg SW, S, NE. The location should be no more than 16 characters. We will also need your camera ID, latitude, longitude and elevation from the RMS config file so that your data can be included in the Orbit and Trajectory solving routines. 
+* Email the key to markmcintyre99@googlemail.com along with your location (eg the name of your town or village) and the rough direction your camera points in eg SW, S, NE. The location should be no more than 16 characters.  
 
 * We will add your key to our server and send you instructions for how to complete the setup.  
 
@@ -64,13 +70,12 @@ ukmonPostProc.py
 This uses the RMS post-processing hook to creates JPGs and other data, then upload to the UK Meteor Network archive. The script has three optional capabilities: 
 
 
-MP4s and Timelapse
+MP4s
 ------------------
-The script can  create MP4s of each detection and a timelapse of the  whole night. 
-To enable these, create files named "domp4s" or "dotimelapse" in the same folder as the script:  
+The script can create MP4s of each detection.
+To enable these, create files named "domp4s"  in the same folder as the script:  
 ``` bash
 echo "1" > $HOME/source/ukmon-pitools/domp4s  
-echo "1" > $HOME/source/ukmon-pitools/dotimelapse  
 ```
 Running an Additional Script of your own
 ----------------------------------------

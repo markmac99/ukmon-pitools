@@ -99,7 +99,7 @@ def monitorLogFile(camloc, rmscfg):
     starttime = datetime.datetime.utcnow()
     while keepon is True:
         try:
-            logfs = glob.glob(os.path.join(logdir, 'log*.log*'))
+            logfs = glob.glob(os.path.join(logdir, 'log_{}*.log*').format(cfg.stationID))
             logfs.sort(key=lambda x: os.path.getmtime(x))
             newlogf = logfs[-1]
             if newlogf != logf:
@@ -128,7 +128,7 @@ def monitorLogFile(camloc, rmscfg):
                 if line == 'log stale' or line == 'log rolled':
                     #log.info(line)
 
-                    logfs = glob.glob(os.path.join(logdir, 'log*.log*'))
+                    logfs = glob.glob(os.path.join(logdir, 'log_{}*.log*').format(cfg.stationID))
                     logfs.sort(key=lambda x: os.path.getmtime(x))
                     logf = logfs[-1]
                     loglines.close()

@@ -26,8 +26,14 @@ log = logging.getLogger("logger")
 
 
 def rmsExternal(cap_dir, arch_dir, config):
-    # called from RMS to trigger the UKMON specific code
+    """ Called from RMS to trigger the UKMON specific code  
 
+    Arguments:  
+    cap_dir: [str] full path to the night's CapturedFiles folder  
+    arch_dir: [str] full path to the night's ArchivedFiles folder  
+    config: [object] an RMS config object.  
+
+    """
     # clear existing log handlers
     log = logging.getLogger("logger")
     while len(log.handlers) > 0:
@@ -40,10 +46,7 @@ def rmsExternal(cap_dir, arch_dir, config):
     with open(rebootlockfile, 'w') as f:
         f.write('1')
 
-    # stack and create jpgs from the potential detections
-    # no need, RMS does it now
-    #log.info('stacking the FF files')
-    #sff.stackFFs(arch_dir, 'jpg', filter_bright=True, subavg=True)
+    # create jpgs from the potential detections
     log.info('creating JPGs')
     try:
         bff2i.batchFFtoImage(arch_dir, 'jpg', True)
@@ -90,31 +93,50 @@ def rmsExternal(cap_dir, arch_dir, config):
     # clear log handlers again
     while len(log.handlers) > 0:
         log.removeHandler(log.handlers[0])  
-    return
+    return True
 
 
-def manualRerun(dated_dir):
-    """This function is used to manually rerun the Ukmon post processing script. 
-    To invoke this function, open a Terminal window and run the following:
+def manualRerun(dated_dir, rmscfg = '~/source/RMS/.config'):
+    """This function is used to manually rerun the Ukmon post processing script.  
+    To invoke this function, open a Terminal window and run the following:  
 
-    *python ../ukmon-pitools/ukmonPostProc.py dated_dir*
+    *python ../ukmon-pitools/ukmonPostProc.py dated_dir rmscfg*  
 
     Args:
-        dated_dir (str): This is the name of the folder to upload eg UK000F_20210512_202826_913898
+        dated_dir (str): This is the name of the folder to upload eg UK000F_20210512_202826_913898  
+        rmscfg (str): optional. full path to the RMS config file to be used. Required for multi-station linux builds  
     """
-    config = cr.parse(os.path.expanduser('~/source/RMS/.config'))
+    config = cr.parse(os.path.expanduser(rmscfg))
     cap_dir = os.path.join(config.data_dir, 'CapturedFiles', dated_dir)
+    if not os.path.isdir(cap_dir):
+        return False
     arch_dir = os.path.join(config.data_dir, 'ArchivedFiles', dated_dir)
-    rmsExternal(cap_dir, arch_dir, config)
+    if not os.path.isdir(arch_dir):
+        return False
+    return rmsExternal(cap_dir, arch_dir, config)
+
+
+def main(args):
+    if len(args) < 2:
+        print('usage: python ukmonPostProc.py arc_dir_name rmscfg')
+        print('rmscfg is optional')
+        print('eg python ukmonPostProc.py UK0006_20210312_183741_206154')
+        print('eg python ukmonPostProc.py UK0006_20210312_183741_206154 ~/source/RMS/')
+        print('\n nb: script must be run from RMS source folder')
+        return False
+    arch_dir = args[1]
+    try:
+        if 'ConfirmedFiles' in arch_dir or 'ArchivedFiles' in arch_dir or 'CapturedFiles' in arch_dir:
+            _, arch_dir = os.path.split(arch_dir)
+        if len(args) > 2:
+            ret = manualRerun(arch_dir, args[2])
+        else:
+            ret = manualRerun(arch_dir)
+        return ret
+    except Exception:
+        print('unable to call manualRerun')
+        return False
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print('usage: python ukmonPostProc.py arc_dir_name')
-        print('eg python ukmonPostProc.py UK0006_20210312_183741_206154')
-        print('\n nb: script must be run from RMS source folder')
-    else:
-        arch_dir = sys.argv[1]
-        if 'ConfirmedFiles' in arch_dir or 'ArchivedFiles' in arch_dir or 'CapturedFiles' in arch_dir:
-            _, arch_dir = os.path.split(arch_dir)
-        manualRerun(arch_dir)
+    main(sys.argv)

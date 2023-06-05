@@ -1,0 +1,38 @@
+# %ECSV 0.9
+# ---
+# datatype:
+# - {name: datetime, datatype: string}
+# - {name: ra, unit: deg, datatype: float64}
+# - {name: dec, unit: deg, datatype: float64}
+# - {name: azimuth, datatype: float64}
+# - {name: altitude, datatype: float64}
+# - {name: mag_data, datatype: float64}
+# - {name: x_image, unit: pix, datatype: float64}
+# - {name: y_image, unit: pix, datatype: float64}
+# delimiter: ','
+# meta: !!omap
+# - {obs_latitude: 51.8831}
+# - {obs_longitude: -1.30616}
+# - {obs_elevation: 80.0}
+# - {origin: 'SkyFit2'}
+# - {camera_id: 'UK0006'}
+# - {cx: 1280}
+# - {cy: 720}
+# - {photometric_band: 'GAIA G band'}
+# - {image_file: 'UK0006_20220914_185543_087124'}
+# - {isodate_start_obs: '2022-09-14T19:49:11.205000'}
+# - {astrometry_number_stars: 12}
+# - {mag_label: 'mag'}
+# - {no_frags: 1}
+# - {obs_az: 237.71271517509228}
+# - {obs_ev: 41.3264602672774}
+# - {obs_rot: -3.2704308339658965}
+# - {fov_horiz: 88.71692170807268}
+# - {fov_vert: 47.12010178615554}
+# schema: astropy-2.0
+datetime,ra,dec,azimuth,altitude,x_image,y_image,integrated_pixel_value,mag_data
+2022-09-14T19:49:13.768879,266.481080,+25.815250,222.638874,+58.628894,  488.783,  124.137,      8638,  +0.61
+2022-09-14T19:49:13.809444,265.797170,+24.790082,222.772074,+57.433713,  486.912,  142.202,      9155,  +0.57
+2022-09-14T19:49:13.850050,265.084064,+23.688807,222.895342,+56.156515,  484.895,  161.592,     10483,  +0.43
+2022-09-14T19:49:13.890532,264.542081,+22.803821,222.958468,+55.141595,  483.084,  177.037,      9755,  +0.52
+2022-09-14T19:49:13.931090,263.907469,+21.794527,223.063498,+53.975455,  481.386,  194.888,     10281,  +0.47
