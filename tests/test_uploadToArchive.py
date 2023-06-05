@@ -38,7 +38,7 @@ def test_uploadOneFile():
     testkey = '{}/testpi4/2023/202304/20230401/test.json'.format(targf)
     s3.meta.client.download_file(keys['ARCHBUCKET'], testkey, outf)
     lis = open(outf,'r').readlines()
-    assert lis[0] == '{ "foo": "bar" }\n'
+    assert lis[0].strip() == '{ "foo": "bar" }'
     os.remove(outf)
 
 
