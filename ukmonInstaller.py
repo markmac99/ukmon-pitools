@@ -214,7 +214,8 @@ def checkPlatepar(statid, rmsloc):
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try: 
-        ssh_client.connect(svr, username=usr, key_filename=idfile)
+        pkey = paramiko.RSAKey.from_private_key_file(idfile) 
+        ssh_client.connect(svr, username=usr, pkey=pkey, look_for_keys=False)
         ftp_client = ssh_client.open_sftp()
         fetchpp = True
         try:
