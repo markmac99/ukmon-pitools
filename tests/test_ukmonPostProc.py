@@ -32,10 +32,3 @@ def test_ukmonPostProc1BadArg():
     args=[None, os.path.join(myloc, 'ukmarch/sampledata/UK0006_20220914_185543')]
     ret = main(args)
     assert ret is False
-
-
-def test_ukmonPostProc2Args():
-    args=[None, os.path.join(myloc, 'ukmarch/sampledata/UK0006_20220914_185543_087124'),
-          os.path.join(myloc, 'ukmarch/sampledata/UK0006_20220914_185543_087124/.config')]
-    ret = main(args)
-    assert ret is True

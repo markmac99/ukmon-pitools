@@ -12,7 +12,6 @@
 import os
 import sys
 
-# import Utils.StackFFs as sff
 import Utils.BatchFFtoImage as bff2i
 import Utils.GenerateMP4s as gmp4
 import RMS.ConfigReader as cr
@@ -100,11 +99,11 @@ def manualRerun(dated_dir, rmscfg = '~/source/RMS/.config'):
     """This function is used to manually rerun the Ukmon post processing script.  
     To invoke this function, open a Terminal window and run the following:  
 
-    *python ../ukmon-pitools/ukmonPostProc.py dated_dir rmscfg*  
+    *python ../ukmon-pitools/ukmonPostProc.py dated_dir*  
 
     Args:
         dated_dir (str): This is the name of the folder to upload eg UK000F_20210512_202826_913898  
-        rmscfg (str): optional. full path to the RMS config file to be used. Required for multi-station linux builds  
+
     """
     config = cr.parse(os.path.expanduser(rmscfg))
     cap_dir = os.path.join(config.data_dir, 'CapturedFiles', dated_dir)
@@ -118,20 +117,25 @@ def manualRerun(dated_dir, rmscfg = '~/source/RMS/.config'):
 
 def main(args):
     if len(args) < 2:
-        print('usage: python ukmonPostProc.py arc_dir_name rmscfg')
-        print('rmscfg is optional')
+        print('usage: python ukmonPostProc.py arc_dir_name')
         print('eg python ukmonPostProc.py UK0006_20210312_183741_206154')
-        print('eg python ukmonPostProc.py UK0006_20210312_183741_206154 ~/source/RMS/')
         print('\n nb: script must be run from RMS source folder')
         return False
     arch_dir = args[1]
+    myloc = os.path.split(os.path.abspath(__file__))[0]
+    inifvals = uploadToArchive.readKeyFile(os.path.join(myloc, 'ukmon.ini'))
+    if inifvals is None:
+        log.warning('unable to open ukmon ini file')
+        return 'unable to open ukmon ini file'
+    try:
+        rmscfg = inifvals['RMSCFG']
+    except Exception:
+        rmscfg='~/source/RMS/.config'
     try:
         if 'ConfirmedFiles' in arch_dir or 'ArchivedFiles' in arch_dir or 'CapturedFiles' in arch_dir:
             _, arch_dir = os.path.split(arch_dir)
-        if len(args) > 2:
-            ret = manualRerun(arch_dir, args[2])
-        else:
-            ret = manualRerun(arch_dir)
+        log.info('RMS config read from {}'.format(rmscfg))
+        ret = manualRerun(arch_dir, rmscfg)
         return ret
     except Exception:
         print('unable to call manualRerun')
