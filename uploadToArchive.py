@@ -241,10 +241,10 @@ def uploadToArchive(arch_dir):
     else:
         ffs = glob.glob1(arch_dir, 'FF*.fits')
     if len(ffs) > 0:
-        cap_dir = arch_dir.replace('ArchivedFiles','CapturedFiles')
+        # cap_dir = arch_dir.replace('ArchivedFiles','CapturedFiles')
         uploadffs = random.sample(ffs, min(2, len(ffs)))
         for ff in uploadffs:
-            uploadlist.append({'dir_file':dir_file, 'file_ext': '.fits', 'src_dir': cap_dir})
+            uploadlist.append({'dir_file':dir_file, 'file_ext': '.fits', 'src_dir': arch_dir})
     
     if len(uploadlist) > 1:
         for ent in uploadlist:
