@@ -16,6 +16,7 @@ import json
 import random
 import glob
 import logging
+from time import sleep
 
 log = logging.getLogger("logger")
 
@@ -246,11 +247,17 @@ def uploadToArchive(arch_dir):
         uploadffs = random.sample(ffs, min(2, len(ffs)))
         for ff in uploadffs:
             uploadlist.append({'dir_file':ff, 'file_ext': '.fits', 'src_dir': arch_dir})
-    
+    max_retries=10
+    retry_wait = 600
     if len(uploadlist) > 1:
         for ent in uploadlist:
-            print(ent)
-            res = uploadOneFile(ent['src_dir'], ent['dir_file'], s3, targf, ent['file_ext'], keys)
+            retry = 0
+            res = False
+            while res is False and retry < max_retries:
+                res = uploadOneFile(ent['src_dir'], ent['dir_file'], s3, targf, ent['file_ext'], keys) 
+                if res is False:
+                    sleep(retry_wait)
+                    retry +=1
     return res
 
 
