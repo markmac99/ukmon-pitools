@@ -240,17 +240,18 @@ def uploadToArchive(arch_dir):
             ffs = glob.glob1(arch_dir, 'FF*.fits')    
     else:
         ffs = glob.glob1(arch_dir, 'FF*.fits')
+    print(ffs)
     if len(ffs) > 0:
         # cap_dir = arch_dir.replace('ArchivedFiles','CapturedFiles')
         uploadffs = random.sample(ffs, min(2, len(ffs)))
         for ff in uploadffs:
-            uploadlist.append({'dir_file':dir_file, 'file_ext': '.fits', 'src_dir': arch_dir})
+            uploadlist.append({'dir_file':ff, 'file_ext': '.fits', 'src_dir': arch_dir})
     
     if len(uploadlist) > 1:
         for ent in uploadlist:
             print(ent)
-            uploadOneFile(ent['src_dir'], ent['dir_file'], s3, targf, ent['file_ext'], keys)
-    return True
+            res = uploadOneFile(ent['src_dir'], ent['dir_file'], s3, targf, ent['file_ext'], keys)
+    return res
 
 
 def manualUpload(targ_dir):
