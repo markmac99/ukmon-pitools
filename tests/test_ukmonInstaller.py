@@ -4,7 +4,7 @@ import os
 import shutil
 
 
-from ukmonInstaller import createDefaultIni, updateHelperIp, updateLocation, checkPostProcSettings # noqa: E402
+from ukmonInstaller import createDefaultIni, updateHelperIp, updateLocation, checkPostProcSettings, validateIni # noqa: E402
 myloc = os.path.split(os.path.abspath(__file__))[0]
 homedir = os.path.join(myloc, 'ukminst')
 tmpdir = os.path.join(myloc, 'output')
@@ -14,6 +14,16 @@ if not os.path.isdir(tmpdir):
 
 def test_createDefaultIni():
     createDefaultIni(tmpdir)
+    lis = open(os.path.join(tmpdir,'ukmon.ini'), 'r').readlines()
+    for li in lis:
+        if 'RMSCFG' in li:
+            assert li == 'export RMSCFG=~/source/RMS/.config\n'
+            os.remove(os.path.join(tmpdir,'ukmon.ini'))
+            return 
+
+
+def test_validateIni():
+    validateIni(tmpdir)
     lis = open(os.path.join(tmpdir,'ukmon.ini'), 'r').readlines()
     for li in lis:
         if 'RMSCFG' in li:

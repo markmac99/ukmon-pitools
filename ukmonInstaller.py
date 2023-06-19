@@ -13,25 +13,56 @@ from RMS.Misc import isRaspberryPi
 # Copyright (C) 2018-2023 Mark McIntyre
 
 
-def createDefaultIni(homedir, helperip=None):
-    rmscfg = '~/source/RMS/.config'
-    keyfile = '~/.ssh/ukmon'
-    homedir = os.path.normpath(homedir)
-    camid = homedir[homedir.find('pitools')+8:]
-    if camid != '' and 'tests' not in camid:
-        rmscfg = '~/source/Stations/{}/.config'.format(camid)
-        keyfile = '~/.ssh/ukmon-{}'.format(camid)
-    if helperip is None:
-        helperip = '3.8.65.98'
+def createDefaultIni(homedir, helperip='3.8.65.98', location='NOTCONFIGURED', keyfile=None, rmscfg=None):
+    homedir = os.path.normpath(os.path.expanduser(homedir))
     if not os.path.isdir(homedir):
         os.makedirs(homedir)
+    camid = homedir[homedir.find('pitools')+8:]
+    if rmscfg is None:
+        if camid != '' and 'tests' not in camid:
+            rmscfg = '~/source/Stations/{}/.config'.format(camid)
+        else:
+            rmscfg = '~/source/RMS/.config'
+    if keyfile is None:
+        if camid != '' and 'tests' not in camid:
+            keyfile = '~/.ssh/ukmon-{}'.format(camid)
+        else:
+            keyfile = '~/.ssh/ukmon'
+    if helperip is None:
+        helperip = '3.8.65.98'
+    if location is None:
+        location = 'NOTCONFIGURED'
     with open(os.path.join(homedir, 'ukmon.ini'), 'w') as outf:
         outf.write("# config data for this station\n")
-        outf.write("export LOCATION=NOTCONFIGURED\n")
+        outf.write("export LOCATION={}\n".format(location))
         outf.write("export UKMONHELPER={}\n".format(helperip))
         outf.write("export UKMONKEY={}\n".format(keyfile))
         outf.write("export RMSCFG={}\n".format(rmscfg))
-    return 
+    return True
+
+
+def validateIni(homedir, newhelperip=None):
+    homedir = os.path.expanduser(os.path.normpath(homedir))
+    location = None
+    keyfile = None
+    rmscfg = None
+    helperip = None
+    inifname = os.path.join(homedir, 'ukmon.ini')
+    if os.path.isfile(inifname):
+        inifdata = open(inifname, 'r').readlines()
+        for li in inifdata:
+            li = li.strip()
+            if 'LOCATION' in li:
+                location = li.split('=')[1]
+            if 'UKMONKEY' in li:
+                keyfile = li.split('=')[1]
+            if 'RMSCFG' in li:
+                rmscfg = li.split('=')[1]
+            if 'UKMONHELPER' in li:
+                helperip = li.split('=')[1]
+    if location is None or keyfile is None or rmscfg is None or helperip is None:
+        createDefaultIni(homedir, newhelperip, location, keyfile, rmscfg)
+    return True
 
 
 def updateHelperIp(homedir, helperip):

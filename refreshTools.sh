@@ -7,20 +7,13 @@ myself=$(readlink -f $0)
 here="$( cd "$(dirname "$myself")" >/dev/null 2>&1 ; pwd -P )"
 cd $here
 
-# create a default config file if missing
+export PYTHONPATH=$here:~/source/RMS
+source ~/vRMS/bin/activate
+# validate the ini file 
+python -c "import ukmonInstaller as pp ; pp.validateIni('${here}', '3.8.65.98');"
 
-if [ ! -f $here/ukmon.ini ] ; then
-    export PYTHONPATH=$here:~/source/RMS
-    python -c "import ukmonInstaller as pp ; pp.createDefaultIni('${here}', '3.8.65.98');"
-    echo "location not configured yet"
-fi 
 # read in the config file
 source $here/ukmon.ini
-# added 2022-05-04 to allow for non-standard config file locations
-if [ "$RMSCFG" == "" ] ; then
-    export RMSCFG=~/source/RMS/.config
-    echo "export RMSCFG=~/source/RMS/.config" >> $here/ukmon.ini
-fi 
 
 echo "refreshing toolset"
 git stash 
@@ -28,7 +21,6 @@ git pull
 git stash apply
 
 echo "checking required python libs are installed"
-source ~/vRMS/bin/activate
 pip list | grep boto3 || pip install boto3 
 # python-crontab v2.5.1 for python 2.7 backwards compatability. Sigh. 
 pip list | grep python-crontab | grep 2.5.1 || pip install python-crontab==2.5.1
@@ -46,17 +38,8 @@ if [ ! -f  ${UKMONKEY} ] ; then
 fi
 
 # if the station is configured, retrieve the AWS keys
-# and test connectivity. Also checks the ukmon.ini file is in unix format
+# and test connectivity. 
 if [[ "$LOCATION" != "NOTCONFIGURED"  && "$LOCATION" != "" ]] ; then
-    if [ $(file $here/ukmon.ini | grep CRLF | wc -l) -ne 0 ] ; then
-        echo 'fixing ukmon.ini'
-        cp $here/ukmon.ini $here/tmp.ini
-        # dos2unix not installed on the pi
-        tr -d '\r' < $here/tmp.ini > $here/ukmon.ini
-        rm -f $here/tmp.ini
-        source $here/ukmon.ini
-    fi 
-
     sftp -i $UKMONKEY -q $LOCATION@$UKMONHELPER << EOF
 put ukmon.ini ukmon.ini.client
 get ukmon.ini .ukmon.new
