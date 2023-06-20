@@ -32,7 +32,7 @@ jobs:
         run: |
           source ~/vRMS/bin/activate
           export PYTHONPATH=$PYTHONPATH:$(pwd)
-          cp ~/source/ukmon-pitools/ukmon.ini .
+          cp ~/source/testing/ukmon.ini .
           cp ~/source/testing/live.key .
           touch ./domp4s
           source ukmon.ini

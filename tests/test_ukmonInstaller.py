@@ -90,7 +90,7 @@ def test_getLatestKeys_newname():
     remoteinifname = 'ukmon.ini.newname'
     res = getLatestKeys(homedir, remoteinifname=remoteinifname)
     assert res is True
-    lis = open(os.path.join(homedir, 'ukmon.ini')).readlines()
+    lis = open(os.path.join(homedir, 'ukmon.ini'), 'r').readlines()
     for li in lis:
         li = li.strip()
         if 'LOCATION' in li:
@@ -105,7 +105,7 @@ def test_getLatestKeys_newip():
     remoteinifname = 'ukmon.ini.newip'
     res = getLatestKeys(homedir, remoteinifname=remoteinifname)
     assert res is True
-    lis = open(os.path.join(homedir, 'ukmon.ini')).readlines()
+    lis = open(os.path.join(homedir, 'ukmon.ini'), 'r').readlines()
     for li in lis:
         li = li.strip()
         if 'UKMONHELPER' in li:
