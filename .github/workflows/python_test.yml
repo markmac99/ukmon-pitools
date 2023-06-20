@@ -40,9 +40,6 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '14'
       - name: test on ubuntu
         run: |
           mkdir ~/source
@@ -51,9 +48,9 @@ jobs:
           cd RMS
           cat .config | sed 's/XX0001/UK0006/g' > .config.new
           mv -f .config.new .config
-          grep device .config
+          grep stationID .config
           popd
-          pip install paramiko
+          python -V
           export PYTHONPATH=.:~/source/RMS
           ./refreshTools.sh
           cat ~/.ssh/ukmon.pub

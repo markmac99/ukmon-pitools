@@ -10,6 +10,12 @@ cd $here
 export PYTHONPATH=$here:~/source/RMS
 source ~/vRMS/bin/activate
 
+echo "checking required python libs are installed"
+pip list | grep boto3 || pip install boto3 
+# python-crontab v2.5.1 for python 2.7 backwards compatability. Sigh. 
+pip list | grep python-crontab | grep 2.5.1 || pip install python-crontab==2.5.1
+pip list | grep paramiko || pip install paramiko
+
 # validate the ini file 
 echo "checking ini file is valid"
 python -c "import ukmonInstaller as pp ; pp.validateIni('${here}', '3.8.65.98');"
@@ -19,11 +25,6 @@ echo "refreshing toolset"
 git stash 
 git pull
 git stash apply
-
-echo "checking required python libs are installed"
-pip list | grep boto3 || pip install boto3 
-# python-crontab v2.5.1 for python 2.7 backwards compatability. Sigh. 
-pip list | grep python-crontab | grep 2.5.1 || pip install python-crontab==2.5.1
 
 # creating an ssh key if not already present
 if [ ! -f  ${UKMONKEY} ] ; then 
