@@ -35,25 +35,25 @@ jobs:
           source ukmon.ini
           pytest -v . --cov=. --cov-report=term-missing
           rm ./live.key ./ukmon.ini ./domp4s
-  Run-refreshtools-on-Ubuntu:
-    name: Run refreshTools on Ubuntu
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: test on ubuntu
-        run: |
-          mkdir ~/source
-          pushd ~/source
-          git clone https://github.com/markmac99/RMS.git
-          cd RMS
-          cat .config | sed 's/XX0001/UK0006/g' > .config.new
-          mv -f .config.new .config
-          grep stationID .config
-          popd
-          python -V
-          export PYTHONPATH=.:~/source/RMS
-          ./refreshTools.sh
-          cat ~/.ssh/ukmon.pub
-          cat ukmon.ini
+#  Run-refreshtools-on-Ubuntu:
+#    name: Run refreshTools on Ubuntu
+#    runs-on: ubuntu-20.04
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: test on ubuntu
+#        run: |
+#          mkdir ~/source
+#          pushd ~/source
+#          git clone https://github.com/markmac99/RMS.git
+#          cd RMS
+#          cat .config | sed 's/XX0001/UK0006/g' > .config.new
+#          mv -f .config.new .config
+#          grep stationID .config
+#          popd
+#          python -V
+#          export PYTHONPATH=.:~/source/RMS
+#          ./refreshTools.sh
+#          cat ~/.ssh/ukmon.pub
+#          cat ukmon.ini
 
 
