@@ -53,6 +53,8 @@ jobs:
           mv -f .config.new .config
           grep device .config
           popd
+          pip install paramiko
+          export PYTHONPATH=.:~/source/RMS
           ./refreshTools.sh
           cat ~/.ssh/ukmon.pub
           cat ukmon.ini
