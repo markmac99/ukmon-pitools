@@ -3,13 +3,11 @@ name: Python package
 on: [push]
 
 jobs:
-  build:
-
+  test:
     runs-on: [self-hosted, Linux, ARM]
     strategy:
       matrix:
         python-version: ["3.7"] #, "3.8", "3.9", "3.10", "3.11"]
-
     steps:
       - uses: actions/checkout@v3
       #- name: Set up Python ${{ matrix.python-version }}
@@ -38,3 +36,12 @@ jobs:
           source ukmon.ini
           pytest -v . --cov=. --cov-report=term-missing
           rm ./live.key ./ukmon.ini ./domp4s
+  Run-npm-on-Ubuntu:
+    name: Run npm on Ubuntu
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+      - run: npm help
