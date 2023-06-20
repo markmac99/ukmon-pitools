@@ -166,9 +166,7 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
 
     srcf = os.path.join(arch_dir, dir_file)
     if not os.path.isfile(srcf):
-        srcf = srcf.replace('ArchivedFiles','CapturedFiles')
-    if not os.path.isfile(srcf):
-        log.info('File not found: {}'.format(desf))
+        log.info('File not found: {}'.format(srcf))
         return True
     try:
         s3.meta.client.upload_file(srcf, target, desf, ExtraArgs={'ContentType': ctyp})
@@ -184,7 +182,7 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
             log.info(desf2)
         except Exception:
             ret = False
-            log.info('upload failed: {}'.format(desf2))
+            log.info('upload failed: {}'.format(srcf))
     return ret
 
 
@@ -222,7 +220,8 @@ def uploadToArchive(arch_dir):
         # mp4 must be uploaded before corresponding jpg
         elif (file_ext == '.jpg') and ('FF_' in file_name):
             mp4f = dir_file.replace('.jpg', '.mp4')
-            uploadlist.append({'dir_file':mp4f, 'file_ext': '.mp4', 'src_dir': arch_dir})
+            if os.path.isfile(os.path.join(arch_dir, mp4f)):
+                uploadlist.append({'dir_file':mp4f, 'file_ext': '.mp4', 'src_dir': arch_dir})
             uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
         elif (file_ext == '.jpg') and ('stack_' in file_name) and ('track' not in file_name):
             uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
