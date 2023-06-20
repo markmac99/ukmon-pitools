@@ -125,7 +125,7 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
         elif '_calib_report_astrometry.jpg' in dir_file:
             target=keys['WEBBUCKET']
             desf = 'latest/{}_cal.jpg'.format(camid)
-    elif file_ext=='.fits': 
+    elif file_ext=='.fits':        
         ctyp = 'image/fits'
     elif file_ext=='.png': 
         ctyp = 'image/png'
@@ -165,6 +165,11 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
         desf2 = '{}/{}/{}/{}'.format(keys["MATCHDIR"], camid, daydir, dir_file)
 
     srcf = os.path.join(arch_dir, dir_file)
+    if not os.path.isfile(srcf):
+        srcf = srcf.replace('ArchivedFiles','CapturedFiles')
+    if not os.path.isfile(srcf):
+        log.info('File not found: {}'.format(desf))
+        return True
     try:
         s3.meta.client.upload_file(srcf, target, desf, ExtraArgs={'ContentType': ctyp})
         ret = True
@@ -217,7 +222,7 @@ def uploadToArchive(arch_dir):
         # mp4 must be uploaded before corresponding jpg
         elif (file_ext == '.jpg') and ('FF_' in file_name):
             mp4f = dir_file.replace('.jpg', '.mp4')
-            uploadlist.append({'dir_file':mp4f, 'file_ext': file_ext, 'src_dir': arch_dir})
+            uploadlist.append({'dir_file':mp4f, 'file_ext': '.mp4', 'src_dir': arch_dir})
             uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
         elif (file_ext == '.jpg') and ('stack_' in file_name) and ('track' not in file_name):
             uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
@@ -243,12 +248,11 @@ def uploadToArchive(arch_dir):
         ffs = glob.glob1(arch_dir, 'FF*.fits')
     print(ffs)
     if len(ffs) > 0:
-        # cap_dir = arch_dir.replace('ArchivedFiles','CapturedFiles')
         uploadffs = random.sample(ffs, min(2, len(ffs)))
         for ff in uploadffs:
             uploadlist.append({'dir_file':ff, 'file_ext': '.fits', 'src_dir': arch_dir})
-    max_retries=10
-    retry_wait = 600
+    max_retries=5
+    retry_wait = 60
     if len(uploadlist) > 1:
         for ent in uploadlist:
             retry = 0
