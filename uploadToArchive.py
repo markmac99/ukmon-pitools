@@ -166,8 +166,10 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
 
     srcf = os.path.join(arch_dir, dir_file)
     if not os.path.isfile(srcf):
-        log.info('File not found: {}'.format(srcf))
-        return True
+        srcf = srcf.replace('ArchivedFiles','CapturedFiles')
+        if not os.path.isfile(srcf):
+            log.info('File not found: {}'.format(srcf))
+            return True
     try:
         s3.meta.client.upload_file(srcf, target, desf, ExtraArgs={'ContentType': ctyp})
         ret = True
