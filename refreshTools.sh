@@ -10,9 +10,8 @@ cd $here
 export PYTHONPATH=$here:~/source/RMS
 source ~/vRMS/bin/activate
 # validate the ini file 
+echo "checking ini file is valid"
 python -c "import ukmonInstaller as pp ; pp.validateIni('${here}', '3.8.65.98');"
-
-# read in the config file
 source $here/ukmon.ini
 
 echo "refreshing toolset"
@@ -37,33 +36,11 @@ if [ ! -f  ${UKMONKEY} ] ; then
     read -p "Press any key to continue"
 fi
 
-# if the station is configured, retrieve the AWS keys
-# and test connectivity. 
+# if the station is configured, retrieve the AWS keys and test connectivity. 
 if [[ "$LOCATION" != "NOTCONFIGURED"  && "$LOCATION" != "" ]] ; then
-    sftp -i $UKMONKEY -q $LOCATION@$UKMONHELPER << EOF
-put ukmon.ini ukmon.ini.client
-get ukmon.ini .ukmon.new
-get live.key
-exit
-EOF
-    # compare the new and old ini files and update if needed
-    # this allows remote updates to the location and server IP
-    orighelp=$UKMONHELPER
-    origloc=$LOCATION
-    source .ukmon.new
-    if [ "$UKMONHELPER" != "$orighelp" ] ; then
-        export PYTHONPATH=$here:~/source/RMS
-        python -c "import ukmonInstaller as pp ; pp.updateHelperIp('${here}','${UKMONHELPER}');"
-        echo "server address updated"
-    fi
-    if [ "$LOCATION" != "$origloc" ] ; then 
-        export PYTHONPATH=$here:~/source/RMS
-        python -c "import ukmonInstaller as pp ; pp.updateLocation('${here}','${LOCATION}');"
-        echo "camera location updated"
-    fi
-    rm -f .ukmon.new
+    echo "checking for ukmon config changes"
+    python -c "import ukmonInstaller as pp ; pp.getLatestKeys('${here}') ;"
 
-    chmod 0600 live.key
     if [ -f archive.key ] ; then \rm archive.key ; fi 
 
     echo "checking the RMS config file, crontab and icons"

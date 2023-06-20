@@ -4,7 +4,8 @@ import os
 import shutil
 
 
-from ukmonInstaller import createDefaultIni, updateHelperIp, updateLocation, checkPostProcSettings, validateIni # noqa: E402
+from ukmonInstaller import createDefaultIni, updateHelperIp, updateLocation, \
+    checkPostProcSettings, validateIni, getLatestKeys # noqa: E402
 myloc = os.path.split(os.path.abspath(__file__))[0]
 homedir = os.path.join(myloc, 'ukminst')
 tmpdir = os.path.join(myloc, 'output')
@@ -71,4 +72,43 @@ def test_checkPostProcSettings():
         if 'auto_reprocess: ' in li:
             assert li == 'auto_reprocess: true  \n'
     os.remove(rmscfg)            
+    return
+
+
+def test_getLatestKeys_normal():
+    if not os.path.isfile(os.path.join(homedir, 'ukmon.ini')):
+        shutil.copyfile(os.path.join(myloc, '../ukmon.ini'),os.path.join(homedir,'ukmon.ini'))
+    res = getLatestKeys(homedir)
+    assert res is True
+    os.remove(os.path.join(homedir, 'ukmon.ini'))
+    return 
+
+
+def test_getLatestKeys_newname():
+    if not os.path.isfile(os.path.join(homedir, 'ukmon.ini')):
+        shutil.copyfile(os.path.join(myloc, '../ukmon.ini'),os.path.join(homedir,'ukmon.ini'))
+    remoteinifname = 'ukmon.ini.newname'
+    res = getLatestKeys(homedir, remoteinifname=remoteinifname)
+    assert res is True
+    lis = open(os.path.join(homedir, 'ukmon.ini')).readlines()
+    for li in lis:
+        li = li.strip()
+        if 'LOCATION' in li:
+            assert li.split('=')[1] == 'newloc'
+    os.remove(os.path.join(homedir, 'ukmon.ini'))
+    return
+
+
+def test_getLatestKeys_newip():
+    if not os.path.isfile(os.path.join(homedir, 'ukmon.ini')):
+        shutil.copyfile(os.path.join(myloc, '../ukmon.ini'),os.path.join(homedir,'ukmon.ini'))
+    remoteinifname = 'ukmon.ini.newip'
+    res = getLatestKeys(homedir, remoteinifname=remoteinifname)
+    assert res is True
+    lis = open(os.path.join(homedir, 'ukmon.ini')).readlines()
+    for li in lis:
+        li = li.strip()
+        if 'UKMONHELPER' in li:
+            assert li.split('=')[1] == '1.2.3.4'
+    #os.remove(os.path.join(homedir, 'ukmon.ini'))
     return

@@ -239,10 +239,52 @@ def addDesktopIcons(myloc, statid):
     return
 
 
+def getLatestKeys(homedir, remoteinifname='ukmon.ini'):
+    homedir = os.path.expanduser(os.path.normpath(homedir))
+    idfile = os.path.expanduser(os.getenv('UKMONKEY').strip())
+    svr = os.getenv('UKMONHELPER').strip()
+    usr = os.getenv('LOCATION').strip()
+    ssh_client = paramiko.SSHClient()
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    #try: 
+    if True:
+        pkey = paramiko.RSAKey.from_private_key_file(idfile) 
+        ssh_client.connect(svr, username=usr, pkey=pkey, look_for_keys=False)
+        ftp_client = ssh_client.open_sftp()
+
+        # get the aws key file
+        ftp_client.get('live.key', os.path.join(homedir, 'live.key'))
+        os.chmod(os.path.join(homedir, 'live.key'), 0o600)
+
+        # get the new ini and check for changes
+        currinif = os.path.join(homedir, 'ukmon.ini')
+        newinif = os.path.join(homedir, '.ukmon.new')
+        ftp_client.put(currinif,'ukmon.ini.client')
+        ftp_client.get(remoteinifname, newinif)
+        iniflines = open(newinif,'r').readlines()
+        for li in iniflines:
+            li = li.strip()
+            if 'UKMONHELPER' in li:
+                newhelper = li.split('=')[1]
+                if newhelper != svr:
+                    updateHelperIp(homedir, newhelper)
+                    print('server address updated')
+            if 'LOCATION' in li:
+                newloc = li.split('=')[1]
+                if newloc != usr:
+                    updateLocation(homedir, newloc)
+                    print('location updated')
+        os.remove(newinif)
+        return True
+    #except:
+    else:
+        return False
+
+
 def checkPlatepar(statid, rmsloc):
-    idfile = os.path.expanduser(os.getenv('UKMONKEY'))
-    svr = os.getenv('UKMONHELPER')
-    usr = os.getenv('LOCATION')
+    idfile = os.path.expanduser(os.getenv('UKMONKEY').strip())
+    svr = os.getenv('UKMONHELPER').strip()
+    usr = os.getenv('LOCATION').strip()
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try: 
