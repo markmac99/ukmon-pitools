@@ -16,6 +16,7 @@ cp ~/source/testing/ukmon.ini .
 cp ~/source/testing/live.key .
 touch ./domp4s
 source ukmon.ini
+echo $UKMONHELPER
 pytest -v ./tests --cov=. --cov-report=term-missing
 rm ./live.key ./ukmon.ini ./domp4s
 [ -f /tmp/ukmon.ini ] && mv /tmp/ukmon.ini .
