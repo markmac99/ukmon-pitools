@@ -46,14 +46,14 @@ jobs:
           node-version: '14'
       - name: test on ubuntu
         run: |
-          ls -ltr
           mkdir ~/source
           pushd ~/source
           git clone https://github.com/markmac99/RMS.git
+          cd RMS
           cat .config | sed 's/XX0001/UK0006/g' > .config.new
           mv -f .config.new .config
           grep device .config
           popd
-          ls ~/source
+          ls ~/source/RMS
 
 
