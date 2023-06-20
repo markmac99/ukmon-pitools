@@ -1,9 +1,8 @@
-name: Python package
-
+name: Test ukmon-pitools
 on: [push]
-
 jobs:
   test:
+    name: run python tests
     runs-on: [self-hosted, Linux, ARM]
     strategy:
       matrix:
@@ -36,8 +35,8 @@ jobs:
           source ukmon.ini
           pytest -v . --cov=. --cov-report=term-missing
           rm ./live.key ./ukmon.ini ./domp4s
-  Run-npm-on-Ubuntu:
-    name: Run npm on Ubuntu
+  Run-refreshtools-on-Ubuntu:
+    name: Run refreshTools on Ubuntu
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -54,6 +53,8 @@ jobs:
           mv -f .config.new .config
           grep device .config
           popd
-          ls ~/source/RMS
+          ./refreshTools.sh
+          cat ~/.ssh/ukmon.pub
+          cat ukmon.ini
 
 

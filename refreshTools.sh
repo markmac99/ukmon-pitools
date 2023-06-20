@@ -9,6 +9,7 @@ cd $here
 
 export PYTHONPATH=$here:~/source/RMS
 source ~/vRMS/bin/activate
+
 # validate the ini file 
 echo "checking ini file is valid"
 python -c "import ukmonInstaller as pp ; pp.validateIni('${here}', '3.8.65.98');"
