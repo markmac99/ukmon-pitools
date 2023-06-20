@@ -44,4 +44,16 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '14'
-      - run: npm help
+      - name: test on ubuntu
+        run: |
+          ls -ltr
+          mkdir ~/source
+          pushd ~/source
+          git clone https://github.com/markmac99/RMS.git
+          cat .config | sed 's/XX0001/UK0006/g' > .config.new
+          mv -f .config.new .config
+          grep device .config
+          popd
+          ls ~/source
+
+
