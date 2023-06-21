@@ -247,7 +247,6 @@ def uploadToArchive(arch_dir):
             ffs = glob.glob1(arch_dir, 'FF*.fits')    
     else:
         ffs = glob.glob1(arch_dir, 'FF*.fits')
-    print(ffs)
     if len(ffs) > 0:
         uploadffs = random.sample(ffs, min(2, len(ffs)))
         for ff in uploadffs:
