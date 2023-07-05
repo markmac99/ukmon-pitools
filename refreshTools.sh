@@ -18,7 +18,7 @@ pip list | grep paramiko || pip install paramiko
 
 # validate the ini file 
 echo "checking ini file is valid"
-python -c "import ukmonInstaller as pp ; pp.validateIni('${here}', '3.8.65.98');"
+python -c "import ukmonInstaller as pp ; pp.validateIni('${here}', '3.11.55.160');"
 source $here/ukmon.ini
 
 echo "refreshing toolset"
@@ -62,10 +62,11 @@ else
     statid=$(grep stationID $RMSCFG | awk -F" " '{print $2}')
     if [ "$statid" == "XX0001" ] ; then
         echo "You must configure RMS before setting up the ukmon tools"
+    else
+        python -c "import ukmonInstaller as pp ; pp.addDesktopIcons('${here}', '${statid}');"
+        echo "Location missing - unable to continue. Please obtain a location code from the UKMON team,"
+        echo "then update the UKMON Config File using the desktop icon and rerun this script."
     fi 
-    python -c "import ukmonInstaller as pp ; pp.addDesktopIcons('${here}', '${statid}');"
-    echo "Location missing - unable to continue. Please obtain a location code from the UKMON team,"
-    echo "Update the UKMON Config File using the desktop icon then rerun this script."
     sleep 5
     if [ "$DOCKER_RUNNING" != "true" ] ; then read -p "Press any key to end" ; fi
     exit 1

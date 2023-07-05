@@ -13,7 +13,7 @@ from RMS.Misc import isRaspberryPi
 # Copyright (C) 2018-2023 Mark McIntyre
 
 
-def createDefaultIni(homedir, helperip='3.8.65.98', location='NOTCONFIGURED', keyfile=None, rmscfg=None):
+def createDefaultIni(homedir, helperip='3.11.55.160', location='NOTCONFIGURED', keyfile=None, rmscfg=None):
     homedir = os.path.normpath(os.path.expanduser(homedir))
     if not os.path.isdir(homedir):
         os.makedirs(homedir)
@@ -29,7 +29,7 @@ def createDefaultIni(homedir, helperip='3.8.65.98', location='NOTCONFIGURED', ke
         else:
             keyfile = '~/.ssh/ukmon'
     if helperip is None:
-        helperip = '3.8.65.98'
+        helperip = '3.11.55.160'
     if location is None:
         location = 'NOTCONFIGURED'
     with open(os.path.join(homedir, 'ukmon.ini'), 'w') as outf:
