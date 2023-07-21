@@ -1,13 +1,12 @@
-name: Python package
-
+name: Test ukmon-pitools
 on: [push]
-
 jobs:
-  pi4test:
+  test:
+    name: run python tests
     runs-on: [testpi4]
     strategy:
       matrix:
-        python-version: ["3.7"] #, "3.8", "3.9", "3.10", "3.11"
+        python-version: ["3.7"] #, "3.8", "3.9", "3.10", "3.11"]
     steps:
       - uses: actions/checkout@v3
       #- name: Set up Python ${{ matrix.python-version }}
@@ -30,7 +29,31 @@ jobs:
         run: |
           source ~/vRMS/bin/activate
           export PYTHONPATH=$PYTHONPATH:$(pwd)
-          cp ~/source/ukmon-pitools/ukmon.ini .
+          cp ~/source/testing/ukmon.ini .
           cp ~/source/testing/live.key .
+          touch ./domp4s
+          source ukmon.ini
           pytest -v . --cov=. --cov-report=term-missing
-          rm ./live.key ./ukmon.ini
+          rm ./live.key ./ukmon.ini ./domp4s
+#  Run-refreshtools-on-Ubuntu:
+#    name: Run refreshTools on Ubuntu
+#    runs-on: ubuntu-20.04
+#    steps:
+#      - uses: actions/checkout@v3
+#      - name: test on ubuntu
+#        run: |
+#          mkdir ~/source
+#          pushd ~/source
+#          git clone https://github.com/markmac99/RMS.git
+#          cd RMS
+#          cat .config | sed 's/XX0001/UK0006/g' > .config.new
+#          mv -f .config.new .config
+#          grep stationID .config
+#          popd
+#          python -V
+#          export PYTHONPATH=.:~/source/RMS
+#          ./refreshTools.sh
+#          cat ~/.ssh/ukmon.pub
+#          cat ukmon.ini
+
+

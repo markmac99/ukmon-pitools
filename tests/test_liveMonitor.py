@@ -9,6 +9,8 @@ import os
 myloc = os.path.split(os.path.abspath(__file__))[0]
 homedir = os.path.join(myloc, 'ukml')
 tmpdir = os.path.join(myloc, 'output')
+if not os.path.isdir(tmpdir):
+    os.makedirs(tmpdir) # , exist_ok=Truee) exist_ok keyword not supported  with python7.2
 
 
 def test_singleStation():

@@ -1,6 +1,6 @@
 [run]
 omit =
-        e:/dev/meteorhunting/ukmon-pitools/tests/*
+        */tests/*
         config.py
         config-3.7.py
 

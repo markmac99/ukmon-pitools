@@ -9,22 +9,21 @@ import xmltodict # noqa:E402
 
 
 basedir = os.path.realpath(os.path.dirname(__file__))
+tmpdir = os.path.join(basedir, 'output')
+if not os.path.isdir(tmpdir):
+    os.makedirs(tmpdir)
 
 
 def test_xmlcreatorName(dir_file = 'FF_UK001L_20230319_031241_804_0598784.fits',
                         expectedname='M20230319_031241_tackley_ne_UK001L.xml', srcdir='ukml/pi/uk001l',
                         camloc = 'tackley_ne'):
     cap_dir = os.path.join(basedir, srcdir)
-    tmpdir = os.path.join(basedir, 'output')
-    os.makedirs(tmpdir, exist_ok=True)
-    
     cfg = loadConfigFromDirectory('.config', cap_dir)
     fullxml, xmlname = sendToLive.createXMLfile(tmpdir, cap_dir, dir_file, camloc, cfg)
     assert xmlname == expectedname
 
 
 def test_xmlData(xmlfile='M20230319_031241_tackley_ne_UK001L.xml', testval=47092310):
-    os.makedirs(os.path.join(basedir, 'output'), exist_ok=True)
     fullxml = os.path.join(basedir, 'output', xmlfile)
     with open(fullxml) as fd:
         dd = xmltodict.parse(fd.read())
@@ -71,8 +70,6 @@ def test_uk0045Data():
 
 
 def test_createJpg():
-    tmpdir = os.path.join(basedir, 'output')
-    os.makedirs(tmpdir, exist_ok=True)
     dir_file = 'FF_UK0045_20230213_025919_082_0831744.fits'
     expname = 'M20230213_025919_redhill_e_UK0045P.jpg'
     srcdir='ukml/pi/uk0045'

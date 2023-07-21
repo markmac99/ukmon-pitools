@@ -53,7 +53,7 @@ def checkFbUpload(stationid, datadir, s3):
                             except Exception as e:
                                 log.info(e, exc_info=True)
                     if got == 0:
-                        log.info(f'file {fname.strip()} not found')
+                        log.info('file {} not found'.format(fname.strip()))
                             
                 os.remove(locfile)
                 key = {'Objects': []}
@@ -143,7 +143,7 @@ def uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc):
     tmpdir = tempfile.mkdtemp()
 
     if not os.path.isfile(os.path.join(cap_dir, dir_file)):
-        retmsg = f'{dir_file} not present in {cap_dir}'
+        retmsg = '{} not present in {}'.format(dir_file, cap_dir)
         log.warning(retmsg)
         return retmsg
     

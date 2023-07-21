@@ -7,31 +7,24 @@ myself=$(readlink -f $0)
 here="$( cd "$(dirname "$myself")" >/dev/null 2>&1 ; pwd -P )"
 cd $here
 
-# create a default config file if missing
+export PYTHONPATH=$here:~/source/RMS
+source ~/vRMS/bin/activate
 
-if [ ! -f $here/ukmon.ini ] ; then
-    export PYTHONPATH=$here:~/source/RMS
-    python -c "import ukmonInstaller as pp ; pp.createDefaultIni('${here}', '3.8.65.98');"
-    echo "location not configured yet"
-fi 
-# read in the config file
+echo "checking required python libs are installed"
+pip list | grep boto3 || pip install boto3 
+# python-crontab v2.5.1 for python 2.7 backwards compatability. Sigh. 
+pip list | grep python-crontab | grep 2.5.1 || pip install python-crontab==2.5.1
+pip list | grep paramiko || pip install paramiko
+
+# validate the ini file 
+echo "checking ini file is valid"
+python -c "import ukmonInstaller as pp ; pp.validateIni('${here}', '3.11.55.160');"
 source $here/ukmon.ini
-# added 2022-05-04 to allow for non-standard config file locations
-if [ "$RMSCFG" == "" ] ; then
-    export RMSCFG=~/source/RMS/.config
-    echo "export RMSCFG=~/source/RMS/.config" >> $here/ukmon.ini
-fi 
 
 echo "refreshing toolset"
 git stash 
 git pull
 git stash apply
-
-echo "checking required python libs are installed"
-source ~/vRMS/bin/activate
-pip list | grep boto3 || pip install boto3 
-# python-crontab v2.5.1 for python 2.7 backwards compatability. Sigh. 
-pip list | grep python-crontab | grep 2.5.1 || pip install python-crontab==2.5.1
 
 # creating an ssh key if not already present
 if [ ! -f  ${UKMONKEY} ] ; then 
@@ -45,42 +38,11 @@ if [ ! -f  ${UKMONKEY} ] ; then
     read -p "Press any key to continue"
 fi
 
-# if the station is configured, retrieve the AWS keys
-# and test connectivity. Also checks the ukmon.ini file is in unix format
+# if the station is configured, retrieve the AWS keys and test connectivity. 
 if [[ "$LOCATION" != "NOTCONFIGURED"  && "$LOCATION" != "" ]] ; then
-    if [ $(file $here/ukmon.ini | grep CRLF | wc -l) -ne 0 ] ; then
-        echo 'fixing ukmon.ini'
-        cp $here/ukmon.ini $here/tmp.ini
-        # dos2unix not installed on the pi
-        tr -d '\r' < $here/tmp.ini > $here/ukmon.ini
-        rm -f $here/tmp.ini
-        source $here/ukmon.ini
-    fi 
+    echo "checking for ukmon config changes"
+    python -c "import ukmonInstaller as pp ; pp.getLatestKeys('${here}') ;"
 
-    sftp -i $UKMONKEY -q $LOCATION@$UKMONHELPER << EOF
-put ukmon.ini ukmon.ini.client
-get ukmon.ini .ukmon.new
-get live.key
-exit
-EOF
-    # compare the new and old ini files and update if needed
-    # this allows remote updates to the location and server IP
-    orighelp=$UKMONHELPER
-    origloc=$LOCATION
-    source .ukmon.new
-    if [ "$UKMONHELPER" != "$orighelp" ] ; then
-        export PYTHONPATH=$here:~/source/RMS
-        python -c "import ukmonInstaller as pp ; pp.updateHelperIp('${here}','${UKMONHELPER}');"
-        echo "server address updated"
-    fi
-    if [ "$LOCATION" != "$origloc" ] ; then 
-        export PYTHONPATH=$here:~/source/RMS
-        python -c "import ukmonInstaller as pp ; pp.updateLocation('${here}','${LOCATION}');"
-        echo "camera location updated"
-    fi
-    rm -f .ukmon.new
-
-    chmod 0600 live.key
     if [ -f archive.key ] ; then \rm archive.key ; fi 
 
     echo "checking the RMS config file, crontab and icons"
@@ -100,10 +62,11 @@ else
     statid=$(grep stationID $RMSCFG | awk -F" " '{print $2}')
     if [ "$statid" == "XX0001" ] ; then
         echo "You must configure RMS before setting up the ukmon tools"
+    else
+        python -c "import ukmonInstaller as pp ; pp.addDesktopIcons('${here}', '${statid}');"
+        echo "Location missing - unable to continue. Please obtain a location code from the UKMON team,"
+        echo "then update the UKMON Config File using the desktop icon and rerun this script."
     fi 
-    python -c "import ukmonInstaller as pp ; pp.addDesktopIcons('${here}', '${statid}');"
-    echo "Location missing - unable to continue. Please obtain a location code from the UKMON team,"
-    echo "Update the UKMON Config File using the desktop icon then rerun this script."
     sleep 5
     if [ "$DOCKER_RUNNING" != "true" ] ; then read -p "Press any key to end" ; fi
     exit 1

@@ -1,3 +1,5 @@
+# Copyright (C) 2018-2023 Mark McIntyre
+
 import os
 import shutil
 from crontab import CronTab
@@ -9,31 +11,78 @@ import json
 import tempfile
 import RMS.ConfigReader as cr
 from RMS.Misc import isRaspberryPi
+from uploadToArchive import readKeyFile
 
-# Copyright (C) 2018-2023 Mark McIntyre
+oldip = '3.9.65.98'
+currip = '3.11.55.160'
 
 
-def createDefaultIni(homedir, helperip=None):
-    rmscfg = '~/source/RMS/.config'
-    keyfile = '~/.ssh/ukmon'
-    homedir = os.path.normpath(homedir)
+def createDefaultIni(homedir, helperip='3.11.55.160', location='NOTCONFIGURED', keyfile=None, rmscfg=None):
+    """
+    Create a default ini file, if its not present on the target
+    """
+    homedir = os.path.normpath(os.path.expanduser(homedir))
+    if not os.path.isdir(homedir):
+        os.makedirs(homedir)
     camid = homedir[homedir.find('pitools')+8:]
-    if camid != '' and 'tests' not in camid:
-        rmscfg = '~/source/Stations/{}/.config'.format(camid)
-        keyfile = '~/.ssh/ukmon-{}'.format(camid)
+    if rmscfg is None:
+        if camid != '' and 'tests' not in camid:
+            rmscfg = '~/source/Stations/{}/.config'.format(camid)
+        else:
+            rmscfg = '~/source/RMS/.config'
+    if keyfile is None:
+        if camid != '' and 'tests' not in camid:
+            keyfile = '~/.ssh/ukmon-{}'.format(camid)
+        else:
+            keyfile = '~/.ssh/ukmon'
     if helperip is None:
-        helperip = '3.8.65.98'
-    os.makedirs(homedir, exist_ok=True)
+        helperip = currip
+    if location is None:
+        location = 'NOTCONFIGURED'
     with open(os.path.join(homedir, 'ukmon.ini'), 'w') as outf:
         outf.write("# config data for this station\n")
-        outf.write("export LOCATION=NOTCONFIGURED\n")
+        outf.write("export LOCATION={}\n".format(location))
         outf.write("export UKMONHELPER={}\n".format(helperip))
         outf.write("export UKMONKEY={}\n".format(keyfile))
         outf.write("export RMSCFG={}\n".format(rmscfg))
-    return 
+    return True
+
+
+def validateIni(homedir, newhelperip=None):
+    """
+    Check the ini file contains the required lines. 
+    """
+    homedir = os.path.expanduser(os.path.normpath(homedir))
+    location = None
+    keyfile = None
+    rmscfg = None
+    helperip = None
+    if newhelperip is None:
+        newhelperip = currip
+    inifname = os.path.join(homedir, 'ukmon.ini')
+    if os.path.isfile(inifname):
+        inifdata = open(inifname, 'r').readlines()
+        for li in inifdata:
+            li = li.strip()
+            if 'LOCATION' in li:
+                location = li.split('=')[1]
+            if 'UKMONKEY' in li:
+                keyfile = li.split('=')[1]
+            if 'RMSCFG' in li:
+                rmscfg = li.split('=')[1]
+            if 'UKMONHELPER' in li:
+                helperip = li.split('=')[1]
+    if location is None or keyfile is None or rmscfg is None or helperip is None:
+        createDefaultIni(homedir, newhelperip, location, keyfile, rmscfg)
+    if helperip == oldip:
+        updateHelperIp(homedir, newhelperip)
+    return True
 
 
 def updateHelperIp(homedir, helperip):
+    """
+    Update the ukmon.ini file with a new IP address if neeeded. 
+    """
     homedir = os.path.normpath(homedir)
     lis = open(os.path.join(homedir, 'ukmon.ini'), 'r').readlines()
     with open(os.path.join(homedir, 'ukmon.ini'), 'w') as outf:
@@ -45,6 +94,9 @@ def updateHelperIp(homedir, helperip):
 
 
 def updateLocation(homedir, newloc):
+    """
+    Update the ukmon-specific location, if a new one was supplied. Allows us to move cameras to new sites. 
+    """
     homedir = os.path.normpath(homedir)
     lis = open(os.path.join(homedir, 'ukmon.ini'), 'r').readlines()
     with open(os.path.join(homedir, 'ukmon.ini'), 'w') as outf:
@@ -57,7 +109,8 @@ def updateLocation(homedir, newloc):
 
 
 def installUkmonFeed(rmscfg='~/source/RMS/.config'):
-    """ This function installs the UKMon postprocessing script into the RMS config file.
+    """ 
+    Installs the UKMon postprocessing script into the RMS config file.
     It is called from the refreshTools script during initial installation and should never
     be called outside of that unless you're *certain* you know what you're doing. The script 
     alters the rms .config file. 
@@ -82,6 +135,9 @@ def installUkmonFeed(rmscfg='~/source/RMS/.config'):
 
 
 def checkPostProcSettings(myloc, cfgname):
+    """
+    Check that the RMS .config file contains the correct post-processing settings to run the ukmon process. 
+    """
     print('checking postProcessing Settings')
 
     config = cr.parse(cfgname)
@@ -126,7 +182,8 @@ def checkPostProcSettings(myloc, cfgname):
 
 
 def checkCrontab(myloc, datadir):
-    """ This function adds the crontab entries
+    """ 
+    Add the crontab entries for the refresh job and live stream
     """
     print('checking crontab')
     cron = CronTab(user=True)
@@ -149,6 +206,10 @@ def checkCrontab(myloc, datadir):
 
 
 def createSystemdService(myloc, camid):
+    """
+    Create a systemd style service for ukmon-live, in user-space. 
+    This should be more reliable than a cron job. 
+    """
     unitname = os.path.expanduser('~/.config/systemd/user/ukmonlive-{}.service'.format(camid))
     if not os.path.isfile(unitname):
         with open(unitname,'w') as outf:
@@ -163,6 +224,11 @@ def createSystemdService(myloc, camid):
 
 
 def createUbuntuIcon(myloc, statid):
+    """
+    Create Ubuntu-compatible desktop icons. 
+    These different from the Debian-compatible ones normally used by RMS and 
+    which dont work properly on Ubuntu.
+    """
     reflnk = os.path.expanduser('~/Desktop/refresh_UKMON_tools_{}.sh'.format(statid))
     if os.path.isfile(reflnk):
         os.remove(reflnk)
@@ -183,7 +249,7 @@ def createUbuntuIcon(myloc, statid):
 
 def addDesktopIcons(myloc, statid):
     """
-    This function adds the desktop icons which are links to the ini file and refresh scripts
+    For Debian and Raspian, add the desktop icons which are links to the ini file and refresh scripts
     """
     print('checking/adding desktop icons')
     if not os.path.isdir(os.path.expanduser('~/Desktop')):
@@ -207,10 +273,63 @@ def addDesktopIcons(myloc, statid):
     return
 
 
+def getLatestKeys(homedir, remoteinifname='ukmon.ini'):
+    """
+    Retrieve the latest ini and key files from the ukmon server.  
+    If the ini file contains a new server IP or new location, the local copy of the 
+    ini file is updated accordingly.  
+    """
+    homedir = os.path.expanduser(os.path.normpath(homedir))
+    inifvals = readKeyFile(os.path.join(homedir, 'ukmon.ini'))
+    idfile = os.path.expanduser(inifvals['UKMONKEY'])
+    svr = inifvals['UKMONHELPER']
+    usr = inifvals['LOCATION']
+    print(idfile, svr, usr)
+    ssh_client = paramiko.SSHClient()
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    #try: 
+    if True:
+        pkey = paramiko.RSAKey.from_private_key_file(idfile) 
+        ssh_client.connect(svr, username=usr, pkey=pkey, look_for_keys=False)
+        ftp_client = ssh_client.open_sftp()
+
+        # get the aws key file
+        ftp_client.get('live.key', os.path.join(homedir, 'live.key'))
+        os.chmod(os.path.join(homedir, 'live.key'), 0o600)
+
+        # get the new ini and check for changes
+        currinif = os.path.join(homedir, 'ukmon.ini')
+        newinif = os.path.join(homedir, '.ukmon.new')
+        ftp_client.put(currinif,'ukmon.ini.client')
+        ftp_client.get(remoteinifname, newinif)
+        iniflines = open(newinif,'r').readlines()
+        for li in iniflines:
+            li = li.strip()
+            if 'UKMONHELPER' in li:
+                newhelper = li.split('=')[1]
+                if newhelper != svr:
+                    updateHelperIp(homedir, newhelper)
+                    print('server address updated')
+            if 'LOCATION' in li:
+                newloc = li.split('=')[1]
+                if newloc != usr:
+                    updateLocation(homedir, newloc)
+                    print('location updated')
+        os.remove(newinif)
+        return True
+    #except:
+    else:
+        return False
+
+
 def checkPlatepar(statid, rmsloc):
-    idfile = os.path.expanduser(os.getenv('UKMONKEY'))
-    svr = os.getenv('UKMONHELPER')
-    usr = os.getenv('LOCATION')
+    """
+    Check for a new platepar on the server and retrieves it if present.  
+    The file is checked for compatability with the station.  
+    """
+    idfile = os.path.expanduser(os.getenv('UKMONKEY').strip())
+    svr = os.getenv('UKMONHELPER').strip()
+    usr = os.getenv('LOCATION').strip()
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try: 
@@ -221,7 +340,6 @@ def checkPlatepar(statid, rmsloc):
         try:
             ftp_client.get('platepar/platepar_cmn2010.cal','/tmp/platepar_cmn2010.cal')
         except Exception:
-            print('unable to fetch new platepar')
             fetchpp = False
         if fetchpp:
             print('Fetching new platepar...')

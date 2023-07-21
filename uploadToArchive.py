@@ -16,6 +16,7 @@ import json
 import random
 import glob
 import logging
+from time import sleep
 
 log = logging.getLogger("logger")
 
@@ -59,10 +60,10 @@ def readKeyFile(filename):
 
 def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys):
     if 'ukmon' in keys['ARCHBUCKET']:
-        uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys)
+        sts = uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys)
     else:
-        uploadOneFileOther(arch_dir, dir_file, s3, targf, file_ext, keys)
-    return 
+        sts = uploadOneFileOther(arch_dir, dir_file, s3, targf, file_ext, keys)
+    return sts
 
 
 def uploadOneFileOther(arch_dir, dir_file, s3, targf, file_ext, keys):
@@ -90,16 +91,12 @@ def uploadOneFileOther(arch_dir, dir_file, s3, targf, file_ext, keys):
     srcf = os.path.join(arch_dir, dir_file)
     try:
         s3.meta.client.upload_file(srcf, target, desf, ExtraArgs={'ContentType': ctyp})
-        if log is None:
-            print(desf)
-        else:
-            log.info(desf)
+        ret = True
+        log.info(desf)
     except Exception:
-        if log is None:
-            print('upload failed: {}'.format(desf))
-        else:
-            log.info('upload failed: {}'.format(desf))
-    return 
+        ret = False
+        log.info('upload failed: {}'.format(desf))
+    return ret
 
 
 def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
@@ -128,7 +125,7 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
         elif '_calib_report_astrometry.jpg' in dir_file:
             target=keys['WEBBUCKET']
             desf = 'latest/{}_cal.jpg'.format(camid)
-    elif file_ext=='.fits': 
+    elif file_ext=='.fits':        
         ctyp = 'image/fits'
     elif file_ext=='.png': 
         ctyp = 'image/png'
@@ -168,30 +165,27 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
         desf2 = '{}/{}/{}/{}'.format(keys["MATCHDIR"], camid, daydir, dir_file)
 
     srcf = os.path.join(arch_dir, dir_file)
+    if not os.path.isfile(srcf):
+        srcf = srcf.replace('ArchivedFiles','CapturedFiles')
+        if not os.path.isfile(srcf):
+            log.info('File not found: {}'.format(srcf))
+            return True
     try:
         s3.meta.client.upload_file(srcf, target, desf, ExtraArgs={'ContentType': ctyp})
-        if log is None:
-            print(desf)
-        else:
-            log.info(desf)
+        ret = True
+        log.info(desf)
     except Exception:
-        if log is None:
-            print('upload failed: {}'.format(desf))
-        else:
-            log.info('upload failed: {}'.format(desf))
+        ret = False
+        log.info('upload failed: {}'.format(desf))
     if desf2 is not None:
         try:
             s3.meta.client.upload_file(srcf, target2, desf2, ExtraArgs={'ContentType': ctyp})
-            if log is None:
-                print(desf2)
-            else:
-                log.info(desf2)
+            ret = True
+            log.info(desf2)
         except Exception:
-            if log is None:
-                print('upload failed: {}'.format(desf2))
-            else:
-                log.info('upload failed: {}'.format(desf2))
-    return
+            ret = False
+            log.info('upload failed: {}'.format(srcf))
+    return ret
 
 
 def uploadToArchive(arch_dir):
@@ -216,30 +210,31 @@ def uploadToArchive(arch_dir):
     # otherwise there's a risk the matching engine will miss it
     dir_contents = os.listdir(arch_dir)
     daydir = os.path.split(arch_dir)[1]
+
+    uploadlist = []
+    uploadlist.append({'dir_file':'platepars_all_recalibrated.json', 'file_ext': '.json', 'src_dir': arch_dir})
     for dir_file in dir_contents:
         file_name, file_ext = os.path.splitext(dir_file)
         file_ext = file_ext.lower()
         # platepar must be uploaded before FTPdetect file
         if ('FTPdetectinfo_{}.txt'.format(daydir) == dir_file):
-            if os.path.isfile(os.path.join(arch_dir, 'platepars_all_recalibrated.json')):
-                uploadOneFile(arch_dir, 'platepars_all_recalibrated.json', s3, targf, '.json', keys)
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys)
+            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
         # mp4 must be uploaded before corresponding jpg
         elif (file_ext == '.jpg') and ('FF_' in file_name):
             mp4f = dir_file.replace('.jpg', '.mp4')
             if os.path.isfile(os.path.join(arch_dir, mp4f)):
-                uploadOneFile(arch_dir, mp4f, s3, targf, '.mp4', keys)
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys)
+                uploadlist.append({'dir_file':mp4f, 'file_ext': '.mp4', 'src_dir': arch_dir})
+            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
         elif (file_ext == '.jpg') and ('stack_' in file_name) and ('track' not in file_name):
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys)
+            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
         elif (file_ext == '.jpg') and ('calib' in file_name):
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys)
+            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
         elif file_ext in ('.png', '.kml', '.cal', '.json', '.csv'): 
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys)
+            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
         elif dir_file == 'mask.bmp' or dir_file == 'flat.bmp':
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys)
+            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
         elif dir_file == '.config':
-            uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys)
+            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
     
     # upload two FITs files chosen at random from the recalibrated ones
     # to be used for platepar creation if needed
@@ -253,12 +248,21 @@ def uploadToArchive(arch_dir):
     else:
         ffs = glob.glob1(arch_dir, 'FF*.fits')
     if len(ffs) > 0:
-        cap_dir = arch_dir.replace('ArchivedFiles','CapturedFiles')
         uploadffs = random.sample(ffs, min(2, len(ffs)))
         for ff in uploadffs:
-            uploadOneFile(cap_dir, ff, s3, targf, '.fits', keys)    
-
-    return True
+            uploadlist.append({'dir_file':ff, 'file_ext': '.fits', 'src_dir': arch_dir})
+    max_retries=5
+    retry_wait = 60
+    if len(uploadlist) > 1:
+        for ent in uploadlist:
+            retry = 0
+            res = False
+            while res is False and retry < max_retries:
+                res = uploadOneFile(ent['src_dir'], ent['dir_file'], s3, targf, ent['file_ext'], keys) 
+                if res is False:
+                    sleep(retry_wait)
+                    retry +=1
+    return res
 
 
 def manualUpload(targ_dir):
