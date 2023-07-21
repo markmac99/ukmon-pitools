@@ -13,11 +13,12 @@ if [ ! -d ~/source/testing ] ; then
     exit
 fi 
 cp ~/source/testing/ukmon.ini . 
+cp ~/source/testing/badini.ini . 
 cp ~/source/testing/live.key .
 touch ./domp4s
 source ukmon.ini
-pytest -v ./tests --cov=. --cov-report=term-missing
-rm ./live.key ./ukmon.ini ./domp4s
+pytest -v ./tests --cov=. --cov-report=term-missing --cov-config=.coveragerc_lnx 
+rm ./live.key ./ukmon.ini ./domp4s ./badini.ini
 [ -f /tmp/ukmon.ini ] && mv /tmp/ukmon.ini .
 [ -f /tmp/live.key ] && mv /tmp/live.key .
 [ -f /tmp/domp4s ] && mv /tmp/live.key .
