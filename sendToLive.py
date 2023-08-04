@@ -205,8 +205,8 @@ def singleUpload(cap_dir, dir_file):
     if keys is None:
         log.warning('unable to open keyfile')
         return 'unable to open keyfile'
-    awskey = keys['AWS_ACCESS_KEY_ID']
-    awssec = keys['AWS_SECRET_ACCESS_KEY']
+    awskey = keys['LIVE_ACCESS_KEY_ID']
+    awssec = keys['LIVE_SECRET_ACCESS_KEY']
     awsreg = keys['LIVEREGION']
     target = keys['LIVEBUCKET']
 

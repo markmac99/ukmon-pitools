@@ -59,7 +59,7 @@ def readKeyFile(filename):
 
 
 def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys):
-    if 'ukmon' in keys['ARCHBUCKET']:
+    if 'ukmon' in keys['ARCHBUCKET'] or 'ukmda' in keys['ARCHBUCKET']:
         sts = uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys)
     else:
         sts = uploadOneFileOther(arch_dir, dir_file, s3, targf, file_ext, keys)
