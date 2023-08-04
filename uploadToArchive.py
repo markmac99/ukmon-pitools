@@ -288,7 +288,7 @@ def manualUpload(targ_dir):
             reg = keys['ARCHREGION']
             conn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY']) 
             s3 = conn.resource('s3', region_name=reg)
-            s3.meta.client.upload_file('/tmp/test.txt', target, '/tmp/{}.txt'.format(keys['CAMLOC']))
+            s3.meta.client.upload_file('/tmp/test.txt', target, 'tmp/{}.txt'.format(keys['CAMLOC']))
             #key = {'Objects': []}
             #key['Objects'] = [{'Key': 'test.txt'}]
             #s3.meta.client.delete_objects(Bucket=target, Delete=key)
