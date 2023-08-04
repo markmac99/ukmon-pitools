@@ -54,9 +54,9 @@ def readKeyFile(filename):
         vals['LIVEREGION'] = 'eu-west-1'
     if 'MATCHDIR' not in vals:
         vals['MATCHDIR'] = 'matches/RMSCorrelate'
-    if 'LIVE_ACCESS_KEY_ID' not in vals:
+    if 'LIVE_ACCESS_KEY_ID' not in vals and 'AWS_ACCESS_KEY_ID' in vals:
         vals['LIVE_ACCESS_KEY_ID'] = vals['AWS_ACCESS_KEY_ID']
-    if 'LIVE_SECRET_ACCESS_KEY' not in vals:
+    if 'LIVE_SECRET_ACCESS_KEY' not in vals and 'AWS_SECRET_ACCESS_KEY' in vals:
         vals['LIVE_SECRET_ACCESS_KEY'] = vals['AWS_SECRET_ACCESS_KEY']
 
     #print(vals)
