@@ -288,10 +288,10 @@ def manualUpload(targ_dir):
             reg = keys['ARCHREGION']
             conn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY']) 
             s3 = conn.resource('s3', region_name=reg)
-            s3.meta.client.upload_file('/tmp/test.txt', target, 'test.txt')
-            key = {'Objects': []}
-            key['Objects'] = [{'Key': 'test.txt'}]
-            s3.meta.client.delete_objects(Bucket=target, Delete=key)
+            s3.meta.client.upload_file('/tmp/test.txt', target, '{}.txt'.format(keys['CAMLOC']))
+            #key = {'Objects': []}
+            #key['Objects'] = [{'Key': 'test.txt'}]
+            #s3.meta.client.delete_objects(Bucket=target, Delete=key)
             print('test successful')
         except Exception:
             print('unable to upload to archive - check key information')
