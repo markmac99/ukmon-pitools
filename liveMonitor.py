@@ -10,6 +10,7 @@ import logging
 from RMS.Logger import initLogging
 import RMS.ConfigReader as cr
 from stat import ST_INO
+from uploadToArchive import readKeyFile
 
 
 log = logging.getLogger("logger")
@@ -69,33 +70,17 @@ def monitorLogFile(camloc, rmscfg):
 
     myloc = os.path.split(os.path.abspath(__file__))[0]
 
-    awskey = None
-    awssec = None
-    awsreg = None
-    archkey = None
-    archsec = None
-    archreg = None
-
     # get credentials
     if not os.path.isfile(os.path.join(myloc, 'live.key')):
         log.error('AWS key not present, aborting')
         exit(1)
-    for li in open(os.path.join(myloc, 'live.key'), 'r').readlines():
-        if 'LIVE_ACCESS_KEY_ID' in li:
-            awskey = li.split('=')[1].strip()
-        if 'LIVE_SECRET_ACCESS_KEY' in li:
-            awssec = li.split('=')[1].strip()
-        if 'LIVEREGION' in li:
-            awsreg = li.split('=')[1].strip()
-        if 'AWS_ACCESS_KEY_ID' in li:
-            archkey = li.split('=')[1].strip()
-        if 'AWS_SECRET_ACCESS_KEY' in li:
-            archsec = li.split('=')[1].strip()
-        if 'ARCHREGION' in li:
-            archreg = li.split('=')[1].strip()
-    if awssec is None or awskey is None or awsreg is None or archkey is None or archsec is None or archreg is None:
-        log.error('unable to locate AWS credentials, aborting')
-        exit(1)
+    keys = readKeyFile(os.path.join(myloc, 'live.key'))
+    awskey = keys['LIVE_ACCESS_KEY_ID']
+    awssec = keys['LIVE_SECRET_ACCESS_KEY']
+    awsreg = keys['LIVEREGION']
+    archkey = keys['AWS_ACCESS_KEY_ID']
+    archsec = keys['AWS_SECRET_ACCESS_KEY']
+    archreg = keys['ARCHREGION']
 
     conn = boto3.Session(aws_access_key_id=awskey, aws_secret_access_key=awssec, region_name=awsreg) 
     s3 = conn.resource('s3')
