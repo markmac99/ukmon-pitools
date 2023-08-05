@@ -106,6 +106,14 @@ def uploadOneFileOther(arch_dir, dir_file, s3, targf, file_ext, keys):
 
 def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
     # upload a single file to ukmon, setting the mime type accordingly
+    # targets:
+    # - ff jpegs, mp4s, kmls -> website/img/
+    # - kmls also to shared/kmls/
+    # - ufo csv - shared/consolidated/temp/
+    # - platepar.cal - shared/consolidated/platepars/
+    # - config, platepars_all, ftpdetect -> shared/matches/RMSCorrelate/
+    # - other pngs, flux json files, mask, flat and any fits files - shared/archive/
+    # - config also to shared/archive/
     
     target = keys['ARCHBUCKET']
     target2 = None
@@ -124,19 +132,10 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
             ispls = dir_file.split('_')
             iymd = ispls[2]
             desf = 'img/single/{}/{}/{}'.format(iymd[:4], iymd[:6], dir_file)
-        elif '_stack_' in dir_file:
-            target=keys['WEBBUCKET']
-            desf = 'latest/{}.jpg'.format(camid)
-        elif '_calib_report_astrometry.jpg' in dir_file:
-            target=keys['WEBBUCKET']
-            desf = 'latest/{}_cal.jpg'.format(camid)
     elif file_ext=='.fits':        
         ctyp = 'image/fits'
     elif file_ext=='.png': 
         ctyp = 'image/png'
-        if '_radiants.png' in dir_file:
-            target=keys['WEBBUCKET']
-            desf = 'latest/{}.png'.format(camid)
     elif file_ext=='.bmp': 
         ctyp = 'image/bmp'
     elif file_ext=='.mp4': 
