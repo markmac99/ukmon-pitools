@@ -10,6 +10,7 @@ import logging
 from RMS.Logger import initLogging
 import RMS.ConfigReader as cr
 from stat import ST_INO
+from uploadToArchive import readKeyFile
 
 
 log = logging.getLogger("logger")
@@ -69,27 +70,22 @@ def monitorLogFile(camloc, rmscfg):
 
     myloc = os.path.split(os.path.abspath(__file__))[0]
 
-    awskey = None
-    awssec = None
-    awsreg = None
-
     # get credentials
     if not os.path.isfile(os.path.join(myloc, 'live.key')):
         log.error('AWS key not present, aborting')
         exit(1)
-    for li in open(os.path.join(myloc, 'live.key'), 'r').readlines():
-        if 'AWS_ACCESS_KEY_ID' in li:
-            awskey = li.split('=')[1].strip()
-        if 'AWS_SECRET_ACCESS_KEY' in li:
-            awssec = li.split('=')[1].strip()
-        if 'AWS_DEFAULT_REGION' in li:
-            awsreg = li.split('=')[1].strip()
-    if awssec is None or awskey is None or awsreg is None:
-        log.error('unable to locate AWS credentials, aborting')
-        exit(1)
+    keys = readKeyFile(os.path.join(myloc, 'live.key'))
+    awskey = keys['LIVE_ACCESS_KEY_ID']
+    awssec = keys['LIVE_SECRET_ACCESS_KEY']
+    awsreg = keys['LIVEREGION']
+    archkey = keys['AWS_ACCESS_KEY_ID']
+    archsec = keys['AWS_SECRET_ACCESS_KEY']
+    archreg = keys['ARCHREGION']
 
     conn = boto3.Session(aws_access_key_id=awskey, aws_secret_access_key=awssec, region_name=awsreg) 
     s3 = conn.resource('s3')
+    archconn = boto3.Session(aws_access_key_id=archkey, aws_secret_access_key=archsec, region_name=archreg) 
+    archs3 = archconn.resource('s3')
 
     datadir = cfg.data_dir
     logdir = os.path.expanduser(os.path.join(datadir, cfg.log_dir))
@@ -120,7 +116,7 @@ def monitorLogFile(camloc, rmscfg):
                 if (FBINTERVAL > 0) and ((nowtm - starttime).seconds > FBINTERVAL):
                     try:
                         #log.info('checking for fireball flags')
-                        uoe.checkFbUpload(cfg.stationID, datadir, s3)
+                        uoe.checkFbUpload(cfg.stationID, datadir, archs3)
                     except Exception as e: 
                         log.warning('problem checking fireball flags')
                         log.info(e, exc_info=True)

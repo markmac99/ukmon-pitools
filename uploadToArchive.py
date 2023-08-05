@@ -54,12 +54,17 @@ def readKeyFile(filename):
         vals['LIVEREGION'] = 'eu-west-1'
     if 'MATCHDIR' not in vals:
         vals['MATCHDIR'] = 'matches/RMSCorrelate'
+    if 'LIVE_ACCESS_KEY_ID' not in vals and 'AWS_ACCESS_KEY_ID' in vals:
+        vals['LIVE_ACCESS_KEY_ID'] = vals['AWS_ACCESS_KEY_ID']
+    if 'LIVE_SECRET_ACCESS_KEY' not in vals and 'AWS_SECRET_ACCESS_KEY' in vals:
+        vals['LIVE_SECRET_ACCESS_KEY'] = vals['AWS_SECRET_ACCESS_KEY']
+
     #print(vals)
     return vals
 
 
 def uploadOneFile(arch_dir, dir_file, s3, targf, file_ext, keys):
-    if 'ukmon' in keys['ARCHBUCKET']:
+    if 'ukmon' in keys['ARCHBUCKET'] or 'ukmda' in keys['ARCHBUCKET']:
         sts = uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys)
     else:
         sts = uploadOneFileOther(arch_dir, dir_file, s3, targf, file_ext, keys)
@@ -101,6 +106,14 @@ def uploadOneFileOther(arch_dir, dir_file, s3, targf, file_ext, keys):
 
 def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
     # upload a single file to ukmon, setting the mime type accordingly
+    # targets:
+    # - ff jpegs, mp4s, kmls -> website/img/
+    # - kmls also to shared/kmls/
+    # - ufo csv - shared/consolidated/temp/
+    # - platepar.cal - shared/consolidated/platepars/
+    # - config, platepars_all, ftpdetect -> shared/matches/RMSCorrelate/
+    # - other pngs, flux json files, mask, flat and any fits files - shared/archive/
+    # - config also to shared/archive/
     
     target = keys['ARCHBUCKET']
     target2 = None
@@ -119,19 +132,10 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
             ispls = dir_file.split('_')
             iymd = ispls[2]
             desf = 'img/single/{}/{}/{}'.format(iymd[:4], iymd[:6], dir_file)
-        elif '_stack_' in dir_file:
-            target=keys['WEBBUCKET']
-            desf = 'latest/{}.jpg'.format(camid)
-        elif '_calib_report_astrometry.jpg' in dir_file:
-            target=keys['WEBBUCKET']
-            desf = 'latest/{}_cal.jpg'.format(camid)
     elif file_ext=='.fits':        
         ctyp = 'image/fits'
     elif file_ext=='.png': 
         ctyp = 'image/png'
-        if '_radiants.png' in dir_file:
-            target=keys['WEBBUCKET']
-            desf = 'latest/{}.png'.format(camid)
     elif file_ext=='.bmp': 
         ctyp = 'image/bmp'
     elif file_ext=='.mp4': 
@@ -288,10 +292,10 @@ def manualUpload(targ_dir):
             reg = keys['ARCHREGION']
             conn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY']) 
             s3 = conn.resource('s3', region_name=reg)
-            s3.meta.client.upload_file('/tmp/test.txt', target, 'test.txt')
-            key = {'Objects': []}
-            key['Objects'] = [{'Key': 'test.txt'}]
-            s3.meta.client.delete_objects(Bucket=target, Delete=key)
+            s3.meta.client.upload_file('/tmp/test.txt', target, 'tmp/{}.txt'.format(keys['CAMLOC']))
+            #key = {'Objects': []}
+            #key['Objects'] = [{'Key': 'test.txt'}]
+            #s3.meta.client.delete_objects(Bucket=target, Delete=key)
             print('test successful')
         except Exception:
             print('unable to upload to archive - check key information')
