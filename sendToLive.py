@@ -219,13 +219,13 @@ def singleUpload(cap_dir, dir_file):
 
     if cap_dir == 'test' and dir_file == 'test':
         with open('/tmp/test.txt', 'w') as f:
-            f.write('test')
+            f.write('{}'.format(camloc))
         
         try:
-            s3.meta.client.upload_file('/tmp/test.txt', target, 'test.txt')
+            s3.meta.client.upload_file('/tmp/test.txt', target, 'test/test.txt')
             key = {'Objects': []}
-            key['Objects'] = [{'Key': 'test.txt'}]
-            s3.meta.client.delete_objects(Bucket=target, Delete=key)
+            key['Objects'] = [{'Key': 'test/test.txt'}]
+            #s3.meta.client.delete_objects(Bucket=target, Delete=key)
             retmsg = 'test successful'
         except Exception:
             retmsg = 'unable to upload to {} - check key information'.format(target)

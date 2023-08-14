@@ -1,8 +1,8 @@
 # ukmeteornetwork toolset for RMS pi meteor cameras
 
-These tools manage uploads of RMS data to the UK Meteor Network Archive and Live-stream. There are two parts:  
-* The post-processing job that runs after RMS to send data to the UKMON archive.  
-* The realtime job that uploads detections and fireball data to ukmon-live.  
+These tools manage uploads of RMS data to the UK Meteor Network  Archive and to the livestream. There are two parts:  
+* The post-processing job that runs after RMS to send data to the archive.  
+* The realtime job that uploads detections to the livestream..  
 
 There is more information about RMS and the toolset in the wiki [here](https://github.com/markmac99/ukmon-pitools/wiki "UKMON Wiki")
 
@@ -33,7 +33,7 @@ cd ukmon-pitools
 ### Multistation Installation
 These instructions are for multi station linux builds where multiple cameras are managed from a single
 userid. 
-NB: If you're setting up such a configuration you MUST let me know the affected camera IDs so i can make some server-side adjustments. Otherwise the ukmon ini file will be overwritten each time the system updates. 
+NB: If you're setting up such a configuration you MUST let me know the affected camera IDs so i can make some server-side adjustments. 
 
 To explain the process, lets assume you have cameras US0001 and US0002
 * Login as the managing user and run the following to set up US0001

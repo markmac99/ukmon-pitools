@@ -278,8 +278,6 @@ def manualUpload(targ_dir):
     You can also use this to test connectivity by passing a single parameter 'test'. 
     """
     if targ_dir == 'test':
-        with open('/tmp/test.txt', 'w') as f:
-            f.write('test')
         try:
             myloc = os.path.split(os.path.abspath(__file__))[0]
             filename = os.path.join(myloc, 'live.key')
@@ -287,6 +285,10 @@ def manualUpload(targ_dir):
             if keys is None:
                 print('keyfile not found, aborting')
                 return False
+
+            inifvals = readKeyFile(os.path.join(myloc, 'ukmon.ini'))
+            with open('/tmp/test.txt', 'w') as f:
+                f.write('{}'.format(inifvals['LOCATION']))
 
             target = keys['ARCHBUCKET']
             reg = keys['ARCHREGION']
