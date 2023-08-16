@@ -137,8 +137,7 @@ def createJpg(tmpdir, cap_dir, dir_file, camloc):
     return fulljpg, njpgname
 
 
-def uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc):
-    target = os.getenv('LIVEBUCK', default='ukmon-live')
+def uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc, target):
 
     tmpdir = tempfile.mkdtemp()
 
@@ -235,7 +234,7 @@ def singleUpload(cap_dir, dir_file):
             pass
         print(retmsg)
     else:
-        retmsg = uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc)
+        retmsg = uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc, target)
     return retmsg
 
 
