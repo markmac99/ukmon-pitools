@@ -92,8 +92,6 @@ def rmsExternal(cap_dir, arch_dir, config):
 ```
 This will be passed the capture_dir, archive_dir and RMS config object in the same way as RMS passes these to any external script. 
 
-Note that before enabling a feed to Istrastream you must email info@istrastream.com with your camera ID, location and lens focal length. They'll enable your uploads and let you know. You'll get back instructions for how to enable iStream but please follow the above notes instead. 
-
 uploadToArchive.py
 ==================
 This does the actual uploading to the UK meteor network archive. Can be called standalone if you want to reupload data:
