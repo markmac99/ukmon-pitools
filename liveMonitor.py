@@ -81,6 +81,7 @@ def monitorLogFile(camloc, rmscfg):
     archkey = keys['AWS_ACCESS_KEY_ID']
     archsec = keys['AWS_SECRET_ACCESS_KEY']
     archreg = keys['ARCHREGION']
+    target = keys['LIVEBUCKET']
 
     conn = boto3.Session(aws_access_key_id=awskey, aws_secret_access_key=awssec, region_name=awsreg) 
     s3 = conn.resource('s3')
@@ -142,7 +143,7 @@ def monitorLogFile(camloc, rmscfg):
                             ftime = datetime.datetime.strptime(ffname[10:25], '%Y%m%d_%H%M%S')
                             if (nowtm - ftime).seconds < MAXAGE:
                                 log.info('uploading {}'.format(ffname))
-                                uoe.uploadOneEvent(capdir, ffname, cfg, s3, camloc)
+                                uoe.uploadOneEvent(capdir, ffname, cfg, s3, camloc, target)
                             else:
                                 #log.info('skipping {} as too old'.format(ffname))
                                 pass
