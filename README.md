@@ -45,8 +45,8 @@ cd ukmon-pitools-US0001
 ```
 * This will create a default ukmon.ini file. Edit this file and make the following changes:
 ``` bash
-export UKMONKEY=\~/.ssh/ukmon-US0001  
-export RMSCFG=\~/source/Stations/US0001/.config  
+export UKMONKEY=~/.ssh/ukmon-US0001  
+export RMSCFG=~/source/Stations/US0001/.config  
 ```
 * Now rerun ./refreshTools.sh. This time it will create an SSH key called ~/.ssh/ukmon-US0001. 
  
