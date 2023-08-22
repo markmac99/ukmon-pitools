@@ -216,11 +216,12 @@ def uploadToArchive(arch_dir):
     daydir = os.path.split(arch_dir)[1]
 
     uploadlist = []
+    # platepar must be uploaded before FTPdetect and config files
     uploadlist.append({'dir_file':'platepars_all_recalibrated.json', 'file_ext': '.json', 'src_dir': arch_dir})
+    uploadlist.append({'dir_file':'.config', 'file_ext': '.config', 'src_dir': arch_dir})
     for dir_file in dir_contents:
         file_name, file_ext = os.path.splitext(dir_file)
         file_ext = file_ext.lower()
-        # platepar must be uploaded before FTPdetect file
         if ('FTPdetectinfo_{}.txt'.format(daydir) == dir_file):
             uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
         # mp4 must be uploaded before corresponding jpg
@@ -237,8 +238,8 @@ def uploadToArchive(arch_dir):
             uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
         elif dir_file == 'mask.bmp' or dir_file == 'flat.bmp':
             uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
-        elif dir_file == '.config':
-            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
+        #elif dir_file == '.config':
+        #    uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
     
     # upload two FITs files chosen at random from the recalibrated ones
     # to be used for platepar creation if needed
