@@ -1,6 +1,6 @@
 # ukmeteornetwork toolset for RMS pi meteor cameras
 
-These tools manage uploads of RMS data to the UK Meteor Network  Archive and to the livestream. There are two parts:  
+These tools manage uploads of RMS data to the UK Meteor Network Archive and to the livestream. There are two parts:  
 * The post-processing job that runs after RMS to send data to the archive.  
 * The realtime job that uploads detections to the livestream..  
 
