@@ -1,1 +1,0 @@
-ssh lenovomini "sudo shutdown -h now"
