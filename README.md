@@ -26,9 +26,9 @@ cd ukmon-pitools
 * When prompted, copy the SSH public key. 
 * If you don't get prompted for the key, then find the hidden file /home/pi/.ssh/ukmon.pub.
 
-* Email the key to markmcintyre99@googlemail.com along with your location (eg the name of your town or village) and the rough direction your camera points in eg SW, S, NE. The location should be no more than 16 characters.  
+* Email the key to markmcintyre99@googlemail.com along with your location (eg the name of your town or village), your GMN camera ID eg UK12345 and the rough direction your camera points in eg SW, S, NE. 
 
-* We will add your key to our server and send you instructions for how to complete the setup.  
+* We will add your key to our server and send you instructions for how to complete the setup. 
 
 ### Multistation Installation
 These instructions are for multi station linux builds where multiple cameras are managed from a single
@@ -45,8 +45,8 @@ cd ukmon-pitools-US0001
 ```
 * This will create a default ukmon.ini file. Edit this file and make the following changes:
 ``` bash
-export UKMONKEY=\~/.ssh/ukmon-US0001  
-export RMSCFG=\~/source/Stations/US0001/.config  
+export UKMONKEY=~/.ssh/ukmon-US0001  
+export RMSCFG=~/source/Stations/US0001/.config  
 ```
 * Now rerun ./refreshTools.sh. This time it will create an SSH key called ~/.ssh/ukmon-US0001. 
  
@@ -91,8 +91,6 @@ def rmsExternal(cap_dir, arch_dir, config):
     # do stuff here
 ```
 This will be passed the capture_dir, archive_dir and RMS config object in the same way as RMS passes these to any external script. 
-
-Note that before enabling a feed to Istrastream you must email info@istrastream.com with your camera ID, location and lens focal length. They'll enable your uploads and let you know. You'll get back instructions for how to enable iStream but please follow the above notes instead. 
 
 uploadToArchive.py
 ==================
