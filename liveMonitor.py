@@ -21,7 +21,7 @@ timetowait = 30 # seconds to wait for a new line before deciding the log is stal
 MAXAGE=int(os.getenv('UKMMAXAGE', default='1800')) 
 
 # frequency at which to check for fireball requests. Zero means dont check
-FBINTERVAL = int(os.getenv('UKMFBINTERVAL', default='1800'))
+#FBINTERVAL = int(os.getenv('UKMFBINTERVAL', default='1800'))
 
 
 def follow(fname, logf_ino):
@@ -78,22 +78,16 @@ def monitorLogFile(camloc, rmscfg):
     awskey = keys['LIVE_ACCESS_KEY_ID']
     awssec = keys['LIVE_SECRET_ACCESS_KEY']
     awsreg = keys['LIVEREGION']
-    archkey = keys['AWS_ACCESS_KEY_ID']
-    archsec = keys['AWS_SECRET_ACCESS_KEY']
-    archreg = keys['ARCHREGION']
     target = keys['LIVEBUCKET']
 
     conn = boto3.Session(aws_access_key_id=awskey, aws_secret_access_key=awssec, region_name=awsreg) 
     s3 = conn.resource('s3')
-    archconn = boto3.Session(aws_access_key_id=archkey, aws_secret_access_key=archsec, region_name=archreg) 
-    archs3 = archconn.resource('s3')
 
     datadir = cfg.data_dir
     logdir = os.path.expanduser(os.path.join(datadir, cfg.log_dir))
     keepon = True
     logf = ''
     capdir = ''
-    starttime = datetime.datetime.utcnow()
     while keepon is True:
         try:
             logfs = glob.glob(os.path.join(logdir, 'log_{}*.log*').format(cfg.stationID))
@@ -114,14 +108,6 @@ def monitorLogFile(camloc, rmscfg):
 
             for line in loglines:
                 nowtm = datetime.datetime.utcnow()
-                if (FBINTERVAL > 0) and ((nowtm - starttime).seconds > FBINTERVAL):
-                    try:
-                        #log.info('checking for fireball flags')
-                        uoe.checkFbUpload(cfg.stationID, datadir, archs3)
-                    except Exception as e: 
-                        log.warning('problem checking fireball flags')
-                        log.info(e, exc_info=True)
-                    starttime = nowtm
                 if line == 'log stale' or line == 'log rolled':
                     #log.info(line)
 
@@ -162,7 +148,7 @@ if __name__ == '__main__':
         print('LOCATION missing')
         exit(1)
     if len(sys.argv) < 3:
-        rmscfg = '/home/pi/source/RMS/.config'
+        rmscfg = os.path.expanduser('~/source/RMS/.config')
     else:
         rmscfg = sys.argv[2]
     camloc = sys.argv[1]

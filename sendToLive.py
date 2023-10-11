@@ -11,7 +11,6 @@ import Utils.BatchFFtoImage as bff
 import shutil
 import tempfile
 import boto3
-import glob
 from uploadToArchive import readKeyFile
 import logging
 import RMS.ConfigReader as cr
@@ -20,51 +19,6 @@ from RMS.Formats.FieldIntensities import readFieldIntensitiesBin
 
 
 log = logging.getLogger("logger")
-
-
-def checkFbUpload(stationid, datadir, s3):
-    archbuck = os.getenv('ARCHBUCKET', default='ukmon-shared')
-    listfile = stationid.lower() + '.txt'
-    locfile = os.path.join('/tmp',listfile)
-    remfile = 'fireballs/interesting/' + listfile
-    capdir = os.path.join(datadir, 'CapturedFiles')
-    capdirs = os.listdir(capdir)
-    try: 
-        objlist =s3.meta.client.list_objects_v2(Bucket=archbuck, Prefix=remfile)
-        if objlist['KeyCount'] > 0:
-            log.info('fireball upload requested')
-            try: 
-                s3.meta.client.download_file(archbuck, remfile, locfile)
-                for fname in open(locfile,'r').readlines():
-                    if len(fname) < 5: 
-                        continue
-                    got = 0
-                    for thisdir in capdirs:
-                        srcpatt=os.path.join(capdir, thisdir, '*' + fname.strip() + '*')
-                        #log.info('requested pattern {}'.format(srcpatt))
-                        srclist = glob.glob(srcpatt)
-                        for srcfile in srclist: 
-                            _, thisfname = os.path.split(srcfile)
-                            targfile = 'fireballs/interesting/' + thisfname
-                            try: 
-                                s3.meta.client.upload_file(srcfile, archbuck, targfile)
-                                log.info('uploaded {}'.format(srcfile))
-                                got = 1
-                            except Exception as e:
-                                log.info(e, exc_info=True)
-                    if got == 0:
-                        log.info('file {} not found'.format(fname.strip()))
-                            
-                os.remove(locfile)
-                key = {'Objects': []}
-                key['Objects'] = [{'Key': remfile}]
-                s3.meta.client.delete_objects(Bucket=archbuck, Delete=key)
-            except Exception as e:
-                log.warning('unable to download trigger file')
-                log.info(e, exc_info=True)
-    except Exception as e:
-        log.warning('unable to scan S3 for trigger file')
-        log.info(e)
 
 
 def getBlockBrightness(dirpath, filename):
@@ -138,17 +92,13 @@ def createJpg(tmpdir, cap_dir, dir_file, camloc):
 
 
 def uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc, target):
-
     tmpdir = tempfile.mkdtemp()
-
     if not os.path.isfile(os.path.join(cap_dir, dir_file)):
         retmsg = '{} not present in {}'.format(dir_file, cap_dir)
         log.warning(retmsg)
         return retmsg
-    
     fulljpg, njpgname = createJpg(tmpdir, cap_dir, dir_file, camloc) 
     fullxml, xmlname = createXMLfile(tmpdir, cap_dir, dir_file, camloc, cfg)
-
     try: 
         s3.meta.client.upload_file(fulljpg, target, njpgname, ExtraArgs={'ContentType': 'image/jpeg'})
         s3.meta.client.upload_file(fullxml, target, xmlname, ExtraArgs={'ContentType': 'application/xml'})
@@ -157,7 +107,6 @@ def uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc, target):
         retmsg = 'unable to upload to livestream'
         log.warning(retmsg)
         log.info(e, exc_info=True)
-
     sys.stdout.flush()
     shutil.rmtree(tmpdir)
     return retmsg
@@ -218,13 +167,10 @@ def singleUpload(cap_dir, dir_file):
 
     if cap_dir == 'test' and dir_file == 'test':
         with open('/tmp/test.txt', 'w') as f:
-            f.write('{}'.format(camloc))
+            f.write('{}'.format(cfg.stationID))
         
         try:
-            s3.meta.client.upload_file('/tmp/test.txt', target, 'test/test.txt')
-            key = {'Objects': []}
-            key['Objects'] = [{'Key': 'test/test.txt'}]
-            #s3.meta.client.delete_objects(Bucket=target, Delete=key)
+            s3.meta.client.upload_file('/tmp/test.txt', target, 'test/{}.txt'.format(keys['CAMLOC']))
             retmsg = 'test successful'
         except Exception:
             retmsg = 'unable to upload to {} - check key information'.format(target)
