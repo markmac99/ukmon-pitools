@@ -34,9 +34,7 @@ def readKeyFile(filename):
         if '=' in li:
             valstr = li.split(' ')[1]
             data = valstr.split('=')
-            val = data[1].strip()
-            if val[0]=='"':
-                val = val[1:len(val)-1]
+            val = data[1].strip().strip('"')
             vals[data[0]] = val
     if 'S3FOLDER' not in vals and 'CAMLOC' in vals:
         vals['S3FOLDER'] = 'archive/{}'.format(vals["CAMLOC"])
