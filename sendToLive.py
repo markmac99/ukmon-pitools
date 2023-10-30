@@ -112,7 +112,7 @@ def uploadOneEvent(cap_dir, dir_file, cfg, keys, camloc):
         try: 
             s3.meta.client.upload_file(fulljpg, target, njpgname, ExtraArgs={'ContentType': 'image/jpeg'})
             s3.meta.client.upload_file(fullxml, target, xmlname, ExtraArgs={'ContentType': 'application/xml'})
-            retmsg = 'upload successful'
+            retmsg = 'upload of {} successful'.format(njpgname)
         except Exception as e:
             retmsg = 'unable to upload to {}'.format(target)
             log.warning(retmsg)
