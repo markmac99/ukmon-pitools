@@ -3,7 +3,6 @@ import time
 import os
 import sys
 import glob
-import boto3
 import sendToLive as uoe
 import datetime
 import logging
@@ -75,13 +74,6 @@ def monitorLogFile(camloc, rmscfg):
         log.error('AWS key not present, aborting')
         exit(1)
     keys = readKeyFile(os.path.join(myloc, 'live.key'))
-    awskey = keys['LIVE_ACCESS_KEY_ID']
-    awssec = keys['LIVE_SECRET_ACCESS_KEY']
-    awsreg = keys['LIVEREGION']
-    target = keys['LIVEBUCKET']
-
-    conn = boto3.Session(aws_access_key_id=awskey, aws_secret_access_key=awssec, region_name=awsreg) 
-    s3 = conn.resource('s3')
 
     datadir = cfg.data_dir
     logdir = os.path.expanduser(os.path.join(datadir, cfg.log_dir))
@@ -129,7 +121,7 @@ def monitorLogFile(camloc, rmscfg):
                             ftime = datetime.datetime.strptime(ffname[10:25], '%Y%m%d_%H%M%S')
                             if (nowtm - ftime).seconds < MAXAGE:
                                 log.info('uploading {}'.format(ffname))
-                                uoe.uploadOneEvent(capdir, ffname, cfg, s3, camloc, target)
+                                uoe.uploadOneEvent(capdir, ffname, cfg, keys, camloc)
                             else:
                                 #log.info('skipping {} as too old'.format(ffname))
                                 pass
