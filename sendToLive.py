@@ -203,4 +203,5 @@ if __name__ == '__main__':
     if len(sys.argv) < 3:
         print('usage: python sendToLive.py capdir ffname')
         exit(1)
-    singleUpload(sys.argv[1], sys.argv[2])
+    retmsg = singleUpload(sys.argv[1], sys.argv[2])
+    print(retmsg)
