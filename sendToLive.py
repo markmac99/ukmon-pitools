@@ -131,13 +131,12 @@ def testFeed(keys, cfg):
     s3old = oldconn.resource('s3')
     oldbuck = keys['LIVEBUCKET']
     mdaconn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], 
-                          aws_secret_access_key=keys['SECRET_ACCESS_KEY'], region_name=keys['AWS_DEFAULT_REGION'])
+                            aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY'], region_name=keys['AWS_DEFAULT_REGION'])
     s3mda = mdaconn.resource('s3')
     mdabuck = keys['ARCHBUCKET'].replace('shared','live')
-       
     for s3, target in zip((s3old, s3mda), (oldbuck, mdabuck)):
         try:
-            s3.meta.client.upload_file('/tmp/test.txt', target, 'test/{}.txt'.format(keys['CAMLOC']))
+            s3.meta.client.upload_file('/tmp/test.txt', target, 'test/{}_{}.txt'.format(keys['CAMLOC'], camid))
             retmsg = 'test successful'
         except Exception:
             retmsg = 'unable to upload to {} - check key information'.format(target)
