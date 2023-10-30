@@ -91,7 +91,16 @@ def createJpg(tmpdir, cap_dir, dir_file, camloc):
     return fulljpg, njpgname
 
 
-def uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc, target):
+def uploadOneEvent(cap_dir, dir_file, cfg, keys, camloc):
+    oldconn = boto3.Session(aws_access_key_id=keys['LIVE_ACCESS_KEY_ID'], 
+                            aws_secret_access_key=keys['LIVE_SECRET_ACCESS_KEY'], region_name=keys['LIVEREGION']) 
+    s3old = oldconn.resource('s3')
+    oldbuck = keys['LIVEBUCKET']
+    mdaconn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], 
+                          aws_secret_access_key=keys['SECRET_ACCESS_KEY'], region_name=keys['AWS_DEFAULT_REGION'])
+    s3mda = mdaconn.resource('s3')
+    mdabuck = keys['ARCHBUCKET'].replace('shared','live')
+
     tmpdir = tempfile.mkdtemp()
     if not os.path.isfile(os.path.join(cap_dir, dir_file)):
         retmsg = '{} not present in {}'.format(dir_file, cap_dir)
@@ -99,16 +108,43 @@ def uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc, target):
         return retmsg
     fulljpg, njpgname = createJpg(tmpdir, cap_dir, dir_file, camloc) 
     fullxml, xmlname = createXMLfile(tmpdir, cap_dir, dir_file, camloc, cfg)
-    try: 
-        s3.meta.client.upload_file(fulljpg, target, njpgname, ExtraArgs={'ContentType': 'image/jpeg'})
-        s3.meta.client.upload_file(fullxml, target, xmlname, ExtraArgs={'ContentType': 'application/xml'})
-        retmsg = 'upload successful'
-    except Exception as e:
-        retmsg = 'unable to upload to livestream'
-        log.warning(retmsg)
-        log.info(e, exc_info=True)
+    for s3, target in zip((s3old, s3mda), (oldbuck, mdabuck)):
+        try: 
+            s3.meta.client.upload_file(fulljpg, target, njpgname, ExtraArgs={'ContentType': 'image/jpeg'})
+            s3.meta.client.upload_file(fullxml, target, xmlname, ExtraArgs={'ContentType': 'application/xml'})
+            retmsg = 'upload successful'
+        except Exception as e:
+            retmsg = 'unable to upload to {}'.format(target)
+            log.warning(retmsg)
+            log.info(e, exc_info=True)
     sys.stdout.flush()
     shutil.rmtree(tmpdir)
+    return retmsg
+
+
+def testFeed(keys, cfg):
+    camid = cfg.stationID
+    with open('/tmp/test.txt', 'w') as f:
+        f.write('{}'.format(camid))
+    oldconn = boto3.Session(aws_access_key_id=keys['LIVE_ACCESS_KEY_ID'], 
+                            aws_secret_access_key=keys['LIVE_SECRET_ACCESS_KEY'], region_name=keys['LIVEREGION']) 
+    s3old = oldconn.resource('s3')
+    oldbuck = keys['LIVEBUCKET']
+    mdaconn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], 
+                          aws_secret_access_key=keys['SECRET_ACCESS_KEY'], region_name=keys['AWS_DEFAULT_REGION'])
+    s3mda = mdaconn.resource('s3')
+    mdabuck = keys['ARCHBUCKET'].replace('shared','live')
+       
+    for s3, target in zip((s3old, s3mda), (oldbuck, mdabuck)):
+        try:
+            s3.meta.client.upload_file('/tmp/test.txt', target, 'test/{}.txt'.format(keys['CAMLOC']))
+            retmsg = 'test successful'
+        except Exception:
+            retmsg = 'unable to upload to {} - check key information'.format(target)
+    try:
+        os.remove('/tmp/test.txt')
+    except Exception:
+        pass
     return retmsg
 
 
@@ -130,9 +166,6 @@ def singleUpload(cap_dir, dir_file):
     """
 
     camloc = None
-    awskey = None
-    awssec = None
-    awsreg = None
     myloc = os.path.split(os.path.abspath(__file__))[0]
     # get camera location from ini file
     inifvals = readKeyFile(os.path.join(myloc, 'ukmon.ini'))
@@ -153,34 +186,17 @@ def singleUpload(cap_dir, dir_file):
     if keys is None:
         log.warning('unable to open keyfile')
         return 'unable to open keyfile'
-    awskey = keys['LIVE_ACCESS_KEY_ID']
-    awssec = keys['LIVE_SECRET_ACCESS_KEY']
-    awsreg = keys['LIVEREGION']
-    target = keys['LIVEBUCKET']
 
-    conn = boto3.Session(aws_access_key_id=awskey, aws_secret_access_key=awssec, region_name=awsreg) 
-    s3 = conn.resource('s3')
     # read a few variables from the RMS config file
     cfg = cr.parse(os.path.expanduser(rmscfg))
 #    configpath, configname = os.path.split(os.path.expanduser(rmscfg))
 #    cfg = cr.loadConfigFromDirectory(configname, configpath)
 
     if cap_dir == 'test' and dir_file == 'test':
-        with open('/tmp/test.txt', 'w') as f:
-            f.write('{}'.format(cfg.stationID))
-        
-        try:
-            s3.meta.client.upload_file('/tmp/test.txt', target, 'test/{}.txt'.format(keys['CAMLOC']))
-            retmsg = 'test successful'
-        except Exception:
-            retmsg = 'unable to upload to {} - check key information'.format(target)
-        try:
-            os.remove('/tmp/test.txt')
-        except Exception:
-            pass
+        retmsg = testFeed(keys, cfg)
         print(retmsg)
     else:
-        retmsg = uploadOneEvent(cap_dir, dir_file, cfg, s3, camloc, target)
+        retmsg = uploadOneEvent(cap_dir, dir_file, cfg, keys, camloc)
     return retmsg
 
 
