@@ -193,7 +193,6 @@ def singleUpload(cap_dir, dir_file):
 
     if cap_dir == 'test' and dir_file == 'test':
         retmsg = testFeed(keys, cfg)
-        print(retmsg)
     else:
         retmsg = uploadOneEvent(cap_dir, dir_file, cfg, keys, camloc)
     return retmsg
