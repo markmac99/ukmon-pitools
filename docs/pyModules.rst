@@ -1,25 +1,26 @@
 Python modules
 ==============
-LiveMonitor
------------
-
-.. automodule:: liveMonitor
-    :members:
-
-sendToLive
-----------
-
-.. automodule:: sendToLive
-    :members:
-
 ukmonPostProc
 -------------
     
 .. automodule:: ukmonPostProc
-    :members:
+    :members: rmsExternal
+
+LiveMonitor
+-----------
+
+.. automodule:: liveMonitor
+    :members: monitorLogFile
 
 uploadToArchive
 ---------------
     
 .. automodule:: uploadToArchive
     :members:
+
+sendToLive
+----------
+
+.. automodule:: sendToLive
+    :members: singleUpload
+
