@@ -66,6 +66,6 @@ html_static_path = ['_static']
 
 MOCK_MODULES=['boto3','Utils', 'Utils.BatchFFtoImage', 
     'Utils.StackFFs', 'Utils.GenerateMP4s', 'Utils.GenerateTimelapse',
-    'RMS.Formats.FieldIntensities', 'RMS.ConfigReader', 'RMS.Logger', 'RMS.Formats']
+    'RMS.Formats.FieldIntensities', 'RMS.ConfigReader', 'RMS.Logger', 'RMS.Formats','RMS']
 for mod_name in MOCK_MODULES:
     sys.modules[mod_name] = mock.Mock()
