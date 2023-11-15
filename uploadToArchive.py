@@ -269,12 +269,15 @@ def uploadToArchive(arch_dir):
 
 
 def manualUpload(targ_dir):
-    """ Manually send the target folder to ukmon archive. 
-    To invoke this function open a Terminal window and type
+    """ Manually send the target folder to ukmon archive.  
 
-    *python ../ukmon-pitools/uploadToArchive.py /path/to/target/folder*
+    Args:  
+        targ_dir (str): the full path to the target folder 
 
-    You can also use this to test connectivity by passing a single parameter 'test'. 
+    You can invoke this function by opening a Terminal window and typing:  
+    *python ../ukmon-pitools/uploadToArchive.py /path/to/target/folder*  
+
+    If the argument is 'test' then a test file is uploaded and the status reported back.  
     """
     if targ_dir == 'test':
         try:

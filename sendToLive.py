@@ -156,11 +156,11 @@ def singleUpload(cap_dir, dir_file):
     *python ../ukmon-pitools/sendToLive.py cap_dir file_to_send* 
 
     args:
-        cap_dir (str): capture dir OR the word 'test'
-        file_to_send (str): file to upload OR the word 'test'
+        cap_dir (str): capture dir 
+        file_to_send (str): file to upload 
 
     Comments:
-        If both arguments are 'test' then a test file is uploaded. 
+        If both arguments are 'test' then a test file is uploaded and the status reported back.  
 
     """
 
