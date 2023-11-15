@@ -19,11 +19,11 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'UKMON-PiTools'
-copyright = '2021, Mark McIntyre'
+copyright = '2021-, Mark McIntyre'
 author = 'Mark McIntyre'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0'
+release = '2023.11.0'
 
 
 # -- General configuration ---------------------------------------------------

@@ -1,6 +1,7 @@
-# ukmeteornetwork toolset for RMS pi meteor cameras
+# Toolset for RMS pi meteor cameras
+Version 2023.11.0
 
-These tools manage uploads of RMS data to the UK Meteor Network Archive and to the livestream. There are two parts:  
+These tools manage uploads of RMS data to the UK Meteor Data Archive and to the livestream. There are two parts:  
 * The post-processing job that runs after RMS to send data to the archive.  
 * The realtime job that uploads detections to the livestream..  
 
@@ -84,8 +85,9 @@ If you want to run an additional Python script after this one finishes, create a
 ``` bash
 echo "$HOME/source/mystuff/myscript.py" > $HOME/source/ukmon-pitools/extrascript  
 ```
+This should create file called 'extrascript' in the ukmon-pitools folder, containing one line "$HOME/source/mystuff/myscript.py"
 
-This script must contain a function rmsExternal with the following definition
+The script must contain a function rmsExternal with the following definition
 ``` python
 def rmsExternal(cap_dir, arch_dir, config):
     # do stuff here
