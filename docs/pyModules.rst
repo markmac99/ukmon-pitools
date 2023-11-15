@@ -5,13 +5,13 @@ ukmonPostProc
 -------------
     
 .. automodule:: ukmonPostProc
-    :members: rmsExternal
+    :members: 
 
 LiveMonitor
 -----------
 
 .. automodule:: liveMonitor
-    :members: monitorLogFile
+    :members: 
 
 uploadToArchive
 ---------------
@@ -23,5 +23,5 @@ sendToLive
 ----------
 
 .. automodule:: sendToLive
-    :members: singleUpload
+    :members: 
 
