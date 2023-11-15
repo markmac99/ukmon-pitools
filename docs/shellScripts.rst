@@ -18,13 +18,12 @@ with the userid that you used when you installed RMS and ukmon-pitools.
 **refreshTools.sh**
     Shell script that refreshes the toolset and downloads any changes after each reboot. Its 
     important that this is scheduled to run every day as the keyfiles are periodically rotated
-    and bugfixes and enhancements deployed through this script. To use this script add a line
-     to crontab:
+    and bugfixes and enhancements deployed through this script. To use this script add a line to crontab:
 
     *@boot sleep 600 && /path/to/refreshTools.sh > /home/pi/RMS_data/logs/refreshTools.log 2>&1*
 
 Other files
-----------
+-----------
 These files are either created automatically by the refresh script, or can be created by the 
 user to enable extra features of the process. 
 
