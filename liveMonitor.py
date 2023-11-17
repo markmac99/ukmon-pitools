@@ -48,7 +48,7 @@ def follow(fname, logf_ino):
 
 
 def monitorLogFile(camloc, rmscfg):
-    """ Thuis function monitors the latest RMS log file for meteor detections, convert the FF file
+    """ This function monitors the latest RMS log file for meteor detections, convert the FF file
     to a jpg and upload it to the livestream.  
     This function is called from the shell script *liveMonitor.sh* and should not be called directly. 
     """
