@@ -41,11 +41,11 @@ def readKeyFile(filename):
     if 'S3FOLDER' in vals and vals['S3FOLDER'][-1] == '/':
         vals['S3FOLDER'] = vals['S3FOLDER'][:-1]
     if 'ARCHBUCKET' not in vals:
-        vals['ARCHBUCKET'] = 'ukmon-shared'
+        vals['ARCHBUCKET'] = 'ukmda-shared'
     if 'LIVEBUCKET' not in vals:
-        vals['LIVEBUCKET'] = 'ukmon-live'
+        vals['LIVEBUCKET'] = 'ukmda-live'
     if 'WEBBUCKET' not in vals:
-        vals['WEBBUCKET'] = 'ukmeteornetworkarchive'
+        vals['WEBBUCKET'] = 'ukmda-website'
     if 'ARCHREGION' not in vals:
         vals['ARCHREGION'] = 'eu-west-2'
     if 'LIVEREGION' not in vals:

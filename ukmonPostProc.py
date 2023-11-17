@@ -1,6 +1,6 @@
 # 
 # python script thats called when the nightly run completes to generate jpgs 
-# and upload data to the ukmeteornetwork
+# and upload data to the uk meteor data archive
 # Copyright (C) 2018-2023 Mark McIntyre
 #
 # Notes: 
