@@ -92,14 +92,10 @@ def createJpg(tmpdir, cap_dir, dir_file, camloc):
 
 
 def uploadOneEvent(cap_dir, dir_file, cfg, keys, camloc):
-    oldconn = boto3.Session(aws_access_key_id=keys['LIVE_ACCESS_KEY_ID'], 
-                            aws_secret_access_key=keys['LIVE_SECRET_ACCESS_KEY'], region_name=keys['LIVEREGION']) 
-    s3old = oldconn.resource('s3')
-    oldbuck = keys['LIVEBUCKET']
     mdaconn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], 
                           aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY'], region_name=keys['AWS_DEFAULT_REGION'])
     s3mda = mdaconn.resource('s3')
-    mdabuck = keys['ARCHBUCKET'].replace('shared','live')
+    mdabuck = keys['LIVEBUCKET'].replace('ukmon','ukmda')
 
     tmpdir = tempfile.mkdtemp()
     if not os.path.isfile(os.path.join(cap_dir, dir_file)):
@@ -108,15 +104,14 @@ def uploadOneEvent(cap_dir, dir_file, cfg, keys, camloc):
         return retmsg
     fulljpg, njpgname = createJpg(tmpdir, cap_dir, dir_file, camloc) 
     fullxml, xmlname = createXMLfile(tmpdir, cap_dir, dir_file, camloc, cfg)
-    for s3, target in zip((s3old, s3mda), (oldbuck, mdabuck)):
-        try: 
-            s3.meta.client.upload_file(fulljpg, target, njpgname, ExtraArgs={'ContentType': 'image/jpeg'})
-            s3.meta.client.upload_file(fullxml, target, xmlname, ExtraArgs={'ContentType': 'application/xml'})
-            retmsg = 'upload of {} successful'.format(njpgname)
-        except Exception as e:
-            retmsg = 'unable to upload to {}'.format(target)
-            log.warning(retmsg)
-            log.info(e, exc_info=True)
+    try: 
+        s3mda.meta.client.upload_file(fulljpg, mdabuck, njpgname, ExtraArgs={'ContentType': 'image/jpeg'})
+        s3mda.meta.client.upload_file(fullxml, mdabuck, xmlname, ExtraArgs={'ContentType': 'application/xml'})
+        retmsg = 'upload of {} successful'.format(njpgname)
+    except Exception as e:
+        retmsg = 'unable to upload to {}'.format(mdabuck)
+        log.warning(retmsg)
+        log.info(e, exc_info=True)
     sys.stdout.flush()
     shutil.rmtree(tmpdir)
     return retmsg
@@ -126,20 +121,15 @@ def testFeed(keys, cfg):
     camid = cfg.stationID
     with open('/tmp/test.txt', 'w') as f:
         f.write('{}'.format(camid))
-    oldconn = boto3.Session(aws_access_key_id=keys['LIVE_ACCESS_KEY_ID'], 
-                            aws_secret_access_key=keys['LIVE_SECRET_ACCESS_KEY'], region_name=keys['LIVEREGION']) 
-    s3old = oldconn.resource('s3')
-    oldbuck = keys['LIVEBUCKET']
     mdaconn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], 
                             aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY'], region_name=keys['AWS_DEFAULT_REGION'])
     s3mda = mdaconn.resource('s3')
-    mdabuck = keys['ARCHBUCKET'].replace('shared','live')
-    for s3, target in zip((s3old, s3mda), (oldbuck, mdabuck)):
-        try:
-            s3.meta.client.upload_file('/tmp/test.txt', target, 'test/{}_{}.txt'.format(keys['CAMLOC'], camid))
-            retmsg = 'test successful'
-        except Exception:
-            retmsg = 'unable to upload to {} - check key information'.format(target)
+    mdabuck = keys['LIVEBUCKET'].replace('ukmon','ukmda')
+    try:
+        s3mda.meta.client.upload_file('/tmp/test.txt', mdabuck, 'test/{}_{}.txt'.format(keys['CAMLOC'], camid))
+        retmsg = 'test successful'
+    except Exception:
+        retmsg = 'unable to upload to {} - check key information'.format(mdabuck)
     try:
         os.remove('/tmp/test.txt')
     except Exception:
@@ -156,11 +146,11 @@ def singleUpload(cap_dir, dir_file):
     *python ../ukmon-pitools/sendToLive.py cap_dir file_to_send* 
 
     args:
-        cap_dir (str): capture dir OR the word 'test'
-        file_to_send (str): file to upload OR the word 'test'
+        cap_dir (str): capture dir 
+        file_to_send (str): file to upload 
 
     Comments:
-        If both arguments are 'test' then a test file is uploaded. 
+        If both arguments are 'test' then a test file is uploaded and the status reported back.  
 
     """
 

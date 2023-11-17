@@ -48,9 +48,9 @@ def follow(fname, logf_ino):
 
 
 def monitorLogFile(camloc, rmscfg):
-    """ Monitor the latest RMS log file for meteor detections, convert the FF file
-    to a jpg and upload it to ukmon-live. Requires the user to have been supplied
-    with a ukmon-live security key and camera location identifier. 
+    """ Thuis function monitors the latest RMS log file for meteor detections, convert the FF file
+    to a jpg and upload it to the livestream.  
+    This function is called from the shell script *liveMonitor.sh* and should not be called directly. 
     """
     cfg = cr.parse(os.path.expanduser(rmscfg))
 
@@ -61,7 +61,7 @@ def monitorLogFile(camloc, rmscfg):
         
     initLogging(cfg, 'ukmonlive_')
     log.info('--------------------------------')
-    log.info('    ukmon-live feed started')
+    log.info('    live feed started')
     log.info('--------------------------------')
 
     log.info('Camera location is {}'.format(camloc))

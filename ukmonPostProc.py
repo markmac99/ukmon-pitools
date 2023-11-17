@@ -1,6 +1,6 @@
 # 
 # python script thats called when the nightly run completes to generate jpgs 
-# and upload data to the ukmeteornetwork
+# and upload data to the uk meteor data archive
 # Copyright (C) 2018-2023 Mark McIntyre
 #
 # Notes: 
@@ -27,10 +27,13 @@ log = logging.getLogger("logger")
 def rmsExternal(cap_dir, arch_dir, config):
     """ Called from RMS to trigger the UKMON specific code  
 
-    Arguments:  
-    cap_dir: [str] full path to the night's CapturedFiles folder  
-    arch_dir: [str] full path to the night's ArchivedFiles folder  
-    config: [object] an RMS config object.  
+    Args:  
+        cap_dir (str): full path to the night's CapturedFiles folder  
+        arch_dir (str): full path to the night's ArchivedFiles folder  
+        config (object): an RMS config object.  
+
+    Don't try to call this function directly unless you know how to create
+    an RMS config object in Python. 
 
     """
     # clear existing log handlers
@@ -102,7 +105,7 @@ def manualRerun(dated_dir, rmscfg = '~/source/RMS/.config'):
     *python ../ukmon-pitools/ukmonPostProc.py dated_dir*  
 
     Args:
-        dated_dir (str): This is the name of the folder to upload eg UK000F_20210512_202826_913898  
+        dated_dir (str): The name of the folder to upload eg UK000F_20210512_202826_913898  
 
     """
     config = cr.parse(os.path.expanduser(rmscfg))

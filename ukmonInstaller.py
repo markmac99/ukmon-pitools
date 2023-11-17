@@ -207,7 +207,7 @@ def checkCrontab(myloc, datadir):
 
 def createSystemdService(myloc, camid):
     """
-    Create a systemd style service for ukmon-live, in user-space. 
+    Create a systemd style service for the livestream, in user-space. 
     This should be more reliable than a cron job. 
     """
     unitname = os.path.expanduser('~/.config/systemd/user/ukmonlive-{}.service'.format(camid))
