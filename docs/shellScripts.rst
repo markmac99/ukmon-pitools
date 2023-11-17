@@ -1,6 +1,6 @@
 Shell Scripts 
 =============
-There are two scripts, one to monitor the live datastream and send files to ukmon-live, the other to 
+There are two scripts, one to monitor the live datastream and send files to the livestream, the other to 
 refresh the toolset each night and make sure the security keys are up to date.  A few other files are 
 either created or installed, these are described below. 
 
@@ -10,10 +10,10 @@ with the userid that you used when you installed RMS and ukmon-pitools.
 
 **liveMonitor.sh**
     Shell script started from cron that triggers the process to monitor and upload events to the 
-    ukmon-live website. The script runs a python monitoring process described elsewhere in the 
+    livestream on the website. The script runs a python monitoring process described elsewhere in the 
     documentation.To use this script add a line to crontab:
 
-    *@boot sleep 3600 && /path/to/liveMonitor.sh > /home/pi/RMS_data/logs/ukmon-live.log 2>&1*
+    *@boot sleep 3600 && /path/to/liveMonitor.sh > /dev/null 2>&1*
 
 **refreshTools.sh**
     Shell script that refreshes the toolset and downloads any changes after each reboot. Its 

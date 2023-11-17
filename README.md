@@ -105,11 +105,11 @@ this will upload from $HOME/RMS_data/ArchivedFiles/UK0006_20210312_183741_206154
 
 liveMonitor.sh
 ==============
-This script monitors in realtime for detections, then uploads them to ukmon-live. The script calls a 
+This script monitors in realtime for detections, then uploads them to the livestream. The script calls a 
 python script liveMonitor.py.  
 
 There are two configuration parameters that you can set in ukmon.ini to control how this works: 
-* UKMFBINTERVAL: how frequently ukmon-live checks whether there's a request for fireball data. Default 1800 seconds. Set to zero to disable the fireball upload feature completely.  
+* UKMFBINTERVAL: how frequently the process checks whether there's a request for fireball data. Default 1800 seconds. Set to zero to disable the fireball upload feature completely.  
 * UKMMAXAGE: How far back to look for events to upload. Default 1800 seconds. Each time the software is restarted, it will look for events in the log. This parameter avoids too much reuploading of old events.  
 
 You shouldn't really need to set these but if you do, then for example edit ukmon.ini and add  
