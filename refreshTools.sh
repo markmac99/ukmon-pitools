@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# refresh UKmeteornetwork tools
+# refresh ukmeteors tools
 # Copyright (C) 2018-2023 Mark McIntyre
 
 myself=$(readlink -f $0)
