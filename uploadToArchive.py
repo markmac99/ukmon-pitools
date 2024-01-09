@@ -324,4 +324,8 @@ def manualUpload(targ_dir):
 
 
 if __name__ == '__main__':
-    manualUpload(sys.argv[1])
+    targdir = sys.argv[1]
+    if len(sys.argv) > 2:
+        manualUpload(sys.argv[1], True)
+    else:
+        manualUpload(sys.argv[1])
