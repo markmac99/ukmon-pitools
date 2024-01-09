@@ -277,7 +277,7 @@ def uploadToArchive(arch_dir, sciencefiles=False):
     return res
 
 
-def manualUpload(targ_dir):
+def manualUpload(targ_dir, sciencefiles=False):
     """ Manually send the target folder to ukmon archive.  
 
     Args:  
@@ -319,8 +319,8 @@ def manualUpload(targ_dir):
             pass
         return True
     else:
-        arch_dir = os.path.join(targ_dir)
-        return uploadToArchive(arch_dir)
+        arch_dir = os.path.expanduser(targ_dir)
+        return uploadToArchive(arch_dir, sciencefiles)
 
 
 if __name__ == '__main__':
