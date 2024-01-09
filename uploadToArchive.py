@@ -190,7 +190,7 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
     return ret
 
 
-def uploadToArchive(arch_dir):
+def uploadToArchive(arch_dir, sciencefiles=False):
     # Upload all relevant files from *arch_dir* to ukmon's S3 Archive
 
     myloc = os.path.split(os.path.abspath(__file__))[0]
@@ -217,43 +217,52 @@ def uploadToArchive(arch_dir):
     # platepar must be uploaded before FTPdetect and config files
     uploadlist.append({'dir_file':'platepars_all_recalibrated.json', 'file_ext': '.json', 'src_dir': arch_dir})
     uploadlist.append({'dir_file':'.config', 'file_ext': '.config', 'src_dir': arch_dir})
-    for dir_file in dir_contents:
-        file_name, file_ext = os.path.splitext(dir_file)
-        file_ext = file_ext.lower()
-        if ('FTPdetectinfo_{}.txt'.format(daydir) == dir_file):
-            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
-        # mp4 must be uploaded before corresponding jpg
-        elif (file_ext == '.jpg') and ('FF_' in file_name):
-            mp4f = dir_file.replace('.jpg', '.mp4')
-            if os.path.isfile(os.path.join(arch_dir, mp4f)):
-                uploadlist.append({'dir_file':mp4f, 'file_ext': '.mp4', 'src_dir': arch_dir})
-            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
-        elif (file_ext == '.jpg') and ('stack_' in file_name) and ('track' not in file_name):
-            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
-        elif (file_ext == '.jpg') and ('calib' in file_name):
-            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
-        elif file_ext in ('.png', '.kml', '.cal', '.json', '.csv'): 
-            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
-        elif dir_file == 'mask.bmp' or dir_file == 'flat.bmp':
-            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
-        #elif dir_file == '.config':
-        #    uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
-    
-    # upload two FITs files chosen at random from the recalibrated ones
-    # to be used for platepar creation if needed
-    if os.path.isfile(os.path.join(arch_dir, 'platepars_all_recalibrated.json')):
-        with open(os.path.join(arch_dir, 'platepars_all_recalibrated.json')) as ppf:
-            js = json.load(ppf)
-        try:
-            ffs=[k for k in js.keys() if js[k]['auto_recalibrated'] is True]
-        except Exception:
-            ffs = glob.glob1(arch_dir, 'FF*.fits')    
+    if sciencefiles:
+        # upload just the critical files
+        ftpfiles = [x for x in dir_contents if 'FTPdetectinfo' in x]
+        for dir_file in ftpfiles:
+            if ('FTPdetectinfo_{}.txt'.format(daydir) == dir_file):
+                uploadlist.append({'dir_file':dir_file, 'file_ext': '.txt', 'src_dir': arch_dir})
+                break
     else:
-        ffs = glob.glob1(arch_dir, 'FF*.fits')
-    if len(ffs) > 0:
-        uploadffs = random.sample(ffs, min(2, len(ffs)))
-        for ff in uploadffs:
-            uploadlist.append({'dir_file':ff, 'file_ext': '.fits', 'src_dir': arch_dir})
+        # upload everything
+        for dir_file in dir_contents:
+            file_name, file_ext = os.path.splitext(dir_file)
+            file_ext = file_ext.lower()
+            if ('FTPdetectinfo_{}.txt'.format(daydir) == dir_file):
+                uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
+            # mp4 must be uploaded before corresponding jpg
+            elif (file_ext == '.jpg') and ('FF_' in file_name):
+                mp4f = dir_file.replace('.jpg', '.mp4')
+                if os.path.isfile(os.path.join(arch_dir, mp4f)):
+                    uploadlist.append({'dir_file':mp4f, 'file_ext': '.mp4', 'src_dir': arch_dir})
+                uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
+            elif (file_ext == '.jpg') and ('stack_' in file_name) and ('track' not in file_name):
+                uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
+            elif (file_ext == '.jpg') and ('calib' in file_name):
+                uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
+            elif file_ext in ('.png', '.kml', '.cal', '.json', '.csv'): 
+                uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
+            elif dir_file == 'mask.bmp' or dir_file == 'flat.bmp':
+                uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
+            #elif dir_file == '.config':
+            #    uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
+        
+        # upload two FITs files chosen at random from the recalibrated ones
+        # to be used for platepar creation if needed
+        if os.path.isfile(os.path.join(arch_dir, 'platepars_all_recalibrated.json')):
+            with open(os.path.join(arch_dir, 'platepars_all_recalibrated.json')) as ppf:
+                js = json.load(ppf)
+            try:
+                ffs=[k for k in js.keys() if js[k]['auto_recalibrated'] is True]
+            except Exception:
+                ffs = glob.glob1(arch_dir, 'FF*.fits')    
+        else:
+            ffs = glob.glob1(arch_dir, 'FF*.fits')
+        if len(ffs) > 0:
+            uploadffs = random.sample(ffs, min(2, len(ffs)))
+            for ff in uploadffs:
+                uploadlist.append({'dir_file':ff, 'file_ext': '.fits', 'src_dir': arch_dir})
     max_retries=5
     retry_wait = 60
     if len(uploadlist) > 1:
