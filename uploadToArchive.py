@@ -229,8 +229,10 @@ def uploadToArchive(arch_dir, sciencefiles=False):
         for dir_file in dir_contents:
             file_name, file_ext = os.path.splitext(dir_file)
             file_ext = file_ext.lower()
+            if 'platepars_all_recalibrated' in file_name:
+                continue
             # mp4 must be uploaded before corresponding jpg
-            if (file_ext == '.jpg') and ('FF_' in file_name):
+            elif (file_ext == '.jpg') and ('FF_' in file_name):
                 mp4f = dir_file.replace('.jpg', '.mp4')
                 if os.path.isfile(os.path.join(arch_dir, mp4f)):
                     uploadlist.append({'dir_file':mp4f, 'file_ext': '.mp4', 'src_dir': arch_dir})
