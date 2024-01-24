@@ -17,14 +17,16 @@ import random
 import glob
 import logging
 from time import sleep
+import paramiko
+import tempfile
 
 log = logging.getLogger("logger")
 
 
-def readKeyFile(filename):
+def readKeyFile(filename, inifvals):
     if not os.path.isfile(filename):
-        print('credentials file missing, cannot continue')
-        return None
+        log.error('Config file missing, cannot continue')
+        return False
     with open(filename, 'r') as fin:
         lis = fin.readlines()
     vals = {}
@@ -52,12 +54,56 @@ def readKeyFile(filename):
         vals['LIVEREGION'] = 'eu-west-1'
     if 'MATCHDIR' not in vals:
         vals['MATCHDIR'] = 'matches/RMSCorrelate'
-    if 'LIVE_ACCESS_KEY_ID' not in vals and 'AWS_ACCESS_KEY_ID' in vals:
-        vals['LIVE_ACCESS_KEY_ID'] = vals['AWS_ACCESS_KEY_ID']
-    if 'LIVE_SECRET_ACCESS_KEY' not in vals and 'AWS_SECRET_ACCESS_KEY' in vals:
-        vals['LIVE_SECRET_ACCESS_KEY'] = vals['AWS_SECRET_ACCESS_KEY']
+    keyid, secid = getAWSKey(inifvals)
+    if not keyid:
+        return False
+    vals['AWS_ACCESS_KEY_ID'] = keyid
+    vals['AWS_SECRET_ACCESS_KEY'] = secid
+    return vals
 
-    #print(vals)
+
+def getAWSKey(inifvals):
+    ssh_client = paramiko.SSHClient()
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try: 
+        pkey = paramiko.RSAKey.from_private_key_file(os.path.expanduser(inifvals['UKMONKEY']))
+        ssh_client.connect(inifvals['UKMONHELPER'], username=inifvals['LOCATION'], pkey=pkey, look_for_keys=False)
+        ftp_client = ssh_client.open_sftp()
+        try:
+            handle, tmpfnam = tempfile.mkstemp()
+            ftp_client.get(inifvals['LOCATION']+'.csv', tmpfnam)
+        except Exception:
+            log.error('unable to retrieve AWS key')
+            return False, False
+        try:
+            lis = open(tmpfnam, 'r').readlines()
+            os.close(handle)
+            os.remove(tmpfnam)
+            key, sec = lis[1].split(',')
+        except Exception:
+            log.error('malformed AWS keys')
+            return False, False
+    except Exception:
+        log.error('unable to obtain AWS key')
+        return False, False
+    return key.strip(), sec.strip()
+
+
+def readIniFile(filename):
+    if not os.path.isfile(filename):
+        log.error('ukmon.ini missing, cannot continue')
+        return False
+    with open(filename, 'r') as fin:
+        lis = fin.readlines()
+    vals = {}
+    for li in lis:
+        if li[0]=='#':
+            continue
+        if '=' in li:
+            valstr = li.split(' ')[1]
+            data = valstr.split('=')
+            val = data[1].strip().strip('"')
+            vals[data[0]] = val
     return vals
 
 
@@ -190,19 +236,17 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
     return ret
 
 
-def uploadToArchive(arch_dir, sciencefiles=False):
+def uploadToArchive(arch_dir, sciencefiles=False, keys=False):
     # Upload all relevant files from *arch_dir* to ukmon's S3 Archive
 
     myloc = os.path.split(os.path.abspath(__file__))[0]
-    keyfile = os.path.join(myloc, 'live.key')
-    if os.path.isfile(keyfile) is False:
-        log.info('AWS keyfile not present')
+    inifvals = readIniFile(os.path.join(myloc, 'ukmon.ini'))
+    if not inifvals:
         return False
-
-    keys = readKeyFile(keyfile)
-    if keys is None:
-        print('keyfile not found, aborting')
-        return False
+    if not keys:
+        keys = readKeyFile(os.path.join(myloc, 'live.key'), inifvals)
+        if not keys:
+            return False
     reg = keys['ARCHREGION']
     conn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY']) 
     s3 = conn.resource('s3', region_name=reg)
@@ -272,7 +316,7 @@ def uploadToArchive(arch_dir, sciencefiles=False):
                 if res is False:
                     sleep(retry_wait)
                     retry +=1
-    return res
+    return keys
 
 
 def manualUpload(targ_dir, sciencefiles=False):
@@ -289,13 +333,12 @@ def manualUpload(targ_dir, sciencefiles=False):
     if targ_dir == 'test':
         try:
             myloc = os.path.split(os.path.abspath(__file__))[0]
-            filename = os.path.join(myloc, 'live.key')
-            keys = readKeyFile(filename)
-            if keys is None:
-                print('keyfile not found, aborting')
+            inifvals = readIniFile(os.path.join(myloc, 'ukmon.ini'))
+            if not inifvals:
                 return False
-
-            inifvals = readKeyFile(os.path.join(myloc, 'ukmon.ini'))
+            keys = readKeyFile(os.path.join(myloc, 'live.key'), inifvals)
+            if not keys:
+                return False
             with open('/tmp/test.txt', 'w') as f:
                 f.write('{}'.format(inifvals['LOCATION']))
 
@@ -318,7 +361,7 @@ def manualUpload(targ_dir, sciencefiles=False):
         return True
     else:
         arch_dir = os.path.expanduser(targ_dir)
-        return uploadToArchive(arch_dir, sciencefiles)
+        return uploadToArchive(arch_dir, sciencefiles, keys=None)
 
 
 if __name__ == '__main__':

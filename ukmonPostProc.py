@@ -49,8 +49,7 @@ def rmsExternal(cap_dir, arch_dir, config):
         f.write('1')
 
     log.info('uploading key science files to archive')
-    uploadToArchive(arch_dir, sciencefiles=True)
-
+    keys = uploadToArchive(arch_dir, sciencefiles=True)
     # create jpgs from the potential detections
     log.info('creating JPGs')
     try:
@@ -74,7 +73,7 @@ def rmsExternal(cap_dir, arch_dir, config):
         log.info('mp4 creation not enabled')
     
     log.info('uploading remaining files to archive')
-    uploadToArchive(arch_dir)
+    uploadToArchive(arch_dir, keys=keys)
 
     # do not remote reboot lock file if running another script
     # os.remove(rebootlockfile)

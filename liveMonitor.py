@@ -9,7 +9,7 @@ import logging
 from RMS.Logger import initLogging
 import RMS.ConfigReader as cr
 from stat import ST_INO
-from uploadToArchive import readKeyFile
+from uploadToArchive import readKeyFile, readIniFile
 
 
 log = logging.getLogger("logger")
@@ -70,10 +70,14 @@ def monitorLogFile(camloc, rmscfg):
     myloc = os.path.split(os.path.abspath(__file__))[0]
 
     # get credentials
-    if not os.path.isfile(os.path.join(myloc, 'live.key')):
-        log.error('AWS key not present, aborting')
+    inifvals = readIniFile(os.path.join(myloc, 'ukmon.ini'))
+    if not inifvals:
+        log.error('ukmon.ini not present, aborting')
         exit(1)
-    keys = readKeyFile(os.path.join(myloc, 'live.key'))
+    keys = readKeyFile(os.path.join(myloc, 'live.key'), inifvals)
+    if not keys:
+        log.error('config file not present, aborting')
+        exit(1)
 
     datadir = cfg.data_dir
     logdir = os.path.expanduser(os.path.join(datadir, cfg.log_dir))
