@@ -3,7 +3,7 @@ import time
 import os
 import sys
 import glob
-import sendToLive as uoe
+from sendToLive import uploadOneEvent
 import datetime
 import logging
 from RMS.Logger import initLogging
@@ -125,7 +125,7 @@ def monitorLogFile(camloc, rmscfg):
                             ftime = datetime.datetime.strptime(ffname[10:25], '%Y%m%d_%H%M%S')
                             if (nowtm - ftime).seconds < MAXAGE:
                                 log.info('uploading {}'.format(ffname))
-                                uoe.uploadOneEvent(capdir, ffname, cfg, keys, camloc)
+                                uploadOneEvent(capdir, ffname, cfg, keys, camloc)
                             else:
                                 #log.info('skipping {} as too old'.format(ffname))
                                 pass
