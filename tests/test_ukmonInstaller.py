@@ -3,9 +3,9 @@
 import os
 import shutil
 
-
 from ukmonInstaller import createDefaultIni, updateHelperIp, updateLocation, \
     checkPostProcSettings, validateIni, getLatestKeys # noqa: E402
+
 myloc = os.path.split(os.path.abspath(__file__))[0]
 homedir = os.path.join(myloc, 'ukminst')
 tmpdir = os.path.join(myloc, 'output')

@@ -19,7 +19,7 @@ from importlib import import_module as impmod
 import logging
 from RMS.Logger import initLogging
 
-from uploadToArchive import uploadToArchive, readKeyFile
+from uploadToArchive import uploadToArchive, readIniFile
 
 log = logging.getLogger("logger")
 
@@ -128,7 +128,7 @@ def main(args):
         return False
     arch_dir = args[1]
     myloc = os.path.split(os.path.abspath(__file__))[0]
-    inifvals = readKeyFile(os.path.join(myloc, 'ukmon.ini'))
+    inifvals = readIniFile(os.path.join(myloc, 'ukmon.ini'))
     if inifvals is None:
         log.warning('unable to open ukmon ini file')
         return 'unable to open ukmon ini file'
