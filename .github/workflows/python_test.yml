@@ -34,7 +34,7 @@ jobs:
           cp ~/source/testing/live.key .
           touch ./domp4s
           source ukmon.ini
-          pytest -v . --cov=. --cov-report=term-missing
+          pytest -v . --cov=. --cov-report=term-missing --cov-config=.coveragerc_lnx
           rm ./live.key ./ukmon.ini ./domp4s
 #  Run-refreshtools-on-Ubuntu:
 #    name: Run refreshTools on Ubuntu
