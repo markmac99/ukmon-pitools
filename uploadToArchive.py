@@ -33,6 +33,8 @@ def readKeyFile(filename, inifvals):
     for li in lis:
         if li[0]=='#':
             continue
+        if 'ACCESS_KEY' in li: # ignore keys in the file
+            continue
         if '=' in li:
             valstr = li.split(' ')[1]
             data = valstr.split('=')
