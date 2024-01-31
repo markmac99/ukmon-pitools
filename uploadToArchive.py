@@ -87,6 +87,7 @@ def getAWSKey(inifvals):
         except Exception as e:
             log.error('unable to find AWS key')
             log.info(e, exc_info=True)
+        ftp_client.close()
         try:
             lis = open(tmpfnam, 'r').readlines()
             os.close(handle)
@@ -98,7 +99,6 @@ def getAWSKey(inifvals):
     except Exception as e:
         log.error('unable to retrieve AWS key')
         log.info(e, exc_info=True)
-    ftp_client.close()
     ssh_client.close()
     if key:
         log.info('retrieved key details')
