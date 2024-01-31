@@ -56,7 +56,16 @@ def readKeyFile(filename, inifvals):
         vals['LIVEREGION'] = 'eu-west-1'
     if 'MATCHDIR' not in vals:
         vals['MATCHDIR'] = 'matches/RMSCorrelate'
-    keyid, secid = getAWSKey(inifvals)
+    retries = 20
+    tries = 0
+    keyid, secid = False, False
+    while tries < retries:
+        keyid, secid = getAWSKey(inifvals)
+        if keyid:
+            break
+        tries += 1
+        log.info('retrying... try {}'.format(tries))
+        sleep(30)
     if not keyid:
         return False
     vals['AWS_ACCESS_KEY_ID'] = keyid
@@ -67,6 +76,7 @@ def readKeyFile(filename, inifvals):
 def getAWSKey(inifvals):
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    key, sec = False, False
     try: 
         pkey = paramiko.RSAKey.from_private_key_file(os.path.expanduser(inifvals['UKMONKEY']))
         ssh_client.connect(inifvals['UKMONHELPER'], username=inifvals['LOCATION'], pkey=pkey, look_for_keys=False)
@@ -74,21 +84,26 @@ def getAWSKey(inifvals):
         try:
             handle, tmpfnam = tempfile.mkstemp()
             ftp_client.get(inifvals['LOCATION']+'.csv', tmpfnam)
-        except Exception:
-            log.error('unable to retrieve AWS key')
-            return False, False
+        except Exception as e:
+            log.error('unable to find AWS key')
+            log.info(e, exc_info=True)
         try:
             lis = open(tmpfnam, 'r').readlines()
             os.close(handle)
             os.remove(tmpfnam)
             key, sec = lis[1].split(',')
-        except Exception:
-            log.error('malformed AWS keys')
-            return False, False
-    except Exception:
-        log.error('unable to obtain AWS key')
+        except Exception as e:
+            log.error('malformed AWS key')
+            log.info(e, exc_info=True)
+    except Exception as e:
+        log.error('unable to retrieve AWS key')
+        log.info(e, exc_info=True)
+    ftp_client.close()
+    ssh_client.close()
+    if key:
+        return key.strip(), sec.strip() 
+    else: 
         return False, False
-    return key.strip(), sec.strip()
 
 
 def readIniFile(filename):
