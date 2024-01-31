@@ -27,10 +27,10 @@ Other files
 These files are either created automatically by the refresh script, or can be created by the 
 user to enable extra features of the process. 
 
-**ukmon.ini live.key and archive.key**
-Configuration and security key files required for the operation of the module. A default ini file 
-is deployed from github, and you'll be given instructions on how to update it. The keys will be automatically
-downloaded when the refreshTools script is run.
+**ukmon.ini and live.key**
+Configuration files required for the operation of the module. A default ini file 
+is deployed from github and you'll be given instructions on how to update it. 
+The other file will be automatically downloaded when the refreshTools script is run.
 
 **domp4s**
 If this file exists, the script will additionally create an MP4 of each detection and 
