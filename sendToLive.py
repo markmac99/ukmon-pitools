@@ -11,7 +11,7 @@ import Utils.BatchFFtoImage as bff
 import shutil
 import tempfile
 import boto3
-from uploadToArchive import readKeyFile
+from uploadToArchive import readKeyFile, readIniFile
 import logging
 import RMS.ConfigReader as cr
 import numpy as np
@@ -157,8 +157,9 @@ def singleUpload(cap_dir, dir_file):
     camloc = None
     myloc = os.path.split(os.path.abspath(__file__))[0]
     # get camera location from ini file
-    inifvals = readKeyFile(os.path.join(myloc, 'ukmon.ini'))
-    if inifvals is None:
+
+    inifvals = readIniFile(os.path.join(myloc, 'ukmon.ini'))
+    if not inifvals:
         log.warning('unable to open ini file')
         return 'unable to open ini file'
     camloc = inifvals['LOCATION']
@@ -171,8 +172,8 @@ def singleUpload(cap_dir, dir_file):
         return 'not configured'
 
     # get credentials
-    keys = readKeyFile(os.path.join(myloc, 'live.key'))
-    if keys is None:
+    keys = readKeyFile(os.path.join(myloc, 'live.key'), inifvals)
+    if not keys:
         log.warning('unable to open keyfile')
         return 'unable to open keyfile'
 

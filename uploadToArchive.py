@@ -17,19 +17,23 @@ import random
 import glob
 import logging
 from time import sleep
+import paramiko
+import tempfile
 
 log = logging.getLogger("logger")
 
 
-def readKeyFile(filename):
+def readKeyFile(filename, inifvals):
     if not os.path.isfile(filename):
-        print('credentials file missing, cannot continue')
-        return None
+        log.error('Config file missing, cannot continue')
+        return False
     with open(filename, 'r') as fin:
         lis = fin.readlines()
     vals = {}
     for li in lis:
         if li[0]=='#':
+            continue
+        if 'ACCESS_KEY' in li: # ignore keys in the file
             continue
         if '=' in li:
             valstr = li.split(' ')[1]
@@ -52,12 +56,56 @@ def readKeyFile(filename):
         vals['LIVEREGION'] = 'eu-west-1'
     if 'MATCHDIR' not in vals:
         vals['MATCHDIR'] = 'matches/RMSCorrelate'
-    if 'LIVE_ACCESS_KEY_ID' not in vals and 'AWS_ACCESS_KEY_ID' in vals:
-        vals['LIVE_ACCESS_KEY_ID'] = vals['AWS_ACCESS_KEY_ID']
-    if 'LIVE_SECRET_ACCESS_KEY' not in vals and 'AWS_SECRET_ACCESS_KEY' in vals:
-        vals['LIVE_SECRET_ACCESS_KEY'] = vals['AWS_SECRET_ACCESS_KEY']
+    keyid, secid = getAWSKey(inifvals)
+    if not keyid:
+        return False
+    vals['AWS_ACCESS_KEY_ID'] = keyid
+    vals['AWS_SECRET_ACCESS_KEY'] = secid
+    return vals
 
-    #print(vals)
+
+def getAWSKey(inifvals):
+    ssh_client = paramiko.SSHClient()
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try: 
+        pkey = paramiko.RSAKey.from_private_key_file(os.path.expanduser(inifvals['UKMONKEY']))
+        ssh_client.connect(inifvals['UKMONHELPER'], username=inifvals['LOCATION'], pkey=pkey, look_for_keys=False)
+        ftp_client = ssh_client.open_sftp()
+        try:
+            handle, tmpfnam = tempfile.mkstemp()
+            ftp_client.get(inifvals['LOCATION']+'.csv', tmpfnam)
+        except Exception:
+            log.error('unable to retrieve AWS key')
+            return False, False
+        try:
+            lis = open(tmpfnam, 'r').readlines()
+            os.close(handle)
+            os.remove(tmpfnam)
+            key, sec = lis[1].split(',')
+        except Exception:
+            log.error('malformed AWS keys')
+            return False, False
+    except Exception:
+        log.error('unable to obtain AWS key')
+        return False, False
+    return key.strip(), sec.strip()
+
+
+def readIniFile(filename):
+    if not os.path.isfile(filename):
+        log.error('ukmon.ini missing, cannot continue')
+        return False
+    with open(filename, 'r') as fin:
+        lis = fin.readlines()
+    vals = {}
+    for li in lis:
+        if li[0]=='#':
+            continue
+        if '=' in li:
+            valstr = li.split(' ')[1]
+            data = valstr.split('=')
+            val = data[1].strip().strip('"')
+            vals[data[0]] = val
     return vals
 
 
@@ -190,19 +238,17 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
     return ret
 
 
-def uploadToArchive(arch_dir):
+def uploadToArchive(arch_dir, sciencefiles=False, keys=False):
     # Upload all relevant files from *arch_dir* to ukmon's S3 Archive
 
     myloc = os.path.split(os.path.abspath(__file__))[0]
-    keyfile = os.path.join(myloc, 'live.key')
-    if os.path.isfile(keyfile) is False:
-        log.info('AWS keyfile not present')
+    inifvals = readIniFile(os.path.join(myloc, 'ukmon.ini'))
+    if not inifvals:
         return False
-
-    keys = readKeyFile(keyfile)
-    if keys is None:
-        print('keyfile not found, aborting')
-        return False
+    if not keys:
+        keys = readKeyFile(os.path.join(myloc, 'live.key'), inifvals)
+        if not keys:
+            return False
     reg = keys['ARCHREGION']
     conn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY']) 
     s3 = conn.resource('s3', region_name=reg)
@@ -214,46 +260,53 @@ def uploadToArchive(arch_dir):
     daydir = os.path.split(arch_dir)[1]
 
     uploadlist = []
-    # platepar must be uploaded before FTPdetect and config files
-    uploadlist.append({'dir_file':'platepars_all_recalibrated.json', 'file_ext': '.json', 'src_dir': arch_dir})
-    uploadlist.append({'dir_file':'.config', 'file_ext': '.config', 'src_dir': arch_dir})
-    for dir_file in dir_contents:
-        file_name, file_ext = os.path.splitext(dir_file)
-        file_ext = file_ext.lower()
-        if ('FTPdetectinfo_{}.txt'.format(daydir) == dir_file):
-            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
-        # mp4 must be uploaded before corresponding jpg
-        elif (file_ext == '.jpg') and ('FF_' in file_name):
-            mp4f = dir_file.replace('.jpg', '.mp4')
-            if os.path.isfile(os.path.join(arch_dir, mp4f)):
-                uploadlist.append({'dir_file':mp4f, 'file_ext': '.mp4', 'src_dir': arch_dir})
-            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
-        elif (file_ext == '.jpg') and ('stack_' in file_name) and ('track' not in file_name):
-            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
-        elif (file_ext == '.jpg') and ('calib' in file_name):
-            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
-        elif file_ext in ('.png', '.kml', '.cal', '.json', '.csv'): 
-            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
-        elif dir_file == 'mask.bmp' or dir_file == 'flat.bmp':
-            uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
-        #elif dir_file == '.config':
-        #    uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
-    
-    # upload two FITs files chosen at random from the recalibrated ones
-    # to be used for platepar creation if needed
-    if os.path.isfile(os.path.join(arch_dir, 'platepars_all_recalibrated.json')):
-        with open(os.path.join(arch_dir, 'platepars_all_recalibrated.json')) as ppf:
-            js = json.load(ppf)
-        try:
-            ffs=[k for k in js.keys() if js[k]['auto_recalibrated'] is True]
-        except Exception:
-            ffs = glob.glob1(arch_dir, 'FF*.fits')    
+    if sciencefiles:
+        # upload just the critical files
+        # platepar must be uploaded before FTPdetect and config files
+        uploadlist.append({'dir_file':'platepars_all_recalibrated.json', 'file_ext': '.json', 'src_dir': arch_dir})
+        uploadlist.append({'dir_file':'.config', 'file_ext': '.config', 'src_dir': arch_dir})
+        ftpfiles = [x for x in dir_contents if 'FTPdetectinfo' in x]
+        for dir_file in ftpfiles:
+            if ('FTPdetectinfo_{}.txt'.format(daydir) == dir_file):
+                uploadlist.append({'dir_file':dir_file, 'file_ext': '.txt', 'src_dir': arch_dir})
+                break
     else:
-        ffs = glob.glob1(arch_dir, 'FF*.fits')
-    if len(ffs) > 0:
-        uploadffs = random.sample(ffs, min(2, len(ffs)))
-        for ff in uploadffs:
-            uploadlist.append({'dir_file':ff, 'file_ext': '.fits', 'src_dir': arch_dir})
+        # upload everything
+        for dir_file in dir_contents:
+            file_name, file_ext = os.path.splitext(dir_file)
+            file_ext = file_ext.lower()
+            if 'platepars_all_recalibrated' in file_name:
+                continue
+            # mp4 must be uploaded before corresponding jpg
+            elif (file_ext == '.jpg') and ('FF_' in file_name):
+                mp4f = dir_file.replace('.jpg', '.mp4')
+                if os.path.isfile(os.path.join(arch_dir, mp4f)):
+                    uploadlist.append({'dir_file':mp4f, 'file_ext': '.mp4', 'src_dir': arch_dir})
+                uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
+            elif (file_ext == '.jpg') and ('stack_' in file_name) and ('track' not in file_name):
+                uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
+            elif (file_ext == '.jpg') and ('calib' in file_name):
+                uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
+            elif file_ext in ('.png', '.kml', '.cal', '.json', '.csv'): 
+                uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
+            elif dir_file == 'mask.bmp' or dir_file == 'flat.bmp':
+                uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
+        
+        # upload two FITs files chosen at random from the recalibrated ones
+        # to be used for platepar creation if needed
+        if os.path.isfile(os.path.join(arch_dir, 'platepars_all_recalibrated.json')):
+            with open(os.path.join(arch_dir, 'platepars_all_recalibrated.json')) as ppf:
+                js = json.load(ppf)
+            try:
+                ffs=[k for k in js.keys() if js[k]['auto_recalibrated'] is True]
+            except Exception:
+                ffs = glob.glob1(arch_dir, 'FF*.fits')    
+        else:
+            ffs = glob.glob1(arch_dir, 'FF*.fits')
+        if len(ffs) > 0:
+            uploadffs = random.sample(ffs, min(2, len(ffs)))
+            for ff in uploadffs:
+                uploadlist.append({'dir_file':ff, 'file_ext': '.fits', 'src_dir': arch_dir})
     max_retries=5
     retry_wait = 60
     if len(uploadlist) > 1:
@@ -265,10 +318,10 @@ def uploadToArchive(arch_dir):
                 if res is False:
                     sleep(retry_wait)
                     retry +=1
-    return res
+    return keys
 
 
-def manualUpload(targ_dir):
+def manualUpload(targ_dir, sciencefiles=False):
     """ Manually send the target folder to ukmon archive.  
 
     Args:  
@@ -282,13 +335,12 @@ def manualUpload(targ_dir):
     if targ_dir == 'test':
         try:
             myloc = os.path.split(os.path.abspath(__file__))[0]
-            filename = os.path.join(myloc, 'live.key')
-            keys = readKeyFile(filename)
-            if keys is None:
-                print('keyfile not found, aborting')
+            inifvals = readIniFile(os.path.join(myloc, 'ukmon.ini'))
+            if not inifvals:
                 return False
-
-            inifvals = readKeyFile(os.path.join(myloc, 'ukmon.ini'))
+            keys = readKeyFile(os.path.join(myloc, 'live.key'), inifvals)
+            if not keys:
+                return False
             with open('/tmp/test.txt', 'w') as f:
                 f.write('{}'.format(inifvals['LOCATION']))
 
@@ -310,9 +362,13 @@ def manualUpload(targ_dir):
             pass
         return True
     else:
-        arch_dir = os.path.join(targ_dir)
-        return uploadToArchive(arch_dir)
+        arch_dir = os.path.expanduser(targ_dir)
+        return uploadToArchive(arch_dir, sciencefiles, keys=None)
 
 
 if __name__ == '__main__':
-    manualUpload(sys.argv[1])
+    targdir = sys.argv[1]
+    if len(sys.argv) > 2:
+        manualUpload(sys.argv[1], True)
+    else:
+        manualUpload(sys.argv[1])

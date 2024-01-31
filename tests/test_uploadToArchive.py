@@ -2,7 +2,7 @@
 
 import boto3
 import os
-from uploadToArchive import readKeyFile, uploadOneFile, manualUpload
+from uploadToArchive import readKeyFile, uploadOneFile, manualUpload, readIniFile
 from ukmonInstaller import createDefaultIni
 
 basedir = os.path.realpath(os.path.dirname(__file__))
@@ -11,21 +11,28 @@ if not os.path.isdir(tmpdir):
     os.makedirs(tmpdir)
 
 
+def test_readIniFile():
+    inifs = readIniFile(os.path.join(basedir,'..','ukmon.ini'))
+    assert inifs['LOCATION']=='testpi4'
+
+
 def test_readKeyFile():
-    vals = readKeyFile(os.path.join(basedir,'..','live.key'))
+    inifs = readIniFile(os.path.join(basedir,'..','ukmon.ini'))
+    vals = readKeyFile(os.path.join(basedir,'..','live.key'), inifs)
     assert vals['S3FOLDER'] == 'archive/Tackley'
 
 
 def test_readKeyfileIni():
     homedir = os.path.join(basedir, 'output')
     createDefaultIni(homedir)
-    vals = readKeyFile(os.path.join(homedir,'ukmon.ini'))
+    vals = readIniFile(os.path.join(homedir,'ukmon.ini'))
     os.remove(os.path.join(homedir,'ukmon.ini'))
     assert vals['RMSCFG'] == '~/source/RMS/.config'
 
 
 def test_uploadOneFile():
-    keys = readKeyFile(os.path.join(basedir,'..','live.key'))
+    inifs = readIniFile(os.path.join(basedir,'..','ukmon.ini'))
+    keys = readKeyFile(os.path.join(basedir,'..','live.key'), inifs)
     reg = keys['ARCHREGION']
     conn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY']) 
     s3 = conn.resource('s3', region_name=reg)
@@ -54,6 +61,6 @@ def test_manualUpload():
                     ]
     for fil in testfilelist:
         open(os.path.join(targ_dir, fil), 'w').write('{"test":"potato"}')
-    assert manualUpload(targ_dir) is True
+    assert manualUpload(targ_dir)
     for fil in testfilelist:
         os.remove(os.path.join(targ_dir, fil))

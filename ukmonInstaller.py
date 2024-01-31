@@ -11,7 +11,7 @@ import json
 import tempfile
 import RMS.ConfigReader as cr
 from RMS.Misc import isRaspberryPi
-from uploadToArchive import readKeyFile
+from uploadToArchive import readIniFile
 
 oldip = '3.9.65.98'
 currip = '3.11.55.160'
@@ -130,7 +130,7 @@ def installUkmonFeed(rmscfg='~/source/RMS/.config'):
     checkPostProcSettings(myloc, cfgname)
     checkCrontab(myloc, datadir)
     addDesktopIcons(myloc, statid)
-    checkPlatepar(statid, os.path.dirname(cfgname))
+    checkPlatepar(myloc, statid, os.path.dirname(cfgname))
     return 
 
 
@@ -280,17 +280,13 @@ def getLatestKeys(homedir, remoteinifname='ukmon.ini'):
     ini file is updated accordingly.  
     """
     homedir = os.path.expanduser(os.path.normpath(homedir))
-    inifvals = readKeyFile(os.path.join(homedir, 'ukmon.ini'))
-    idfile = os.path.expanduser(inifvals['UKMONKEY'])
-    svr = inifvals['UKMONHELPER']
-    usr = inifvals['LOCATION']
-    print(idfile, svr, usr)
+    inifvals = readIniFile(os.path.join(homedir, 'ukmon.ini'))
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     #try: 
     if True:
-        pkey = paramiko.RSAKey.from_private_key_file(idfile) 
-        ssh_client.connect(svr, username=usr, pkey=pkey, look_for_keys=False)
+        pkey = paramiko.RSAKey.from_private_key_file(os.path.expanduser(inifvals['UKMONKEY'])) 
+        ssh_client.connect(inifvals['UKMONHELPER'], username=inifvals['LOCATION'], pkey=pkey, look_for_keys=False)
         ftp_client = ssh_client.open_sftp()
 
         # get the aws key file
@@ -307,12 +303,12 @@ def getLatestKeys(homedir, remoteinifname='ukmon.ini'):
             li = li.strip()
             if 'UKMONHELPER' in li:
                 newhelper = li.split('=')[1]
-                if newhelper != svr:
+                if newhelper != inifvals['UKMONHELPER']:
                     updateHelperIp(homedir, newhelper)
                     print('server address updated')
             if 'LOCATION' in li:
                 newloc = li.split('=')[1]
-                if newloc != usr:
+                if newloc != inifvals['LOCATION']:
                     updateLocation(homedir, newloc)
                     print('location updated')
         os.remove(newinif)
@@ -322,19 +318,18 @@ def getLatestKeys(homedir, remoteinifname='ukmon.ini'):
         return False
 
 
-def checkPlatepar(statid, rmsloc):
+def checkPlatepar(homedir, statid, rmsloc):
     """
     Check for a new platepar on the server and retrieves it if present.  
     The file is checked for compatability with the station.  
     """
-    idfile = os.path.expanduser(os.getenv('UKMONKEY').strip())
-    svr = os.getenv('UKMONHELPER').strip()
-    usr = os.getenv('LOCATION').strip()
+    homedir = os.path.expanduser(os.path.normpath(homedir))
+    inifvals = readIniFile(os.path.join(homedir, 'ukmon.ini'))
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try: 
-        pkey = paramiko.RSAKey.from_private_key_file(idfile) 
-        ssh_client.connect(svr, username=usr, pkey=pkey, look_for_keys=False)
+        pkey = paramiko.RSAKey.from_private_key_file(os.path.expanduser(inifvals['UKMONKEY'])) 
+        ssh_client.connect(inifvals['UKMONHELPER'], username=inifvals['LOCATION'], pkey=pkey, look_for_keys=False)
         ftp_client = ssh_client.open_sftp()
         fetchpp = True
         try:

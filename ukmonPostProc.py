@@ -19,7 +19,7 @@ from importlib import import_module as impmod
 import logging
 from RMS.Logger import initLogging
 
-import uploadToArchive 
+from uploadToArchive import uploadToArchive, readIniFile
 
 log = logging.getLogger("logger")
 
@@ -48,6 +48,8 @@ def rmsExternal(cap_dir, arch_dir, config):
     with open(rebootlockfile, 'w') as f:
         f.write('1')
 
+    log.info('uploading key science files to archive')
+    keys = uploadToArchive(arch_dir, sciencefiles=True)
     # create jpgs from the potential detections
     log.info('creating JPGs')
     try:
@@ -70,8 +72,8 @@ def rmsExternal(cap_dir, arch_dir, config):
     else:
         log.info('mp4 creation not enabled')
     
-    log.info('uploading to archive')
-    uploadToArchive.uploadToArchive(arch_dir)
+    log.info('uploading remaining files to archive')
+    uploadToArchive(arch_dir, keys=keys)
 
     # do not remote reboot lock file if running another script
     # os.remove(rebootlockfile)
@@ -126,7 +128,7 @@ def main(args):
         return False
     arch_dir = args[1]
     myloc = os.path.split(os.path.abspath(__file__))[0]
-    inifvals = uploadToArchive.readKeyFile(os.path.join(myloc, 'ukmon.ini'))
+    inifvals = readIniFile(os.path.join(myloc, 'ukmon.ini'))
     if inifvals is None:
         log.warning('unable to open ukmon ini file')
         return 'unable to open ukmon ini file'

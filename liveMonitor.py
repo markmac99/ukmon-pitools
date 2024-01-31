@@ -3,13 +3,13 @@ import time
 import os
 import sys
 import glob
-import sendToLive as uoe
+from sendToLive import uploadOneEvent
 import datetime
 import logging
 from RMS.Logger import initLogging
 import RMS.ConfigReader as cr
 from stat import ST_INO
-from uploadToArchive import readKeyFile
+from uploadToArchive import readKeyFile, readIniFile
 
 
 log = logging.getLogger("logger")
@@ -48,7 +48,7 @@ def follow(fname, logf_ino):
 
 
 def monitorLogFile(camloc, rmscfg):
-    """ Thuis function monitors the latest RMS log file for meteor detections, convert the FF file
+    """ This function monitors the latest RMS log file for meteor detections, convert the FF file
     to a jpg and upload it to the livestream.  
     This function is called from the shell script *liveMonitor.sh* and should not be called directly. 
     """
@@ -70,10 +70,14 @@ def monitorLogFile(camloc, rmscfg):
     myloc = os.path.split(os.path.abspath(__file__))[0]
 
     # get credentials
-    if not os.path.isfile(os.path.join(myloc, 'live.key')):
-        log.error('AWS key not present, aborting')
+    inifvals = readIniFile(os.path.join(myloc, 'ukmon.ini'))
+    if not inifvals:
+        log.error('ukmon.ini not present, aborting')
         exit(1)
-    keys = readKeyFile(os.path.join(myloc, 'live.key'))
+    keys = readKeyFile(os.path.join(myloc, 'live.key'), inifvals)
+    if not keys:
+        log.error('config file not present, aborting')
+        exit(1)
 
     datadir = cfg.data_dir
     logdir = os.path.expanduser(os.path.join(datadir, cfg.log_dir))
@@ -121,7 +125,7 @@ def monitorLogFile(camloc, rmscfg):
                             ftime = datetime.datetime.strptime(ffname[10:25], '%Y%m%d_%H%M%S')
                             if (nowtm - ftime).seconds < MAXAGE:
                                 log.info('uploading {}'.format(ffname))
-                                uoe.uploadOneEvent(capdir, ffname, cfg, keys, camloc)
+                                uploadOneEvent(capdir, ffname, cfg, keys, camloc)
                             else:
                                 #log.info('skipping {} as too old'.format(ffname))
                                 pass
