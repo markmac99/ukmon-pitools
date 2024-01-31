@@ -101,6 +101,7 @@ def getAWSKey(inifvals):
     ftp_client.close()
     ssh_client.close()
     if key:
+        log.info('retrieved key details')
         return key.strip(), sec.strip() 
     else: 
         return False, False
