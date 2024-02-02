@@ -17,6 +17,7 @@ jobs:
         run: |
           source ~/vRMS/bin/activate
           python -m pip install --upgrade pip
+          pip install -r ./requirements.txt
           pip install --upgrade ruff pytest xmltodict pytest-cov 
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Lint with ruff
@@ -29,6 +30,7 @@ jobs:
       - name: Test with pytest
         run: |
           source ~/vRMS/bin/activate
+          pip install -r ~/source/RMS/requirements.txt
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           cp ~/source/testing/ukmon.ini .
           cp ~/source/testing/live.key .

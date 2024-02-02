@@ -1,0 +1,4 @@
+python-crontab==2.5.1
+boto3
+paramiko
+numpy

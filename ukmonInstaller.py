@@ -298,6 +298,7 @@ def getLatestKeys(homedir, remoteinifname='ukmon.ini'):
         newinif = os.path.join(homedir, '.ukmon.new')
         ftp_client.put(currinif,'ukmon.ini.client')
         ftp_client.get(remoteinifname, newinif)
+        ftp_client.close()
         iniflines = open(newinif,'r').readlines()
         for li in iniflines:
             li = li.strip()
@@ -312,6 +313,7 @@ def getLatestKeys(homedir, remoteinifname='ukmon.ini'):
                     updateLocation(homedir, newloc)
                     print('location updated')
         os.remove(newinif)
+        ssh_client.close()
         return True
     #except:
     else:
@@ -350,4 +352,5 @@ def checkPlatepar(homedir, statid, rmsloc):
         ftp_client.close()
     except Exception:
         print('unable to check platepar, will try next time')
+    ssh_client.close()
     return 
