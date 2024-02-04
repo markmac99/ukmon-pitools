@@ -3,7 +3,6 @@
 
 # tests designed to run on a Pi 
 here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-export PYTHONPATH=$PYTHONPATH:${here}
 if [ ! -f /keys/ukmon.ini ] ; then
     echo no test config, aborting
     exit
@@ -15,5 +14,8 @@ touch ./domp4s
 source ukmon.ini
 pip install -r ./requirements.txt
 pip install --upgrade ruff pytest xmltodict pytest-cov 
-export PYTHONPATH=$PYTHONPATH:/root/source/RMS
-pytest -v ./tests/ --cov=./ --cov-report=term-missing --cov-config=.coveragerc_lnx 
+export PYTHONPATH=$PYTHONPATH:/root/source/RMS:${here}
+chdir /root/source/RMS
+ls -ltra .config
+pwd
+pytest -v $here/tests/ --cov=$here/ --cov-report=term-missing --cov-config=$here/.coveragerc_lnx 
