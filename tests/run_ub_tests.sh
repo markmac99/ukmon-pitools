@@ -15,7 +15,7 @@ source ukmon.ini
 pip install -r ./requirements.txt
 pip install --upgrade ruff pytest xmltodict pytest-cov 
 export PYTHONPATH=$PYTHONPATH:/root/source/RMS:${here}
-chdir /root/source/RMS
+cd /root/source/RMS
 ls -ltra .config
 pwd
 pytest -v $here/tests/ --cov=$here/ --cov-report=term-missing --cov-config=$here/.coveragerc_lnx 
