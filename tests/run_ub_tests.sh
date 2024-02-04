@@ -18,4 +18,4 @@ export PYTHONPATH=$PYTHONPATH:/root/source/RMS:${here}
 cd /root/source/RMS
 ls -ltra .config
 pwd
-pytest -v $here/tests/ --cov=$here/ --cov-report=term-missing --cov-config=$here/.coveragerc_lnx 
+pytest -v $here/ --cov=$here/../ --cov-report=term-missing --cov-config=$here/../.coveragerc_lnx 
