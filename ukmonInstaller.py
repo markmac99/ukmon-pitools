@@ -6,7 +6,12 @@ from crontab import CronTab
 from subprocess import call
 
 import time
-import paramiko
+import warnings
+from cryptography.utils import CryptographyDeprecationWarning
+with warnings.catch_warnings():
+    warnings.filterwarnings('ignore', category=CryptographyDeprecationWarning)
+    import paramiko
+
 import json
 import tempfile
 import RMS.ConfigReader as cr
