@@ -5,7 +5,7 @@ jobs:
     name: run containerised test
     runs-on: ubuntu-latest
     container:
-      image: docker.io/markmac99/ubi8:latest
+      image: docker.io/markmac99/rmstestcont:latest
       env: 
         MYENV: foo
       ports:
@@ -16,8 +16,8 @@ jobs:
 #      - uses: actions/setup-python@v4
 #        with:
 #          python-version: '3.8'
-      - run: chmod +x ./tests/run_tests.sh
-      - run: ./tests/run_tests.sh
+      - run: chmod +x ./tests/run_ub_tests.sh
+      - run: ./tests/run_ub_tests.sh
   
   test:
     name: run python tests
