@@ -14,7 +14,7 @@ touch ./domp4s
 source ukmon.ini
 pip install -r ./requirements.txt
 pip install --upgrade ruff pytest xmltodict pytest-cov 
-export PYTHONPATH=$PYTHONPATH:/root/source/RMS:${here}
+export PYTHONPATH=$PYTHONPATH:/root/source/RMS:${here}/..
 cd /root/source/RMS
 ls -ltra .config
 pwd
