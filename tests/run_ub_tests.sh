@@ -13,4 +13,6 @@ cp /keys/ukmon.ini .
 cp /keys/live.key .
 touch ./domp4s
 source ukmon.ini
+pip install -r ../requirements.txt
+pip install --upgrade ruff pytest xmltodict pytest-cov 
 pytest -v ./tests/ --cov=./ --cov-report=term-missing --cov-config=.coveragerc_lnx 
