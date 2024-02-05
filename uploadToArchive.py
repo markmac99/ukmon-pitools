@@ -17,7 +17,11 @@ import random
 import glob
 import logging
 from time import sleep
-import paramiko
+import warnings
+from cryptography.utils import CryptographyDeprecationWarning
+with warnings.catch_warnings():
+    warnings.filterwarnings('ignore', category=CryptographyDeprecationWarning)
+    import paramiko
 import tempfile
 
 log = logging.getLogger("logger")

@@ -20,7 +20,7 @@ jobs:
       - run: ./tests/run_ub_tests.sh
   
   test:
-    name: run python tests
+    name: run pi4 tests
     runs-on: [testpi4]
     strategy:
       matrix:

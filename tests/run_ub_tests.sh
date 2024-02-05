@@ -10,6 +10,9 @@ fi
 cp /keys/.config /root/source/RMS/
 cp /keys/ukmon.ini . 
 cp /keys/live.key .
+pushd /root/source/RMS 
+git stash && git pull && git stash apply 
+popd
 touch ./domp4s
 source ukmon.ini
 pip install -r ./requirements.txt
