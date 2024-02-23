@@ -71,7 +71,7 @@ def rmsExternal(cap_dir, arch_dir, config):
         try:
             maglim = float(os.getenv('MAGLIM', default='0'))
             gmp4.generateMP4s(arch_dir, ftpfile_name, min_mag=maglim)
-        except:
+        except Exception:
             gmp4.generateMP4s(arch_dir, ftpfile_name)
     else:
         log.info('mp4 creation not enabled')

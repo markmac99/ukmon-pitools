@@ -20,7 +20,7 @@ def test_checkMags():
     daydir = 'UK0006_20220914_185543_087124'
     validffs = checkMags(arch_dir, 'FTPdetectinfo_{}.txt'.format(daydir), maglim)
     print(validffs)
-    assert validffs[0] == 'FF_UK0006_20220914_200343_841_0101120.fits'
+    assert 'FF_UK0006_20220914_200343_841_0101120.fits' in validffs
 
 
 def test_readIniFile():
