@@ -2,13 +2,25 @@
 
 import boto3
 import os
-from uploadToArchive import readKeyFile, uploadOneFile, manualUpload, readIniFile
+from uploadToArchive import readKeyFile, uploadOneFile, manualUpload, readIniFile, checkMags
 from ukmonInstaller import createDefaultIni
 
 basedir = os.path.realpath(os.path.dirname(__file__))
 tmpdir = os.path.join(basedir, 'output')
 if not os.path.isdir(tmpdir):
     os.makedirs(tmpdir)
+
+
+def test_checkMags():
+    inifvals = readIniFile(os.path.join(basedir,'..','ukmon.ini'))
+    maglim = 6
+    if 'MAGLIM' in inifvals:
+        maglim = float(inifvals['MAGLIM'])
+    arch_dir = os.path.join(basedir, 'ukmarch','sampledata', 'UK0006_20220914_185543_087124')
+    daydir = 'UK0006_20220914_185543_087124'
+    validffs = checkMags(arch_dir, 'FTPdetectinfo_{}.txt'.format(daydir), maglim)
+    print(validffs)
+    assert validffs[0] == 'FF_UK0006_20220914_200343_841_0101120.fits'
 
 
 def test_readIniFile():

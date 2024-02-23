@@ -59,7 +59,7 @@ def rmsExternal(cap_dir, arch_dir, config):
 
     myloc = os.path.split(os.path.abspath(__file__))[0]
     log.info('app home is {}'.format(myloc))
-    if os.path.isfile(os.path.join(myloc, 'domp4s')):
+    if os.path.isfile(os.path.join(myloc, 'domp4s')) or os.getenv('DOMP4S', default='1')=='1':
         # generate MP4s of detections
         log.info('generating MP4s')
         ftpdate=''
@@ -68,7 +68,11 @@ def rmsExternal(cap_dir, arch_dir, config):
         else:
             ftpdate=os.path.split(arch_dir)[1]
         ftpfile_name="FTPdetectinfo_"+ftpdate+'.txt'
-        gmp4.generateMP4s(arch_dir, ftpfile_name)
+        try:
+            maglim = float(os.getenv('MAGLIM', default='0'))
+            gmp4.generateMP4s(arch_dir, ftpfile_name, min_mag=maglim)
+        except:
+            gmp4.generateMP4s(arch_dir, ftpfile_name)
     else:
         log.info('mp4 creation not enabled')
     

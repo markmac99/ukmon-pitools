@@ -13,9 +13,6 @@ jobs:
         - 443
     steps:
       - uses: actions/checkout@v3
-#      - uses: actions/setup-python@v4
-#        with:
-#          python-version: '3.8'
       - run: chmod +x ./tests/run_ub_tests.sh
       - run: ./tests/run_ub_tests.sh
   
