@@ -260,12 +260,12 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
 
 
 def checkMags(dir_path, ftpfile_name, min_mag):
-    print('checking for events brighter than mag ', min_mag)
+    log.info('checking for events brighter than mag {}'.format(min_mag))
     ff_names = []
     try:
         meteor_list = readFTPdetectinfo(dir_path, ftpfile_name)  
     except Exception:
-        print('FTPdetect file not present so unable to filter by magnitude')
+        log.info('FTPdetect file not present so unable to filter by magnitude')
         return ff_names
     for meteor in meteor_list:
         ff_name, _, meteor_no, n_segments, _, _, _, _, _, _, _, \
@@ -276,7 +276,7 @@ def checkMags(dir_path, ftpfile_name, min_mag):
             for meas in meteor_meas:
                 best_mag = min(best_mag, meas[9])
             if best_mag > min_mag:
-                print('rejecting {} as too dim'.format(ff_name))
+                log.info('rejecting {} as {} too dim'.format(ff_name, best_mag))
                 continue
             else:
                 ff_names.append(ff_name)
