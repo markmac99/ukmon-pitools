@@ -414,12 +414,16 @@ def manualUpload(targ_dir, sciencefiles=False):
         return True
     else:
         arch_dir = os.path.expanduser(targ_dir)
+        if not os.path.isdir(arch_dir):
+            print('folder {} not found'.format(arch_dir))
+            return False
         return uploadToArchive(arch_dir, sciencefiles, keys=None)
 
 
 if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print('usgae: python uploadToArchive.py ~/RMS_data/ArchivedFiles/dated_dir')
+        exit(0)
     targdir = sys.argv[1]
-    if len(sys.argv) > 2:
-        manualUpload(sys.argv[1], True)
-    else:
-        manualUpload(sys.argv[1])
+    manualUpload(targdir, True)
+    manualUpload(targdir)
