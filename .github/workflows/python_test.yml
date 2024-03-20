@@ -1,8 +1,23 @@
 name: Test ukmon-pitools
 on: [push]
 jobs:
+  container_test:
+    name: run containerised test
+    runs-on: ubuntu-latest
+    container:
+      image: docker.io/markmac99/rmstestcont:latest
+      env: 
+        MYENV: foo
+      ports:
+        - 22
+        - 443
+    steps:
+      - uses: actions/checkout@v3
+      - run: chmod +x ./tests/run_ub_tests.sh
+      - run: ./tests/run_ub_tests.sh
+  
   test:
-    name: run python tests
+    name: run pi4 tests
     runs-on: [testpi4]
     strategy:
       matrix:
