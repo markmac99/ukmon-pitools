@@ -426,4 +426,5 @@ if __name__ == '__main__':
         exit(0)
     targdir = sys.argv[1]
     manualUpload(targdir, True)
-    manualUpload(targdir)
+    if targdir != 'test':
+        manualUpload(targdir)
