@@ -127,6 +127,9 @@ def readIniFile(filename):
             data = valstr.split('=')
             val = data[1].strip().strip('"')
             vals[data[0]] = val
+    # default min brightness. To be adjusted later
+    if 'MAGLIM' not in vals:
+        vals['MAGLIM'] = 10
     return vals
 
 
@@ -298,7 +301,7 @@ def uploadToArchive(arch_dir, sciencefiles=False, keys=False):
     conn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY']) 
     s3 = conn.resource('s3', region_name=reg)
     targf = keys['S3FOLDER']
-    maglim = 0
+    maglim = 10.0
     if 'MAGLIM' in inifvals:
         maglim = float(inifvals['MAGLIM'])
 
