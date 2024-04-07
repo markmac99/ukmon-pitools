@@ -422,7 +422,7 @@ def manualUpload(targ_dir, sciencefiles=False):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print('usgae: python uploadToArchive.py ~/RMS_data/ArchivedFiles/dated_dir')
+        print('usage: python uploadToArchive.py ~/RMS_data/ArchivedFiles/dated_dir')
         exit(0)
     targdir = sys.argv[1]
     manualUpload(targdir, True)
