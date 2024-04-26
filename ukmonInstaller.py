@@ -50,6 +50,8 @@ def createDefaultIni(homedir, helperip='3.11.55.160', location='NOTCONFIGURED', 
         outf.write("export UKMONHELPER={}\n".format(helperip))
         outf.write("export UKMONKEY={}\n".format(keyfile))
         outf.write("export RMSCFG={}\n".format(rmscfg))
+        outf.write('export DOMP4s=1\n')
+        outf.write('export MINMAG=1\n')
     return True
 
 
@@ -81,7 +83,25 @@ def validateIni(homedir, newhelperip=None):
         createDefaultIni(homedir, newhelperip, location, keyfile, rmscfg)
     if helperip == oldip:
         updateHelperIp(homedir, newhelperip)
+    updateMp4andMag(inifname)
     return True
+
+
+def updateMp4andMag(inif, homedir):
+    """
+    Move the mp4 flag into the ini file and add the minmag flag if missing
+    """
+    domp4s = 0
+    if open(inif, 'r').read()[-1] != '\n':
+        open(inif, 'a').write('\n')
+    if os.path.isfile(os.path.join(homedir, 'domp4s')):
+        domp4s = 1
+        os.remove(os.path.join(homedir, 'domp4s'))
+    if 'DOMP4S' not in open(inif).read():
+        open(inif,'a').write('export DOMP4S={}\n'.format(domp4s))
+    if 'MAGLIM' not in open(inif).read():
+        open(inif,'a').write('export MAGLIM=1\n')
+    return
 
 
 def updateHelperIp(homedir, helperip):
@@ -96,6 +116,7 @@ def updateHelperIp(homedir, helperip):
                 outf.write("export UKMONHELPER={}\n".format(helperip))
             else:
                 outf.write('{}'.format(li))
+    return
 
 
 def updateLocation(homedir, newloc):

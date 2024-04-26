@@ -127,9 +127,6 @@ def readIniFile(filename):
             data = valstr.split('=')
             val = data[1].strip().strip('"')
             vals[data[0]] = val
-    # default min brightness. To be adjusted later
-    if 'MAGLIM' not in vals:
-        vals['MAGLIM'] = 10
     return vals
 
 
