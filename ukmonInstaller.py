@@ -83,7 +83,7 @@ def validateIni(homedir, newhelperip=None):
         createDefaultIni(homedir, newhelperip, location, keyfile, rmscfg)
     if helperip == oldip:
         updateHelperIp(homedir, newhelperip)
-    updateMp4andMag(inifname)
+    updateMp4andMag(inifname, homedir)
     return True
 
 
