@@ -7,11 +7,11 @@ if [ ! -f /keys/ukmon.ini ] ; then
     echo no test config, aborting
     exit
 fi 
-cp /keys/.config /root/source/RMS/
 cp /keys/ukmon.ini . 
 cp /keys/live.key .
 pushd /root/source/RMS 
 git stash && git pull && git stash apply 
+cp /keys/.config /root/source/RMS/
 popd
 touch ./domp4s
 source ukmon.ini
