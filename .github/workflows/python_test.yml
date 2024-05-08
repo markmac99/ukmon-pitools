@@ -39,12 +39,14 @@ jobs:
         run: |
           # stop the build if there are Python syntax errors or undefined names
           source ~/vRMS/bin/activate
+          export PATH=/home/pi/.local/bin:$PATH
           ruff check --output-format=github --select=E9,F63,F7,F82 --ignore=E501 --target-version=py37 .
           # default set of ruff rules with GitHub Annotations
           ruff check --output-format=github --ignore=E501 --target-version=py37 .
       - name: Test with pytest
         run: |
           source ~/vRMS/bin/activate
+          export PATH=/home/pi/.local/bin:$PATH
           pip install -r ~/source/RMS/requirements.txt
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           source ukmon.ini
