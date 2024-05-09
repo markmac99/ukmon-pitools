@@ -279,13 +279,13 @@ def checkMags(dir_path, ftpfile_name, min_mag):
                 log.info('rejecting {} as {} too dim'.format(ff_name, best_mag))
                 continue
             else:
-                ff_names.append(ff_name)
+                ff_names.append(ff_name.replace('.fits', '.jpg'))
     return ff_names
 
 
 def uploadToArchive(arch_dir, sciencefiles=False, keys=False):
     # Upload all relevant files from *arch_dir* to ukmon's S3 Archive
-    print(f'{arch_dir}')
+
     myloc = os.path.split(os.path.abspath(__file__))[0]
     inifvals = readIniFile(os.path.join(myloc, 'ukmon.ini'))
     if not inifvals:
@@ -322,7 +322,6 @@ def uploadToArchive(arch_dir, sciencefiles=False, keys=False):
                 break
     else:
         # upload everything
-        print('upload everythin')
         for dir_file in dir_contents:
             file_name, file_ext = os.path.splitext(dir_file)
             file_ext = file_ext.lower()
@@ -330,7 +329,7 @@ def uploadToArchive(arch_dir, sciencefiles=False, keys=False):
                 continue
             # mp4 must be uploaded before corresponding jpg
             elif (file_ext == '.jpg') and ('FF_' in file_name):
-                if file_name in validffs or validffs == []:
+                if dir_file in validffs or validffs == []:
                     mp4f = dir_file.replace('.jpg', '.mp4')
                     if os.path.isfile(os.path.join(arch_dir, mp4f)):
                         uploadlist.append({'dir_file':mp4f, 'file_ext': '.mp4', 'src_dir': arch_dir})
