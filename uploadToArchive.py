@@ -285,7 +285,7 @@ def checkMags(dir_path, ftpfile_name, min_mag):
 
 def uploadToArchive(arch_dir, sciencefiles=False, keys=False):
     # Upload all relevant files from *arch_dir* to ukmon's S3 Archive
-
+    print(f'{arch_dir}')
     myloc = os.path.split(os.path.abspath(__file__))[0]
     inifvals = readIniFile(os.path.join(myloc, 'ukmon.ini'))
     if not inifvals:
@@ -322,6 +322,7 @@ def uploadToArchive(arch_dir, sciencefiles=False, keys=False):
                 break
     else:
         # upload everything
+        print('upload everythin')
         for dir_file in dir_contents:
             file_name, file_ext = os.path.splitext(dir_file)
             file_ext = file_ext.lower()
