@@ -329,7 +329,7 @@ def uploadToArchive(arch_dir, sciencefiles=False, keys=False):
                 continue
             # mp4 must be uploaded before corresponding jpg
             elif (file_ext == '.jpg') and ('FF_' in file_name):
-                if dir_file in validffs or validffs == []:
+                if file_name in validffs or validffs == []:
                     mp4f = dir_file.replace('.jpg', '.mp4')
                     if os.path.isfile(os.path.join(arch_dir, mp4f)):
                         uploadlist.append({'dir_file':mp4f, 'file_ext': '.mp4', 'src_dir': arch_dir})
