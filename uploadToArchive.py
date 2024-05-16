@@ -17,8 +17,13 @@ import random
 import glob
 import logging
 from time import sleep
-import paramiko
+import warnings
+from cryptography.utils import CryptographyDeprecationWarning
+with warnings.catch_warnings():
+    warnings.filterwarnings('ignore', category=CryptographyDeprecationWarning)
+    import paramiko
 import tempfile
+from RMS.Formats.FTPdetectinfo import readFTPdetectinfo
 
 log = logging.getLogger("logger")
 
@@ -254,6 +259,30 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
     return ret
 
 
+def checkMags(dir_path, ftpfile_name, min_mag):
+    log.info('checking for events brighter than mag {}'.format(min_mag))
+    ff_names = []
+    try:
+        meteor_list = readFTPdetectinfo(dir_path, ftpfile_name)  
+    except Exception:
+        log.info('FTPdetect file not present so unable to filter by magnitude')
+        return ff_names
+    for meteor in meteor_list:
+        ff_name, _, meteor_no, n_segments, _, _, _, _, _, _, _, \
+            meteor_meas = meteor
+        # checks on mag and shower        
+        best_mag = 999
+        if min_mag is not None:
+            for meas in meteor_meas:
+                best_mag = min(best_mag, meas[9])
+            if best_mag > min_mag:
+                log.info('rejecting {} as {} too dim'.format(ff_name, best_mag))
+                continue
+            else:
+                ff_names.append(ff_name.replace('.fits', '.jpg'))
+    return ff_names
+
+
 def uploadToArchive(arch_dir, sciencefiles=False, keys=False):
     # Upload all relevant files from *arch_dir* to ukmon's S3 Archive
 
@@ -269,11 +298,16 @@ def uploadToArchive(arch_dir, sciencefiles=False, keys=False):
     conn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY']) 
     s3 = conn.resource('s3', region_name=reg)
     targf = keys['S3FOLDER']
+    maglim = 10.0
+    if 'MAGLIM' in inifvals:
+        maglim = float(inifvals['MAGLIM'])
 
     # upload the files but make sure we do the platepars file before the FTP file
     # otherwise there's a risk the matching engine will miss it
     dir_contents = os.listdir(arch_dir)
     daydir = os.path.split(arch_dir)[1]
+
+    validffs = checkMags(arch_dir, 'FTPdetectinfo_{}.txt'.format(daydir), maglim)
 
     uploadlist = []
     if sciencefiles:
@@ -295,10 +329,11 @@ def uploadToArchive(arch_dir, sciencefiles=False, keys=False):
                 continue
             # mp4 must be uploaded before corresponding jpg
             elif (file_ext == '.jpg') and ('FF_' in file_name):
-                mp4f = dir_file.replace('.jpg', '.mp4')
-                if os.path.isfile(os.path.join(arch_dir, mp4f)):
-                    uploadlist.append({'dir_file':mp4f, 'file_ext': '.mp4', 'src_dir': arch_dir})
-                uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
+                if dir_file in validffs or validffs == []:
+                    mp4f = dir_file.replace('.jpg', '.mp4')
+                    if os.path.isfile(os.path.join(arch_dir, mp4f)):
+                        uploadlist.append({'dir_file':mp4f, 'file_ext': '.mp4', 'src_dir': arch_dir})
+                    uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
             elif (file_ext == '.jpg') and ('stack_' in file_name) and ('track' not in file_name):
                 uploadlist.append({'dir_file':dir_file, 'file_ext': file_ext, 'src_dir': arch_dir})
             elif (file_ext == '.jpg') and ('calib' in file_name):
@@ -379,12 +414,17 @@ def manualUpload(targ_dir, sciencefiles=False):
         return True
     else:
         arch_dir = os.path.expanduser(targ_dir)
+        if not os.path.isdir(arch_dir):
+            print('folder {} not found'.format(arch_dir))
+            return False
         return uploadToArchive(arch_dir, sciencefiles, keys=None)
 
 
 if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print('usage: python uploadToArchive.py ~/RMS_data/ArchivedFiles/dated_dir')
+        exit(0)
     targdir = sys.argv[1]
-    if len(sys.argv) > 2:
-        manualUpload(sys.argv[1], True)
-    else:
-        manualUpload(sys.argv[1])
+    manualUpload(targdir, True)
+    if targdir != 'test':
+        manualUpload(targdir)

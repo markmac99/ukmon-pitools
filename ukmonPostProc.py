@@ -58,8 +58,14 @@ def rmsExternal(cap_dir, arch_dir, config):
         bff2i.batchFFtoImage(arch_dir, 'jpg')
 
     myloc = os.path.split(os.path.abspath(__file__))[0]
+    inifvals = readIniFile(os.path.join(myloc, 'ukmon.ini'))
     log.info('app home is {}'.format(myloc))
-    if os.path.isfile(os.path.join(myloc, 'domp4s')):
+    domp4s = 0
+    if 'DOMP4S' in inifvals:
+        domp4s = int(inifvals['DOMP4S'])
+    elif os.path.isfile(os.path.join(myloc, 'domp4s')):
+        domp4s = 1
+    if domp4s == 1: 
         # generate MP4s of detections
         log.info('generating MP4s')
         ftpdate=''
@@ -68,7 +74,13 @@ def rmsExternal(cap_dir, arch_dir, config):
         else:
             ftpdate=os.path.split(arch_dir)[1]
         ftpfile_name="FTPdetectinfo_"+ftpdate+'.txt'
-        gmp4.generateMP4s(arch_dir, ftpfile_name)
+        try:
+            maglim = 1
+            if 'MAGLIM' in inifvals:
+                maglim = float(inifvals['MAGLIM'])
+            gmp4.generateMP4s(arch_dir, ftpfile_name, min_mag=maglim)
+        except Exception:
+            gmp4.generateMP4s(arch_dir, ftpfile_name)
     else:
         log.info('mp4 creation not enabled')
     
