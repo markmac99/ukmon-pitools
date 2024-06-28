@@ -75,9 +75,9 @@ This uses the RMS post-processing hook to creates JPGs and other data, then uplo
 MP4s
 ------------------
 The script can create MP4s of each detection.
-To enable these, create files named "domp4s"  in the same folder as the script:  
+To enable these, edit ukmon.ini and set DOMP4S to 1
 ``` bash
-echo "1" > $HOME/source/ukmon-pitools/domp4s  
+DOMP4S=1
 ```
 Running an Additional Script of your own
 ----------------------------------------
