@@ -51,7 +51,7 @@ def createDefaultIni(homedir, helperip='3.11.55.160', location='NOTCONFIGURED', 
         outf.write("export UKMONKEY={}\n".format(keyfile))
         outf.write("export RMSCFG={}\n".format(rmscfg))
         outf.write('export DOMP4s=1\n')
-        outf.write('export MINMAG=1\n')
+        outf.write('export MAGLIM=1\n')
     return True
 
 
@@ -89,7 +89,7 @@ def validateIni(homedir, newhelperip=None):
 
 def updateMp4andMag(inif, homedir):
     """
-    Move the mp4 flag into the ini file and add the minmag flag if missing
+    Move the mp4 flag into the ini file and add the maglim flag if missing
     """
     domp4s = 0
     if open(inif, 'r').read()[-1] != '\n':
