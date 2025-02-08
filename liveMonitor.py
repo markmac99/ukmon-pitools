@@ -134,8 +134,10 @@ def monitorLogFile(camloc, rmscfg):
             log.info('restarting to read {}'.format(logf))
             pass
         except Exception as e:
-            log.info('restarting due to crash:')
+            log.info('Problem reading RMS log: {} - will retry'.format(logf))
             log.info(e, exc_info=True)
+            # reload the RMS config file in case its been updated
+            cfg = cr.parse(os.path.expanduser(rmscfg))
             pass
 
 
