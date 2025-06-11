@@ -188,6 +188,7 @@ def uploadOneFileUKMon(arch_dir, dir_file, s3, targf, file_ext, keys):
     spls = daydir.split('_')
     camid = spls[0]
     ymd = spls[1]
+    #log.info(f'matchdir is {keys["MATCHDIR"]}, targf is {targf}')
     
     desf= '{}/{}/{}/{}/{}/{}'.format(targf, camid, ymd[:4], ymd[:6], ymd, dir_file)
     desf2 = None
