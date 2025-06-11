@@ -23,6 +23,8 @@ from uploadToArchive import uploadToArchive, readIniFile
 
 log = logging.getLogger("logger")
 
+_rms_logger_initialized = False
+
 
 def rmsExternal(cap_dir, arch_dir, config):
     """ Called from RMS to trigger the UKMON specific code  
@@ -41,7 +43,7 @@ def rmsExternal(cap_dir, arch_dir, config):
     while len(log.handlers) > 0:
         log.removeHandler(log.handlers[0])
         
-    initLogging(config, 'ukmon_')
+    initLogging(config, log_file_prefix='ukmon_', level=logging.INFO)
     log.info('ukmon external script started')
     
     rebootlockfile = os.path.join(config.data_dir, config.reboot_lock_file)
