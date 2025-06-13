@@ -17,13 +17,37 @@ import Utils.GenerateMP4s as gmp4
 import RMS.ConfigReader as cr
 from importlib import import_module as impmod
 import logging
-from RMS.Logger import initLogging
+import datetime
 
 from uploadToArchive import uploadToArchive, readIniFile
 
-log = logging.getLogger("logger")
+log = logging.getLogger()
+log.setLevel(logging.INFO)
 
-_rms_logger_initialized = False
+
+def setupLogging(logpath, prefix):
+    print('about to initialise logger')
+    logdir = os.path.expanduser(logpath)
+    os.makedirs(logdir, exist_ok=True)
+
+    logfilename = os.path.join(logdir, prefix + datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d_%H%M%S.%f') + '.log')
+    handler = logging.handlers.TimedRotatingFileHandler(logfilename, when='D', interval=1) 
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter(fmt='%(asctime)s-%(levelname)s-%(module)s-line:%(lineno)d - %(message)s', 
+        datefmt='%Y/%m/%d %H:%M:%S')
+    handler.setFormatter(formatter)
+    log.addHandler(handler)
+
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.WARNING)
+    formatter = logging.Formatter(fmt='%(asctime)s-%(levelname)s-%(module)s-line:%(lineno)d - %(message)s', 
+        datefmt='%Y/%m/%d %H:%M:%S')
+    ch.setFormatter(formatter)
+    log.addHandler(ch)
+
+    log.setLevel(logging.INFO)
+    log.info('logging initialised')
+    return 
 
 
 def rmsExternal(cap_dir, arch_dir, config):
@@ -38,12 +62,7 @@ def rmsExternal(cap_dir, arch_dir, config):
     an RMS config object in Python. 
 
     """
-    # clear existing log handlers
-    log = logging.getLogger("logger")
-    while len(log.handlers) > 0:
-        log.removeHandler(log.handlers[0])
-        
-    initLogging(config, log_file_prefix='ukmon_', level=logging.INFO)
+    setupLogging(os.path.join(config.data_dir, config.log_dir), f'ukmon_log_{config.stationID}_')
     log.info('ukmon external script started')
     
     rebootlockfile = os.path.join(config.data_dir, config.reboot_lock_file)
@@ -95,6 +114,8 @@ def rmsExternal(cap_dir, arch_dir, config):
     if os.path.isfile(extrascrfn):
         extrascript = open(extrascrfn,'r').readline().strip()
         log.info('running additional script {:s}'.format(extrascript))
+        while len(log.handlers) > 0:
+            log.removeHandler(log.handlers[0])  
         sloc, sname = os.path.split(extrascript)
         sys.path.append(sloc)
         scrname, _ = os.path.splitext(sname)
@@ -140,11 +161,12 @@ def main(args):
         print('eg python ukmonPostProc.py UK0006_20210312_183741_206154')
         print('\n nb: script must be run from RMS source folder')
         return False
+    
     arch_dir = args[1]
     myloc = os.path.split(os.path.abspath(__file__))[0]
     inifvals = readIniFile(os.path.join(myloc, 'ukmon.ini'))
     if inifvals is None:
-        log.warning('unable to open ukmon ini file')
+        print('unable to open ukmon ini file')
         return 'unable to open ukmon ini file'
     try:
         rmscfg = inifvals['RMSCFG']
@@ -153,7 +175,7 @@ def main(args):
     try:
         if 'ConfirmedFiles' in arch_dir or 'ArchivedFiles' in arch_dir or 'CapturedFiles' in arch_dir:
             _, arch_dir = os.path.split(arch_dir)
-        log.info('RMS config read from {}'.format(rmscfg))
+        print('RMS config read from {}'.format(rmscfg))
         ret = manualRerun(arch_dir, rmscfg)
         return ret
     except Exception:
