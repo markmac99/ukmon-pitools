@@ -31,7 +31,7 @@ def test_readIniFile():
 def test_readKeyFile():
     inifs = readIniFile(os.path.join(basedir,'..','ukmon.ini'))
     vals = readKeyFile(os.path.join(basedir,'..','live.key'), inifs)
-    assert vals['S3FOLDER'] == 'archive/Tackley'
+    assert vals['S3FOLDER'] == 'tmp/testpi4'
 
 
 def test_readKeyfileIni():
