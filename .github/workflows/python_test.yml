@@ -50,7 +50,8 @@ jobs:
           pip install -r ~/source/RMS/requirements.txt
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           cd ../ukmon-pitools/
-          pwd 
+          cp ~/source/ukmon-pitools/ukmon.ini .
+          cp ~/source/ukmon-pitools/live.key .
           ls -ltr
           source ukmon.ini
           pytest -v . --cov=. --cov-report=term-missing --cov-config=.coveragerc_lnx
