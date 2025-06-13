@@ -49,7 +49,7 @@ jobs:
           export PATH=/home/pi/.local/bin:$PATH
           pip install -r ~/source/RMS/requirements.txt
           export PYTHONPATH=$PYTHONPATH:$(pwd)
-          #cp /home/pi/RMS_data/test/* .
+          cd ../ukmon-pitools/
           source ukmon.ini
           pytest -v . --cov=. --cov-report=term-missing --cov-config=.coveragerc_lnx
 #  Run-refreshtools-on-Ubuntu:
