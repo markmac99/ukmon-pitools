@@ -46,13 +46,12 @@ jobs:
       - name: Test with pytest
         run: |
           source ~/vRMS/bin/activate
-          export PATH=/home/pi/.local/bin:$PATH
+          export PATH=~/.local/bin:$PATH
           pip install -r ~/source/RMS/requirements.txt
-          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          export PYTHONPATH=$PYTHONPATH:$(pwd):~/source/RMS
           cd ../ukmon-pitools/
           cp ~/source/ukmon-pitools/ukmon.ini .
           cp ~/source/ukmon-pitools/live.key .
-          ls -ltr
           source ukmon.ini
           pytest -v . --cov=. --cov-report=term-missing --cov-config=.coveragerc_lnx
 #  Run-refreshtools-on-Ubuntu:
