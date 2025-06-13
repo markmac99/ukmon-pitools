@@ -17,6 +17,7 @@ cp ~/source/testing/badini.ini .
 cp ~/source/testing/live.key .
 touch ./domp4s
 source ukmon.ini
+echo "ready to test"
 pytest -v ./tests/ --cov=./ --cov-report=term-missing --cov-config=.coveragerc_lnx 
 rm ./live.key ./ukmon.ini ./domp4s ./badini.ini
 [ -f /tmp/ukmon.ini ] && mv /tmp/ukmon.ini .
