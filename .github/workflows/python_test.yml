@@ -50,6 +50,8 @@ jobs:
           pip install -r ~/source/RMS/requirements.txt
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           cd ../ukmon-pitools/
+          pwd 
+          ls -ltr
           source ukmon.ini
           pytest -v . --cov=. --cov-report=term-missing --cov-config=.coveragerc_lnx
 #  Run-refreshtools-on-Ubuntu:
