@@ -18,7 +18,7 @@ jobs:
   
   test:
     name: run pi4 tests
-    runs-on: [testpi4]
+    runs-on: [arm64]
     strategy:
       matrix:
         python-version: ["3.7"] #, "3.8", "3.9", "3.10", "3.11"]
@@ -46,10 +46,12 @@ jobs:
       - name: Test with pytest
         run: |
           source ~/vRMS/bin/activate
-          export PATH=/home/pi/.local/bin:$PATH
+          export PATH=~/.local/bin:$PATH
           pip install -r ~/source/RMS/requirements.txt
-          export PYTHONPATH=$PYTHONPATH:$(pwd)
-          cp /home/pi/RMS_data/test/* .
+          export PYTHONPATH=$PYTHONPATH:$(pwd):~/source/RMS
+          cd ../ukmon-pitools/
+          cp ~/source/ukmon-pitools/ukmon.ini .
+          cp ~/source/ukmon-pitools/live.key .
           source ukmon.ini
           pytest -v . --cov=. --cov-report=term-missing --cov-config=.coveragerc_lnx
 #  Run-refreshtools-on-Ubuntu:

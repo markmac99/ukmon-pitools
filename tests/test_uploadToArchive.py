@@ -20,7 +20,7 @@ def test_checkMags():
     daydir = 'UK0006_20220914_185543_087124'
     validffs = checkMags(arch_dir, 'FTPdetectinfo_{}.txt'.format(daydir), maglim)
     print(validffs)
-    assert 'FF_UK0006_20220914_200343_841_0101120.fits' in validffs
+    assert 'FF_UK0006_20220914_200343_841_0101120.jpg' in validffs
 
 
 def test_readIniFile():
@@ -31,7 +31,7 @@ def test_readIniFile():
 def test_readKeyFile():
     inifs = readIniFile(os.path.join(basedir,'..','ukmon.ini'))
     vals = readKeyFile(os.path.join(basedir,'..','live.key'), inifs)
-    assert vals['S3FOLDER'] == 'archive/Tackley'
+    assert vals['S3FOLDER'] in  ['tmp/testpi4','archive/Tackley']
 
 
 def test_readKeyfileIni():

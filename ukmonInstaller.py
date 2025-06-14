@@ -14,9 +14,14 @@ with warnings.catch_warnings():
 
 import json
 import tempfile
+import logging
+
 import RMS.ConfigReader as cr
 from RMS.Misc import isRaspberryPi
 from uploadToArchive import readIniFile
+
+log = logging.getLogger()
+log.setLevel(logging.WARNING)
 
 oldip = '3.9.65.98'
 currip = '3.11.55.160'
