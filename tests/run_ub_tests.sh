@@ -19,7 +19,7 @@ echo testing for $LOCATION
 pip install -r ./requirements.txt
 pip install --upgrade ruff pytest xmltodict pytest-cov 
 export PYTHONPATH=$PYTHONPATH:/root/source/RMS:${here}/..
-cd /root/source/RMS
-ls -ltra .config
+cd /root/source/RMS/
+ls -ltra /root/source/RMS/.config
 pwd
 pytest -v $here/ --cov=$here/../ --cov-report=term-missing --cov-config=$here/../.coveragerc_lnx 
