@@ -1,5 +1,5 @@
 # Toolset for RMS pi meteor cameras
-Version 2026.1.04
+Version 2026.2.0
 
 These tools manage uploads of RMS data to the UK Meteor Data Archive and to the livestream. There are two parts:  
 * The post-processing job that runs after RMS to send data to the archive.  
