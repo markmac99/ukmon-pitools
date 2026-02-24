@@ -120,7 +120,6 @@ def monitorLogFile(camloc, rmscfg):
 
                     nowtm = datetime.datetime.now(datetime.timezone.utc)
                     if "detected meteors" in line and ": 0" not in line and "TOTAL" not in line:
-                        log.info('meteor detected')
                         if capdir != '':
                             ffname = line.split(' ')[3]
                             ftime = datetime.datetime.strptime(ffname[10:25], '%Y%m%d_%H%M%S').replace(tzinfo=datetime.timezone.utc)
