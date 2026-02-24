@@ -23,62 +23,10 @@ with warnings.catch_warnings():
     warnings.filterwarnings('ignore', category=CryptographyDeprecationWarning)
     import paramiko
 import tempfile
-import configparser
-
 from RMS.Formats.FTPdetectinfo import readFTPdetectinfo
-
 
 log = logging.getLogger("ukmonlogger")
 logging.getLogger("paramiko").setLevel(logging.WARNING)
-
-
-def getLatestKeys(homedir, stationid, remoteinifname='ukmon.ini'):
-    """
-    Retrieve the latest ini and key files from the ukmon server.  
-    If the ini file contains a new server IP or new location, the local copy of the 
-    ini file is updated accordingly.  
-    """
-    homedir = os.path.expanduser(os.path.normpath(homedir))
-    inifvals = readIniFile(os.path.join(homedir, 'ukmon.ini'), stationid)
-    if not inifvals or inifvals['LOCATION']=='NOTCONFIGURED':
-        return False
-    if not os.path.isfile(os.path.expanduser(inifvals['UKMONKEY'])):
-        return False
-    ssh_client = paramiko.SSHClient()
-    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    pkey = paramiko.RSAKey.from_private_key_file(os.path.expanduser(inifvals['UKMONKEY'])) 
-    try:
-        ssh_client.connect(inifvals['UKMONHELPER'], username=inifvals['LOCATION'], pkey=pkey, look_for_keys=False)
-        ftp_client = ssh_client.open_sftp()
-    except Exception:
-        return False
-
-    # get the aws key file
-    ftp_client.get('live.key', os.path.join(homedir, 'live.key'))
-    os.chmod(os.path.join(homedir, 'live.key'), 0o600)
-
-    # get the new ini and check for changes
-    currinif = os.path.join(homedir, 'ukmon.ini')
-    newinif = os.path.join(homedir, '.ukmon.new')
-    ftp_client.put(currinif,'ukmon.ini.client')
-    ftp_client.get(remoteinifname, newinif)
-    ftp_client.close()
-    iniflines = open(newinif,'r').readlines()
-    for li in iniflines:
-        li = li.strip()
-        if 'UKMONHELPER' in li:
-            newhelper = li.split('=')[1]
-            if newhelper != inifvals['UKMONHELPER']:
-                updateHelperIp(homedir, newhelper)
-                print('server address updated')
-        if 'LOCATION' in li:
-            newloc = li.split('=')[1]
-            if newloc != inifvals['LOCATION']:
-                updateLocation(homedir, newloc)
-                print('location updated')
-    os.remove(newinif)
-    ssh_client.close()
-    return True
 
 
 def readKeyFile(filename, inifvals):
@@ -131,36 +79,6 @@ def readKeyFile(filename, inifvals):
     return vals
 
 
-def updateHelperIp(homedir, helperip):
-    """
-    Update the ukmon.ini file with a new IP address if neeeded. 
-    """
-    homedir = os.path.normpath(homedir)
-    lis = open(os.path.join(homedir, 'ukmon.ini'), 'r').readlines()
-    with open(os.path.join(homedir, 'ukmon.ini'), 'w') as outf:
-        for li in lis:
-            if 'UKMONHELPER' in li:
-                outf.write("export UKMONHELPER={}\n".format(helperip))
-            else:
-                outf.write('{}'.format(li))
-    return
-
-
-def updateLocation(homedir, newloc):
-    """
-    Update the ukmon-specific location, if a new one was supplied. Allows us to move cameras to new sites. 
-    """
-    homedir = os.path.normpath(homedir)
-    lis = open(os.path.join(homedir, 'ukmon.ini'), 'r').readlines()
-    with open(os.path.join(homedir, 'ukmon.ini'), 'w') as outf:
-        for li in lis:
-            if 'LOCATION' in li:
-                outf.write("export LOCATION={}\n".format(newloc))
-            else:
-                outf.write('{}'.format(li))
-    return 
-
-
 def getAWSKey(inifvals):
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -189,29 +107,18 @@ def getAWSKey(inifvals):
         log.info(e, exc_info=True)
     ssh_client.close()
     if key:
+        log.info('retrieved key details')
         return key.strip(), sec.strip() 
     else: 
         return False, False
 
 
-def readIniFile(filename, stationid):
-    myloc = os.path.dirname(filename)
-    camerafile = os.path.join(myloc,'cameras.ini')
-    if not os.path.isfile(camerafile):
-        location = None
-    else:
-        stations = getListOfStations(myloc)
-        thiscam = [x for x in stations if stationid.lower() in x[0]]
-        if len(thiscam)==0:
-            log.error('camera {} not in cameras.ini, cannot continue'.format(stationid))
-            print('missing camera file')
-            return None
-        location = thiscam[0][1]
+def readIniFile(filename):
     if not os.path.isfile(filename):
         log.error('{} missing, cannot continue'.format(filename))
-        print('missing file')
-        return None
-    lis = open(filename, 'r').readlines()
+        return False
+    with open(filename, 'r') as fin:
+        lis = fin.readlines()
     vals = {}
     for li in lis:
         if li[0]=='#':
@@ -221,15 +128,6 @@ def readIniFile(filename, stationid):
             data = valstr.split('=')
             val = data[1].strip().strip('"')
             vals[data[0]] = val
-    if location:
-        vals['LOCATION'] = location.strip()
-    if stationid:
-        if os.path.isfile(os.path.expanduser('~/.ssh/ukmon_' + stationid.upper())):
-            vals['UKMONKEY'] = '~/.ssh/ukmon_' + stationid.upper()
-        if os.path.isfile(os.path.expanduser('~/source/Stations/' + stationid + '/.config')):
-            vals['RMSCFG'] = os.path.expanduser('~/source/Stations/' + stationid + '/.config')
-    #if vals['LOCATION'] == 'NOTCONFIGURED':
-    #    return None
     return vals
 
 
@@ -387,12 +285,12 @@ def checkMags(dir_path, ftpfile_name, min_mag):
     return ff_names
 
 
-def uploadToArchive(arch_dir, stationid, sciencefiles=False, keys=False):
+def uploadToArchive(arch_dir, sciencefiles=False, keys=False):
     # Upload all relevant files from *arch_dir* to ukmon's S3 Archive
 
     myloc = os.path.split(os.path.abspath(__file__))[0]
-    inifvals = readIniFile(os.path.join(myloc, 'ukmon.ini'), stationid)
-    if inifvals['LOCATION']=='NOTCONFIGURED':
+    inifvals = readIniFile(os.path.join(myloc, 'ukmon.ini'))
+    if not inifvals:
         return False
     if not keys:
         keys = readKeyFile(os.path.join(myloc, 'live.key'), inifvals)
@@ -476,17 +374,7 @@ def uploadToArchive(arch_dir, stationid, sciencefiles=False, keys=False):
     return keys
 
 
-def getListOfStations(srcdir):
-    camfile = os.path.join(srcdir, 'cameras.ini')
-    if not os.path.isfile(camfile):
-        return [(None,'')]
-    camcfg = configparser.ConfigParser()
-    camcfg.read(camfile)
-    return camcfg['cameras'].items()
-
-
-
-def manualUpload(targ_dir, stationid, sciencefiles=False):
+def manualUpload(targ_dir, sciencefiles=False):
     """ Manually send the target folder to ukmon archive.  
 
     Args:  
@@ -498,22 +386,14 @@ def manualUpload(targ_dir, stationid, sciencefiles=False):
     If the argument is 'test' then a test file is uploaded and the status reported back.  
     """
     if targ_dir == 'test':
-        myloc = os.path.split(os.path.abspath(__file__))[0]
-        stations = getListOfStations(myloc)
-        for cam in stations:
-            stationid = cam[0]
-            inifvals = readIniFile(os.path.join(myloc, 'ukmon.ini'), stationid)
-            if inifvals['LOCATION']=='NOTCONFIGURED':
-                continue
-            if stationid is not None:
-                stationid = stationid.upper()
-            if not os.path.isfile(os.path.join(myloc, 'live.key')):
-                if not getLatestKeys(myloc, stationid):
-                    print('unable to get key for', inifvals['LOCATION'])
-                    continue
+        try:
+            myloc = os.path.split(os.path.abspath(__file__))[0]
+            inifvals = readIniFile(os.path.join(myloc, 'ukmon.ini'))
+            if not inifvals:
+                return False
             keys = readKeyFile(os.path.join(myloc, 'live.key'), inifvals)
             if not keys:
-                continue
+                return False
             with open('/tmp/test.txt', 'w') as f:
                 f.write('{}'.format(inifvals['LOCATION']))
 
@@ -522,8 +402,13 @@ def manualUpload(targ_dir, stationid, sciencefiles=False):
             conn = boto3.Session(aws_access_key_id=keys['AWS_ACCESS_KEY_ID'], aws_secret_access_key=keys['AWS_SECRET_ACCESS_KEY']) 
             s3 = conn.resource('s3', region_name=reg)
             s3.meta.client.upload_file('/tmp/test.txt', target, 'tmp/{}.txt'.format(keys['CAMLOC']))
-            stationid = '' if stationid is None else stationid
-            print('test successful for', inifvals['LOCATION'], stationid)
+            #key = {'Objects': []}
+            #key['Objects'] = [{'Key': 'test.txt'}]
+            #s3.meta.client.delete_objects(Bucket=target, Delete=key)
+            print('test successful')
+        except Exception:
+            print('unable to upload to archive - check key information')
+            return False
         try:
             os.remove('/tmp/test.txt')
         except Exception:
@@ -534,20 +419,14 @@ def manualUpload(targ_dir, stationid, sciencefiles=False):
         if not os.path.isdir(arch_dir):
             print('folder {} not found'.format(arch_dir))
             return False
-        return uploadToArchive(arch_dir, stationid, sciencefiles, keys=None)
+        return uploadToArchive(arch_dir, sciencefiles, keys=None)
 
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print('usage: python uploadToArchive.py dated_dir ')
-        print('   eg: python uploadToArchive.py  UK001L_20260104_171228_956526')
-        print('Optionally include the full path otherwise RMSs ArchivedFiles folder is assumed')
+        print('usage: python uploadToArchive.py ~/RMS_data/ArchivedFiles/dated_dir')
         exit(0)
-    targdir = os.path.normpath(os.path.expanduser(sys.argv[1]))
+    targdir = sys.argv[1]
+    manualUpload(targdir, True)
     if targdir != 'test':
-        nightdir = os.path.split(targdir)[1]
-        stationid = nightdir.split('_')[0]
-        manualUpload(targdir, stationid, sciencefiles=True)
-        manualUpload(targdir, stationid, sciencefiles=False)
-    else:
-        manualUpload(targdir, None, sciencefiles=True)
+        manualUpload(targdir)

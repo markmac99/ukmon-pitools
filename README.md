@@ -1,11 +1,11 @@
 # Toolset for RMS pi meteor cameras
-Version 2026.01.04
+Version 2026.01.06
 
 These tools manage uploads of RMS data to the UK Meteor Data Archive and to the livestream. There are two parts:  
 * The post-processing job that runs after RMS to send data to the archive.  
 * The realtime job that uploads detections to the livestream..  
 
-There is more information about RMS and the toolset in the wiki [here](https://github.com/markmac99/ukmon-pitools/wiki "UKMON Wiki")
+There is more information about RMS and the toolset in the wiki [here](https://github.com/ukmda/ukmon-pitools/wiki "UKMON Wiki")
 
 ## INSTALLATION
 
@@ -15,7 +15,7 @@ These instructions are for single-station setups such as on a Raspberry Pi.
 * Login to your pi using VNC or AnyDesk or TeamViewer, open a Terminal window from the Accessories menu, then type the following
 ``` bash
 cd $HOME/source  
-git clone https://github.com/markmac99/ukmon-pitools.git  
+git clone https://github.com/ukmda/ukmon-pitools.git  
 ```
 
 #### Configuration 
@@ -40,7 +40,7 @@ To explain the process, lets assume you have cameras US0001 and US0002
 * Login as the managing user and run the following to set up US0001
 ``` bash
 cd $HOME/source
-git clone https://github.com/markmac99/ukmon-pitools.git  ukmon-pitools-US0001  
+git clone https://github.com/ukmda/ukmon-pitools.git  ukmon-pitools-US0001  
 cd ukmon-pitools-US0001  
 ./refreshTools.sh  
 ```
@@ -137,10 +137,10 @@ details of our sftp server used to distribute security keys.
 Questions
 =========
 Any questions, concerns or suggestions:
-* Check the wiki here https://github.com/markmac99/ukmon-pitools/wiki
+* Check the wiki here https://github.com/ukmda/ukmon-pitools/wiki
 * Join our group on Groups.io https://groups.io/g/ukmeteornetwork/topics
 * As a last resort, email us via newcamera@ukmeteornetwork.org
 
 Copyright
 =========
-All code Copyright (C) 2018-2023 Mark McIntyre
+All code Copyright (C) 2018-2026 Mark McIntyre

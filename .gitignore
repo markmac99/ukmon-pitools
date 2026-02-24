@@ -1,3 +1,15 @@
+# ukmon specific
+ukmon.ini
+live.key
+archive.key
+addSftpUser.sh
+.firstrun
+domp4s
+extrascript
+dotimelapse
+.config.backup
+ukmon.ini
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -127,21 +139,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-# ukmon specific
-ukmon.ini
-live.key
-archive.key
-addSftpUser.sh
-.firstrun
-domp4s
-extrascript
-dotimelapse
-.config.backup
-cameras.ini
 deploy.yml
 sample-crontab-entries.txt
 jsonToKeyFile.py
 tests/__pycache__
 tests/ukmarch/sampledata/*/FF*.jpg
 tests/ukmarch/sampledata/*/FF*.mp4
+cameras.ini

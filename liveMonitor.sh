@@ -9,21 +9,17 @@ here="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
 # kill any existing livestream process
 pids=$(ps -ef | grep ${here}/liveMonitor | egrep -v "grep|$$" | awk '{print $2}')
-[ "$pids" != "" ] && kill -9 $pids
+kill -9 $pids
 
 source $here/ukmon.ini
+source $here/live.key
 
-cd ~/source/RMS
-export PYTHONPATH=$here:~/source/RMS
-if [ -f $here/cameras.ini ] ; then
-    cat $here/cameras.ini | grep = | while read i 
-    do 
-        python $here/liveMonitor.py ${i:7:60} ${i:0:6} &
-    done    
-else
-    if [ "$LOCATION" == "NOTCONFIGURED" ]; then
-        echo "station not configured, unable to continue" 
-        exit 1
-    fi
-    python $here/liveMonitor.py $LOCATION &
+if [ "$LOCATION" == "NOTCONFIGURED" ]; then
+    echo "station not configured, unable to continue" 
+    exit 1
 fi
+
+rmsdir=$(dirname $RMSCFG)
+cd $rmsdir
+export PYTHONPATH=$here:~/source/RMS
+python $here/liveMonitor.py $LOCATION $RMSCFG 
