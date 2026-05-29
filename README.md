@@ -21,7 +21,7 @@ git clone https://github.com/ukmda/ukmon-pitools.git
 #### Configuration 
 Open a terminal window and type the following
 ``` bash
-cd ukmon-pitools  
+cd $HOME/source/ukmon-pitools  
 ./refreshTools.sh  
 ```
 * When prompted, copy the SSH public key. 
