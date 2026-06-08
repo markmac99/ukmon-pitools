@@ -25,10 +25,10 @@ log = logging.getLogger("ukmonlogger")
 log.setLevel(logging.WARNING)
 
 oldip = '3.9.65.98'
-currip = '3.11.55.160'
+currip = 'batchserver.ukmeteors.co.uk'
 
 
-def createDefaultIni(homedir, helperip='3.11.55.160', location='NOTCONFIGURED', keyfile=None, rmscfg=None):
+def createDefaultIni(homedir, helperip='batchserver.ukmeteors.co.uk', location='NOTCONFIGURED', keyfile=None, rmscfg=None):
     """
     Create a default ini file, if its not present on the target
     """

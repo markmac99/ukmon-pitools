@@ -27,7 +27,7 @@ def test_createDefaultIni():
         if 'RMSCFG' in li:
             assert li == 'export RMSCFG=~/source/RMS/.config\n'
         if 'UKMONHELPER' in li:
-            assert li == 'export UKMONHELPER=3.11.55.160\n'
+            assert li == 'export UKMONHELPER=batchserver.ukmeteors.co.uk\n'
     os.remove(os.path.join(tmpdir,'ukmon.ini'))
     return 
 
@@ -39,7 +39,7 @@ def test_validateIni():
         if 'RMSCFG' in li:
             assert li == 'export RMSCFG=~/source/RMS/.config\n'
         if 'UKMONHELPER' in li:
-            assert li == 'export UKMONHELPER=3.11.55.160\n'
+            assert li == 'export UKMONHELPER=batchserver.ukmeteors.co.uk\n'
     os.remove(os.path.join(tmpdir,'ukmon.ini'))
     return 
 
@@ -97,7 +97,7 @@ def test_getLatestKeys_normal():
 
 def test_getLatestKeys_newname():
     shutil.copyfile(os.path.join(myloc, '../ukmon.ini'),os.path.join(homedir,'ukmon.ini'))
-    updateHelperIp(homedir, helperip='3.11.55.160')
+    updateHelperIp(homedir, helperip='batchserver.ukmeteors.co.uk')
     remoteinifname = 'ukmon.ini.newname'
     res = getLatestKeys(homedir, remoteinifname=remoteinifname)
     assert res is True
@@ -112,7 +112,7 @@ def test_getLatestKeys_newname():
 
 def test_getLatestKeys_newip():
     shutil.copyfile(os.path.join(myloc, '../ukmon.ini'),os.path.join(homedir,'ukmon.ini'))
-    updateHelperIp(homedir, helperip='3.11.55.160')
+    updateHelperIp(homedir, helperip='batchserver.ukmeteors.co.uk')
     remoteinifname = 'ukmon.ini.newip'
     res = getLatestKeys(homedir, remoteinifname=remoteinifname)
     assert res is True
