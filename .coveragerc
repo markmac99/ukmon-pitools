@@ -1,9 +1,0 @@
-[run]
-omit =
-        e:/dev/meteorhunting/ukmon-pitools/tests/*
-        config.py
-        config-3.7.py
-
-[report]
-show_missing = True
-ignore_errors = True
