@@ -18,7 +18,7 @@ pip list | grep paramiko || pip install paramiko
 
 # validate the ini file 
 echo "checking ini file is valid"
-python -c "import ukmonInstaller as pp ; pp.validateIni('${here}', '3.11.55.160');"
+python -c "import ukmonInstaller as pp ; pp.validateIni('${here}', 'batchserver.ukmeteors.co.uk');"
 source $here/ukmon.ini
 
 echo "refreshing toolset"
